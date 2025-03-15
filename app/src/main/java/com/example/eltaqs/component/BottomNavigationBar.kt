@@ -1,4 +1,4 @@
-package com.example.projecttest.component
+package com.example.eltaqs.component
 
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -52,8 +52,8 @@ import androidx.navigation.NavHostController
 import com.example.eltaqs.R
 import com.example.eltaqs.ui.theme.DEFAULT_PADDING
 import com.example.logindemo.ScreenRoutes
-import com.example.projecttest.Utils.times
-import com.example.projecttest.Utils.transform
+import com.example.eltaqs.Utils.times
+import com.example.eltaqs.Utils.transform
 import kotlin.math.PI
 import kotlin.math.sin
 

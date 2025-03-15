@@ -1,4 +1,4 @@
-package com.example.logindemo
+package com.example.eltaqs
 
 import androidx.compose.runtime.Composable
 

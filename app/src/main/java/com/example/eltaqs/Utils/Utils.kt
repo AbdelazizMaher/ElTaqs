@@ -1,4 +1,4 @@
-package com.example.projecttest.Utils
+package com.example.eltaqs.Utils
 
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.PaddingValues

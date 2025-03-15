@@ -11,10 +11,20 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
+const val DEFAULT_PADDING = 44
+
+
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80
+)
+
+private val DarkColorPalette = darkColorScheme(
+    primary = Purple200,
+    tertiary = Purple700,
+    secondary = Pink,
+    background = DarkPurple
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -34,7 +44,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun ElTaqsTheme(
+fun ProjectTestTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -53,6 +63,16 @@ fun ElTaqsTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        content = content
+    )
+}
+
+@Composable
+fun FluidBottomNavigationTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = DarkColorPalette,
+        typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }

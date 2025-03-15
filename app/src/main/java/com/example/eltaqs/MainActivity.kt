@@ -27,9 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
-import com.example.eltaqs.ui.theme.ElTaqsTheme
+import androidx.navigation.compose.rememberNavController
+import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.logindemo.SetUpNavHost
 import com.example.projecttest.component.AnimatedBottomSection
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
 import java.util.Locale
 
 const val REQUEST_LOCATION_CODE = 999

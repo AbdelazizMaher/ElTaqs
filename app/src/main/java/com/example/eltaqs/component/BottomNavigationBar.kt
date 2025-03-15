@@ -49,7 +49,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.eltaqs.R
 import com.example.eltaqs.ui.theme.DEFAULT_PADDING
+import com.example.logindemo.ScreenRoutes
+import com.example.projecttest.Utils.times
+import com.example.projecttest.Utils.transform
 import kotlin.math.PI
 import kotlin.math.sin
 

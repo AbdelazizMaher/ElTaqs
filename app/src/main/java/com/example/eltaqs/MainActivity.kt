@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.rememberNavController
@@ -53,10 +56,18 @@ class MainActivity : ComponentActivity() {
 
             FluidBottomNavigationTheme {
                 val navController = rememberNavController()
+                val backgroundGradient = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF1B1F36),
+                        Color(0xFF2C2F48),
+                        Color(0xFF3A3C5B)
+                    )
+                )
                 Scaffold(
                 ) { innerPadding ->
                     Box(
                         modifier = Modifier
+                            .background(brush = backgroundGradient)
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {

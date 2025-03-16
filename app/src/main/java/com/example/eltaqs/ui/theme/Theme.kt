@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 const val DEFAULT_PADDING = 44
@@ -21,10 +22,11 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val DarkColorPalette = darkColorScheme(
-    primary = Purple200,
-    tertiary = Purple700,
-    secondary = Pink,
-    background = DarkPurple
+    primary = Color(0xFF90CAF9),        // Soft sky blue - accent color
+    secondary = Color(0xFF80DEEA),      // Cool teal - for secondary buttons/texts
+    tertiary = Color(0xFFB39DDB),       // Muted lavender purple - calm highlight
+    background = Color(0xFF1B1F36),     // Deep navy - matches background gradient
+    surface = Color(0xFF2C2F48),
 )
 
 private val LightColorScheme = lightColorScheme(

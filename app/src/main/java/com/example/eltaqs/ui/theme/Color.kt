@@ -14,3 +14,19 @@ val Purple200 = Color(0xFFBB86FC)
 val Purple700 = Color(0xFF3700B3)
 val Pink = Color(0xFFFF4081)
 val DarkPurple = Color(0xFF121212)
+
+val ColorGradient1 = Color(0xFFA0C8F9)
+val ColorGradient2 = Color(0xFF8AB8F8)
+val ColorGradient3 = Color(0xFF75A7F7)
+
+val ColorBackground = Color(0xFFF4DCF7).copy(alpha = 0.4f)
+val ColorSurface = Color.White
+val ColorImageShadow = Color(0xFFfdc228)
+val ColorWindForecast = Color.White.copy(alpha = 0.2f)
+val ColorAirQualityIconTitle = Color(0xFFa09bf0)
+
+val ColorTextPrimary = Color(0xFF2c2e35)
+val ColorTextPrimaryVariant = ColorTextPrimary.copy(alpha = 0.7f)
+val ColorTextSecondary = Color.White
+val ColorTextSecondaryVariant = ColorTextSecondary.copy(alpha = 0.7f)
+val ColorTextAction = ColorGradient2

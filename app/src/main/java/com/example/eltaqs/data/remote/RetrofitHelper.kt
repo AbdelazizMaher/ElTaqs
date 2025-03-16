@@ -1,6 +1,7 @@
 
 
 import com.example.eltaqs.BuildConfig
+import com.example.eltaqs.data.remote.WeatherApiService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

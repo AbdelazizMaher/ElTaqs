@@ -48,15 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.eltaqs.R
 import com.example.eltaqs.data.db.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
-import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.repo.WeatherRepository
@@ -71,9 +65,8 @@ import java.time.format.DateTimeFormatter
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Preview
 @Composable
-fun HomeScreen2() {
+fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<WeatherItem>, selectedIndex: Int, onItemSelect: (Int) -> Unit)-> Unit) {
     val viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
             WeatherRepository.getInstance(
@@ -86,7 +79,6 @@ fun HomeScreen2() {
     val currentWeatherState = viewModel.currentWeather.observeAsState()
     val forecastState = viewModel.forecast.observeAsState()
 
-    // Hardcoded location for now
     viewModel.getCurrentWeather(24.34, 10.99, "metric", "en")
     viewModel.getForecast(44.34, 10.99, "metric", "en")
 
@@ -116,7 +108,7 @@ fun HomeScreen2() {
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             ) {
                 WeatherInfoCard("Wind Speed", "${current.wind.speed} km/h", R.drawable.windspeed)
                 WeatherInfoCard("Humidity", "${current.main.humidity} %", R.drawable.humidity)
@@ -141,14 +133,36 @@ fun HomeScreen2() {
             )
 
             Text(
-                text = "Next 7 Days",
+                text = "Next 5 Days",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = Color(0xFF4466E5),
                 modifier = Modifier
                     .clickable {
-                        // Navigate to next screen
-                        //navController.navigate("next7DaysScreen")
+                        val location = currentWeatherState.value?.name ?: "Unknown Location"
+
+                        val weatherList = forecastState.value?.list?.take(7)?.map { forecastItem ->
+                            WeatherItem(
+                                date = forecastItem.dtTxt,
+                                day = getDayName(forecastItem.dtTxt),
+                                temp = forecastItem.main.temp.toInt(),
+                                maxTemp = forecastItem.main.tempMax.toInt(),
+                                humidity = forecastItem.main.humidity,
+                                windSpeed = forecastItem.wind.speed.toInt(),
+                                state = forecastItem.weather.firstOrNull()?.main ?: "",
+                                iconRes = getImageResId(forecastItem.weather.firstOrNull()?.main ?: "")
+                            )
+                        } ?: emptyList()
+
+                        val selectedIndex = 0
+
+                        val onItemSelect: (Int) -> Unit = { index ->
+                            // You can handle item selection logic if needed
+                            println("Selected index = $index")
+                        }
+
+                        // ✨ Finally navigate:
+                        navigateToDetailsScreen(location, weatherList, selectedIndex, onItemSelect)
                     }
             )
         }
@@ -174,13 +188,9 @@ fun HomeScreen2() {
 @Composable
 fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
     Column(
-        modifier = Modifier
-            .width(100.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFF2F4FA))
-            .padding(vertical = 12.dp),
+        modifier = Modifier.width(100.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = title,
@@ -188,11 +198,21 @@ fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
             color = Color.Gray,
             modifier = Modifier.padding(bottom = 4.dp)
         )
-        Image(
-            painter = painterResource(id = iconRes),
-            contentDescription = null,
-            modifier = Modifier.size(36.dp)
-        )
+
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFF2F4FA)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+
         Text(
             text = value,
             fontSize = 16.sp,
@@ -204,11 +224,13 @@ fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
 }
 
 
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DailyWeatherCard(
     data: ForecastResponse.Item0,
-    isSelected: Boolean = false // Highlight if needed
+    isSelected: Boolean = false
 ) {
     val formatter = DateTimeFormatter.ofPattern("EEE")
     val date = LocalDate.parse(data.dtTxt.substring(0, 10))
@@ -218,7 +240,7 @@ fun DailyWeatherCard(
         modifier = Modifier
             .padding(6.dp)
             .width(90.dp)
-            .height(120.dp), // Increased height for better spacing
+            .height(120.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) Color(0xFFEEF0FF) else Color.White
@@ -273,6 +295,13 @@ fun getImageResId(weatherType: String): Int {
 @RequiresApi(Build.VERSION_CODES.O)
 fun getCurrentDate(): String {
     return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d"))
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun  getDayName(dateString: String): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val date = LocalDate.parse(dateString, formatter)
+    return date.format(DateTimeFormatter.ofPattern("EEEE"))
 }
 
 @Composable

@@ -46,11 +46,11 @@ import kotlinx.serialization.Serializable
 @Preview
 fun PreviewDetailsScreen() {
     val weatherList = listOf(
-        WeatherItem("17/3/2025", "Sunday", 25, 30, 60, 10, "Sunny", R.drawable.clear),
-        WeatherItem("18/3/2025", "Monday", 28, 32, 55, 12, "Cloudy", R.drawable.lightcloud),
-        WeatherItem("19/3/2025", "Tuesday", 27, 31, 58, 11, "Rainy", R.drawable.heavyrain),
-        WeatherItem("20/3/2025", "Wednesday", 26, 30, 62, 13, "Thunderstorm", R.drawable.thunderstorm),
-        WeatherItem("21/3/2025", "Thursday", 29, 33, 57, 10, "Snowy", R.drawable.snow)
+        WeatherItem("17/3/2025", "Sun", 25, 30, 60, 10, "Sunny", R.drawable.clear),
+        WeatherItem("18/3/2025", "Mon", 28, 32, 55, 12, "Cloudy", R.drawable.lightcloud),
+        WeatherItem("19/3/2025", "Tue", 27, 31, 58, 11, "Rainy", R.drawable.heavyrain),
+        WeatherItem("20/3/2025", "Wed", 26, 30, 62, 13, "Thunderstorm", R.drawable.thunderstorm),
+        WeatherItem("21/3/2025", "Thu", 29, 33, 57, 10, "Snowy", R.drawable.snow)
     )
     DetailsScreen("Egypt", weatherList, 0) { }
 }

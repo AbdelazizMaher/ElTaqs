@@ -64,6 +64,12 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
+@Composable
+@Preview(showBackground = true)
+fun PreviewHomeScreen2() {
+    HomeScreen2(navigateToDetailsScreen = { _, _, _, _ -> })
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<WeatherItem>, selectedIndex: Int, onItemSelect: (Int) -> Unit)-> Unit) {
@@ -121,7 +127,7 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -157,11 +163,9 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
                         val selectedIndex = 0
 
                         val onItemSelect: (Int) -> Unit = { index ->
-                            // You can handle item selection logic if needed
                             println("Selected index = $index")
                         }
 
-                        // ✨ Finally navigate:
                         navigateToDetailsScreen(location, weatherList, selectedIndex, onItemSelect)
                     }
             )
@@ -169,10 +173,8 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
 
 
         forecastState.value?.let { forecast ->
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 12.dp)
-            ) {
-                itemsIndexed(forecast.list.take(7)) { index, day ->
+            LazyRow {
+                itemsIndexed(forecast.list.take(5)) { index, day ->
                     DailyWeatherCard(
                         data = day,
                         isSelected = index == 0

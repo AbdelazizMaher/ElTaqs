@@ -93,14 +93,12 @@ fun WeatherDetailScreen(
                 elevation = 0.dp,
                 contentPadding = PaddingValues(horizontal = 8.dp)
             ) {
-                // Back Button
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back"
                     )
                 }
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -146,7 +144,6 @@ fun WeatherDetailScreen(
                                     RoundedCornerShape(10.dp)
                                 )
                                 .padding(vertical = 12.dp)
-                                .shadow(4.dp)
                         ) {
                             Text(
                                 "$temp°C",
@@ -167,7 +164,7 @@ fun WeatherDetailScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(150.dp))
 
                 Box(
                     modifier = Modifier
@@ -188,20 +185,41 @@ fun WeatherDetailScreen(
                                 brush = Brush.linearGradient(listOf(Color(0xffa9c1f5), Color(0xff6696f5))),
                                 shape = RoundedCornerShape(15.dp)
                             )
-                            .shadow(5.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp)
                         ) {
-                            WeatherCardLayout(
-                                weatherStateName = weatherStateName,
-                                date = "Today", // Replace with dynamic date logic if needed
-                                imageUrl = imageUrl,
-                                consolidatedWeatherList = consolidatedWeatherList,
-                                selectedIndex = selectedIndex
+                            Box(modifier = Modifier.offset(y = (-60).dp)) {
+                                Image(
+                                    painter = painterResource(id = getWeatherIcon(imageUrl)),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(150.dp)
+                                )
+                            }
+
+                            Text(
+                                text = weatherStateName,
+                                color = Color.White,
+                                fontSize = 20.sp
                             )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                WeatherInfoCard("Wind Speed",
+                                    "${(consolidatedWeatherList[selectedIndex.value]["wind_speed"] as Double).toInt()} km/h", R.drawable.windspeed)
+
+                                WeatherInfoCard("Humidity",
+                                    "${(consolidatedWeatherList[selectedIndex.value]["humidity"] as Double).toInt()}  %", R.drawable.humidity)
+
+                                WeatherInfoCard("Max Temp",
+                                    "${(consolidatedWeatherList[selectedIndex.value]["max_temp"] as Double).toInt()} C", R.drawable.maxtemp)
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -278,15 +296,6 @@ fun WeatherDetailScreen(
     }
 }
 
-@Composable
-fun WeatherInfoItem(text: String, value: Int, unit: String, imageRes: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Image(painter = painterResource(id = imageRes), contentDescription = null, modifier = Modifier.size(30.dp))
-        Text(text = "$value $unit", color = Color.White, fontSize = 14.sp)
-        Text(text = text, color = Color.White, fontSize = 14.sp)
-    }
-}
-
 // Replace these with actual drawable resource mappings
 fun getWeatherIcon(name: String): Int {
     return when (name) {
@@ -301,45 +310,3 @@ fun getWeatherIcon(name: String): Int {
     }
 }
 
-@Composable
-fun WeatherCardLayout(
-    weatherStateName: String,
-    date: String,
-    consolidatedWeatherList: List<Map<String, Any>>,
-    selectedIndex: MutableState<Int>
-) {
-    Column(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .offset(y = (-60).dp)
-    ) {
-        DailyForecast(
-            forecast = weatherStateName,
-            date = date,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            WeatherInfoCard(
-                title = "Wind Speed",
-                value = "${(consolidatedWeatherList[selectedIndex.value]["wind_speed"] as Double).toInt()} km/h",
-                iconRes = R.drawable.windspeed
-            )
-            WeatherInfoCard(
-                title = "Humidity",
-                value = "${(consolidatedWeatherList[selectedIndex.value]["humidity"] as Double).toInt()} %",
-                iconRes = R.drawable.humidity
-            )
-            WeatherInfoCard(
-                title = "Max Temp",
-                value = "${(consolidatedWeatherList[selectedIndex.value]["max_temp"] as Double).toInt()}°C",
-                iconRes = R.drawable.maxtemp
-            )
-        }
-    }
-}

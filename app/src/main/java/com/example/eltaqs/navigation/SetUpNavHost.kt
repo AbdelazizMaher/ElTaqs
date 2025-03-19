@@ -38,7 +38,7 @@ fun SetUpNavHost(navController: NavHostController) {
             SettingsScreen()
         }
         composable<ScreenRoutes.Details> {
-            val location =it.toRoute<ScreenRoutes.Details>().location
+            val location = it.toRoute<ScreenRoutes.Details>().location
             val weatherList = it.toRoute<ScreenRoutes.Details>().weatherList
             val selectedIndex = it.toRoute<ScreenRoutes.Details>().selectedIndex
             val onItemSelect = it.toRoute<ScreenRoutes.Details>().onItemSelect

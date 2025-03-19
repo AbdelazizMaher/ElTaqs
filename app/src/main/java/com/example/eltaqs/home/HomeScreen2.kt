@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -85,7 +86,7 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
     val currentWeatherState = viewModel.currentWeather.observeAsState()
     val forecastState = viewModel.forecast.observeAsState()
 
-    viewModel.getCurrentWeather(24.34, 10.99, "metric", "en")
+    viewModel.getCurrentWeather(33.34, 10.99, "metric", "en")
     viewModel.getForecast(44.34, 10.99, "metric", "en")
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -389,17 +390,16 @@ fun DailyForecast(
 private fun CardBackground(
     modifier: Modifier = Modifier
 ) {
-    Box(
+    Image(
+        painter = painterResource(R.drawable.custom_card_background),
+        contentDescription = null,
+        contentScale = ContentScale.Crop, // or FillBounds
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                brush = Brush.linearGradient(
-                    0f to ColorGradient1,
-                    0.5f to ColorGradient2,
-                    1f to ColorGradient3
-                ),
-                shape = RoundedCornerShape(32.dp)
-            )
+            .clip(RoundedCornerShape(32.dp))
+            .graphicsLayer {
+                rotationY = 180f
+            }
     )
 }
 

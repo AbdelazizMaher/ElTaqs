@@ -88,7 +88,7 @@ fun HomeScreen2() {
     val forecastState = viewModel.forecast.observeAsState()
 
     viewModel.getCurrentWeather(32.34, 20.99, "metric", "en")
-    viewModel.getForecast(44.34, 10.99, "metric", "en")
+    viewModel.getForecast(32.34, 20.99, "metric", "en")
 
     Column(modifier = Modifier.padding(16.dp)) {
 
@@ -152,28 +152,12 @@ fun HomeScreen2() {
                 color = Color(0xFF4466E5),
                 modifier = Modifier
                     .clickable {
-                        val location = currentWeatherState.value?.name ?: "Unknown Location"
-
-                        val weatherList = forecastState.value?.list?.take(5)?.map { forecastItem ->
-                            WeatherItem(
-                                date = forecastItem.dtTxt,
-                                day = getDayName(forecastItem.dtTxt),
-                                temp = forecastItem.main.temp.toInt(),
-                                maxTemp = forecastItem.main.tempMax.toInt(),
-                                humidity = forecastItem.main.humidity,
-                                windSpeed = forecastItem.wind.speed.toInt(),
-                                state = forecastItem.weather.firstOrNull()?.main ?: "",
-                                iconRes = getImageResId(forecastItem.weather.firstOrNull()?.main ?: "")
-                            )
-                        } ?: emptyList()
-
-                        val selectedIndex = 0
-
-                        val onItemSelect: (Int) -> Unit = { index ->
-                            println("Selected index = $index")
-                        }
-
-                        //navigateToDetailsScreen(location, weatherList, selectedIndex, onItemSelect)
+//                        navigateToDetailsScreen(
+//                            lat = currentWeatherState.value?.coord?.lat ?: 0.0,
+//                            lon = currentWeatherState.value?.coord?.lon ?: 0.0,
+//                            units = "metric",
+//                            lang = "en"
+//                        )
                     }
             )
         }

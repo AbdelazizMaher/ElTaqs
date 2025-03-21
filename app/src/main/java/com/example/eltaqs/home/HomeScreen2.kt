@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,25 +56,25 @@ import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.repo.WeatherRepository
-import com.example.eltaqs.ui.theme.ColorGradient1
-import com.example.eltaqs.ui.theme.ColorGradient2
-import com.example.eltaqs.ui.theme.ColorGradient3
 import com.example.eltaqs.ui.theme.ColorTextSecondary
 import com.example.eltaqs.ui.theme.ColorTextSecondaryVariant
 import com.example.eltaqs.ui.theme.ColorWindForecast
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
 @Composable
 @Preview(showBackground = true)
 fun PreviewHomeScreen2() {
-    HomeScreen2(navigateToDetailsScreen = { _, _, _, _ -> })
+    HomeScreen2()
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<WeatherItem>, selectedIndex: Int, onItemSelect: (Int) -> Unit)-> Unit) {
+fun HomeScreen2() {
     val viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
             WeatherRepository.getInstance(
@@ -86,7 +87,7 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
     val currentWeatherState = viewModel.currentWeather.observeAsState()
     val forecastState = viewModel.forecast.observeAsState()
 
-    viewModel.getCurrentWeather(33.34, 10.99, "metric", "en")
+    viewModel.getCurrentWeather(32.34, 20.99, "metric", "en")
     viewModel.getForecast(44.34, 10.99, "metric", "en")
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -108,6 +109,10 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
 
             DailyForecast(
                 forecast = current.weather.firstOrNull()?.main ?: "N/A",
+                temp = current.main.temp.toInt(),
+                feelsLike = current.main.feelsLike.toInt(),
+                sunrise = current.sys.sunrise.toLong(),
+                sunset = current.sys.sunset.toLong(),
                 date = getCurrentDate()
             )
 
@@ -115,11 +120,12 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                modifier = Modifier.padding(end = 8.dp)
             ) {
                 WeatherInfoCard("Wind Speed", "${current.wind.speed} km/h", R.drawable.windspeed)
                 WeatherInfoCard("Humidity", "${current.main.humidity} %", R.drawable.humidity)
                 WeatherInfoCard("Max Temp", "${current.main.tempMax} °C", R.drawable.sleet)
+                WeatherInfoCard("Pressure", "${current.main.pressure} hPa", R.drawable.hail)
             }
         }
 
@@ -148,7 +154,7 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
                     .clickable {
                         val location = currentWeatherState.value?.name ?: "Unknown Location"
 
-                        val weatherList = forecastState.value?.list?.take(7)?.map { forecastItem ->
+                        val weatherList = forecastState.value?.list?.take(5)?.map { forecastItem ->
                             WeatherItem(
                                 date = forecastItem.dtTxt,
                                 day = getDayName(forecastItem.dtTxt),
@@ -167,22 +173,30 @@ fun HomeScreen2(navigateToDetailsScreen: (location: String, weatherList: List<We
                             println("Selected index = $index")
                         }
 
-                        navigateToDetailsScreen(location, weatherList, selectedIndex, onItemSelect)
+                        //navigateToDetailsScreen(location, weatherList, selectedIndex, onItemSelect)
                     }
             )
         }
 
 
         forecastState.value?.let { forecast ->
+            val today = LocalDate.now()
+
+            val todayHourlyList = forecast.list.filter { item ->
+                val forecastDate = LocalDate.parse(item.dtTxt.substring(0, 10))
+                forecastDate == today
+            }
+
             LazyRow {
-                itemsIndexed(forecast.list.take(5)) { index, day ->
+                itemsIndexed(todayHourlyList) { index, hour ->
                     DailyWeatherCard(
-                        data = day,
+                        data = hour,
                         isSelected = index == 0
                     )
                 }
             }
         }
+
     }
 }
 
@@ -235,9 +249,11 @@ fun DailyWeatherCard(
     data: ForecastResponse.Item0,
     isSelected: Boolean = false
 ) {
-    val formatter = DateTimeFormatter.ofPattern("EEE")
-    val date = LocalDate.parse(data.dtTxt.substring(0, 10))
-    val day = formatter.format(date)
+    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+    val dateTime = LocalDateTime.parse(data.dtTxt, inputFormatter)
+    val hour = outputFormatter.format(dateTime)
 
     Card(
         modifier = Modifier
@@ -270,7 +286,7 @@ fun DailyWeatherCard(
                     .size(35.dp)
             )
             Text(
-                text = day,
+                text = hour,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Gray
@@ -278,9 +294,6 @@ fun DailyWeatherCard(
         }
     }
 }
-
-
-
 
 fun getImageResId(weatherType: String): Int {
     return when (weatherType.lowercase()) {
@@ -311,6 +324,10 @@ fun  getDayName(dateString: String): String {
 fun DailyForecast(
     modifier: Modifier = Modifier,
     forecast: String = "Rain showers",
+    temp: Int = 21,
+    feelsLike: Int = 26,
+    sunset: Long,
+    sunrise: Long,
     date: String = "Monday, 12 Feb"
 ) {
     ConstraintLayout(
@@ -332,7 +349,7 @@ fun DailyForecast(
         )
 
         Image(
-            painter = painterResource(R.drawable.heavyrain),
+            painter = painterResource(id = getImageResId(forecast)),
             contentDescription = null,
             contentScale = ContentScale.FillHeight,
             modifier = Modifier
@@ -355,7 +372,7 @@ fun DailyForecast(
         )
 
         Text(
-            text = date,
+            text = "Feels like $feelsLike°C",
             style = MaterialTheme.typography.bodyMedium,
             color = ColorTextSecondaryVariant,
             modifier = Modifier
@@ -367,21 +384,24 @@ fun DailyForecast(
         )
 
         ForecastValue(
-            modifier = Modifier.constrainAs(forecastValue) {
-                end.linkTo(anchor = parent.end, margin = 24.dp)
-                top.linkTo(forecastImage.top)
-                bottom.linkTo(forecastImage.bottom)
-            }
+            modifier = Modifier
+                .constrainAs(forecastValue) {
+                    end.linkTo(anchor = parent.end, margin = 36.dp)
+                    top.linkTo(forecastImage.top)
+                    bottom.linkTo(forecastImage.bottom)
+                },
+            degree = temp.toString()
         )
 
-        WindForecastImage(
-            modifier = Modifier.constrainAs(windImage) {
-                linkTo(
-                    top = title.top,
-                    bottom = title.bottom
-                )
-                end.linkTo(anchor = parent.end, margin = 24.dp)
-            }
+        SunriseSunsetRow(
+            sunrise = sunrise,
+            sunset = sunset,
+            modifier = Modifier
+                .constrainAs(windImage) {
+                    linkTo(top = title.top, bottom = title.bottom)
+                    end.linkTo(anchor = parent.end, margin = 24.dp)
+                }
+                .padding(bottom = 24.dp)
         )
     }
 }
@@ -393,7 +413,7 @@ private fun CardBackground(
     Image(
         painter = painterResource(R.drawable.custom_card_background),
         contentDescription = null,
-        contentScale = ContentScale.Crop, // or FillBounds
+        contentScale = ContentScale.Fit,
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(32.dp))
@@ -407,7 +427,6 @@ private fun CardBackground(
 private fun ForecastValue(
     modifier: Modifier = Modifier,
     degree: String = "21",
-    description: String = "Feels like 26°"
 ) {
     Column(
         modifier = modifier,
@@ -427,51 +446,75 @@ private fun ForecastValue(
                     fontSize = 80.sp,
                     fontWeight = FontWeight.Black
                 ),
-                modifier = Modifier.padding(end = 16.dp)
+                modifier = Modifier.padding(end = 48.dp)
             )
             Text(
-                text = "°",
+                text = "°C",
                 style = TextStyle(
                     brush = Brush.verticalGradient(
                         0f to Color.White,
                         1f to Color.White.copy(alpha = 0.3f)
                     ),
-                    fontSize = 70.sp,
+                    fontSize = 40.sp,
                     fontWeight = FontWeight.Light,
                 ),
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier.padding(top = 16.dp)
             )
         }
-        Text(
-            text = description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = ColorTextSecondaryVariant
-        )
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun WindForecastImage(
+fun SunriseSunsetRow(
+    sunrise: Long,
+    sunset: Long,
     modifier: Modifier = Modifier
 ) {
+    val sunriseTime = remember(sunrise) {
+        formatUnixTimeToHourAMPM(sunrise)
+    }
+    val sunsetTime = remember(sunset) {
+        formatUnixTimeToHourAMPM(sunset)
+    }
+
     Row(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Icon(
-            painter = painterResource(R.drawable.hail),
-            contentDescription = null,
-            modifier = Modifier.size(60.dp),
-            tint = ColorWindForecast
-        )
-        Icon(
-            painter = painterResource(R.drawable.windspeed),
-            contentDescription = null,
-            modifier = Modifier.size(60.dp),
-            tint = ColorWindForecast
-        )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                painter = painterResource(R.drawable.windicon),
+                contentDescription = "Sunrise",
+                modifier = Modifier.size(40.dp),
+                tint = Color.Yellow
+            )
+            Text(text = sunriseTime, fontSize = 14.sp, color = Color.Black)
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                painter = painterResource(R.drawable.cloudsicon),
+                contentDescription = "Sunset",
+                modifier = Modifier.size(40.dp),
+                tint = Color(0xFFFFA500)
+            )
+            Text(text = sunsetTime, fontSize = 14.sp, color = Color.Black)
+        }
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatUnixTimeToHourAMPM(timestamp: Long): String {
+    val dateTime = Instant.ofEpochSecond(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalTime()
+    val formatter = DateTimeFormatter.ofPattern("h:mm a")
+    return dateTime.format(formatter)
+}
+
+
 
 
 

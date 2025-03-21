@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -137,30 +139,46 @@ fun WeatherDetailScreen(
 
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier
-                                .width(80.dp)
+                                .width(70.dp)
+                                .height(160.dp)
+                                .clip(RoundedCornerShape(60.dp))
                                 .background(
-                                    if (index == selectedIndex.value) Color.White else Color(0xff9ebcf9),
-                                    RoundedCornerShape(10.dp)
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(Color(0xFF0B698B), Color(0xFF0396A6)) // adjust as needed
+                                    )
                                 )
                                 .padding(vertical = 12.dp)
                         ) {
                             Text(
-                                "$temp°C",
-                                fontSize = 17.sp,
-                                color = if (index == selectedIndex.value) Color.Blue else Color.White
+                                text = "Mon",
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                modifier = Modifier.padding(bottom = 8.dp)
                             )
-                            Image(
-                                painter = painterResource(id = getWeatherIcon(icon)),
-                                contentDescription = null,
-                                modifier = Modifier.size(40.dp)
-                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .size(64.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF002B59)), // deep navy/blue circle
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = getWeatherIcon(icon)),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+
                             Text(
-                                text = day,
-                                fontSize = 17.sp,
-                                color = if (index == selectedIndex.value) Color.Blue else Color.White
+                                text = "$temp°C",
+                                fontSize = 16.sp,
+                                color = Color.White
                             )
                         }
+
                     }
                 }
 

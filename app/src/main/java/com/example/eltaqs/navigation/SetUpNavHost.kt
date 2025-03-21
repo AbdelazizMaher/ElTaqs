@@ -23,10 +23,7 @@ fun SetUpNavHost(navController: NavHostController) {
         startDestination = ScreenRoutes.Home
     ) {
         composable<ScreenRoutes.Home> {
-            HomeScreen2() {
-                location, weatherList, selectedIndex, onItemSelect ->
-                navController.navigate(ScreenRoutes.Details(location, weatherList, selectedIndex, onItemSelect))
-            }
+            HomeScreen2()
         }
         composable<ScreenRoutes.Alerts> {
             AlertsScreen()
@@ -38,11 +35,8 @@ fun SetUpNavHost(navController: NavHostController) {
             SettingsScreen()
         }
         composable<ScreenRoutes.Details> {
-            val location = it.toRoute<ScreenRoutes.Details>().location
-            val weatherList = it.toRoute<ScreenRoutes.Details>().weatherList
-            val selectedIndex = it.toRoute<ScreenRoutes.Details>().selectedIndex
-            val onItemSelect = it.toRoute<ScreenRoutes.Details>().onItemSelect
-            DetailsScreen(location, weatherList, selectedIndex, onItemSelect)
+
+           // DetailsScreen()
         }
     }
 }

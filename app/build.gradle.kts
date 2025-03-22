@@ -112,4 +112,6 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:6.4.1")
 
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+    implementation("com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha")
 }

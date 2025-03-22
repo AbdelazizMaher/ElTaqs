@@ -23,43 +23,29 @@ class LocationProvider(private val context: Context) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     private lateinit var locationCallback: LocationCallback
 
-    fun checkPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context, android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(
-                    context, android.Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-    }
+    fun fetchLatLong(activity: Activity, onResult: (Location) -> Unit) {
+        if (!checkPermissions()) {
+            requestPermissions(activity)
+            return
+        }
 
-    fun requestPermissions(activity: Activity) {
-        ActivityCompat.requestPermissions(
-            activity,
-            arrayOf(
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ),
-            REQUEST_LOCATION_CODE
-        )
-    }
+        if (!isLocationEnabled()) {
+            enableLocationServices()
+            return
+        }
 
-    fun isLocationEnabled(): Boolean {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-    }
-
-    fun enableLocationServices() {
-        Toast.makeText(context, "Please enable location services", Toast.LENGTH_SHORT).show()
-        context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        getFreshLocation { location ->
+            onResult(location)
+        }
     }
 
     @SuppressLint("MissingPermission")
-    fun getFreshLocation(onLocationFetched: (Location) -> Unit) {
+    private fun getFreshLocation(onLocationFetched: (Location) -> Unit) {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 val location = locationResult.lastLocation
                 location?.let { onLocationFetched(it) }
+                fusedLocationClient.removeLocationUpdates(this)
             }
         }
 
@@ -72,21 +58,50 @@ class LocationProvider(private val context: Context) {
         )
     }
 
+    private fun checkPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermissions(activity: Activity) {
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+            ),
+            REQUEST_LOCATION_CODE
+        )
+    }
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    private fun enableLocationServices() {
+        Toast.makeText(context, "Please enable location services", Toast.LENGTH_SHORT).show()
+        context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+    }
+
     fun handlePermissionResult(
         requestCode: Int,
         grantResults: IntArray,
-        onPermissionGranted: () -> Unit,
-        onPermissionDenied: () -> Unit
+        activity: Activity,
+        onResult: (Location) -> Unit
     ) {
         if (requestCode == REQUEST_LOCATION_CODE) {
             if (grantResults.isNotEmpty() &&
                 (grantResults[0] == PackageManager.PERMISSION_GRANTED ||
                         grantResults.getOrNull(1) == PackageManager.PERMISSION_GRANTED)
             ) {
-                onPermissionGranted()
-                Toast.makeText(context, "Location permission granted", Toast.LENGTH_SHORT).show()
+                fetchLatLong(activity, onResult)
             } else {
-                onPermissionDenied()
                 Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
             }
         }

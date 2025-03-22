@@ -33,6 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.SetUpNavHost
+import com.example.eltaqs.Utils.LocationProvider
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -43,12 +44,18 @@ import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
+    private lateinit var locationProvider: LocationProvider
+    private lateinit var locationState: MutableState<Location>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        locationProvider = LocationProvider(this)
         setContent {
             FluidBottomNavigationTheme {
                 val navController = rememberNavController()
+                locationState = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
+
                 val backgroundGradient = Brush.verticalGradient(
                     colors = listOf(
                         Color(0xFF1B1F36),
@@ -64,7 +71,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        SetUpNavHost(navController = navController)
+                        SetUpNavHost(navController = navController, location = locationState.value)
                         AnimatedBottomSection(navController = navController)
                     }
                 }
@@ -72,8 +79,27 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-}
+    override fun onStart() {
+        super.onStart()
 
+        locationProvider.fetchLatLong(this) { location ->
+            locationState.value = location
+
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+        deviceId: Int
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
+            locationState.value = location
+        }
+    }
+}
 
 
 

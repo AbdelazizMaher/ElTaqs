@@ -22,11 +22,11 @@ interface IWeatherRemoteDataSource {
 
     suspend fun getCoordByCityName(
         cityName: String
-    ): List<GeocodingResponse>?
+    ): List<GeocodingResponse>
 
     suspend fun getCityNameByCoord(
         latitude: Double,
         longitude: Double
-    ): List<GeocodingResponse>?
+    ): List<GeocodingResponse>
 
 }

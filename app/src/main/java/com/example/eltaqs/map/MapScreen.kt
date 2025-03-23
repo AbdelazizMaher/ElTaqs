@@ -14,7 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.BuildConfig
+import com.example.eltaqs.data.db.AppDataBase
+import com.example.eltaqs.data.local.WeatherLocalDataSource
+import com.example.eltaqs.data.model.Response
+import com.example.eltaqs.data.remote.WeatherRemoteDataSource
+import com.example.eltaqs.repo.WeatherRepository
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
@@ -36,7 +42,18 @@ import com.google.maps.android.compose.rememberMarkerState
 
 @Composable
 fun MapScreen(){
+    val viewModel: MapViewModel = viewModel(
+        factory = MapViewModelFactory(
+            WeatherRepository.getInstance(
+                WeatherRemoteDataSource(RetrofitHelper.apiService),
+                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO())
+            )
+        )
+    )
+
     val context = LocalContext.current
+    val locationState by viewModel.location.collectAsStateWithLifecycle()
+
     Places.initializeWithNewPlacesApiEnabled(context, BuildConfig.GOOGLE_MAP_API_KEY)
     val placesClient = Places.createClient(context)
 
@@ -59,6 +76,16 @@ fun MapScreen(){
         cameraPositionState.position = CameraPosition.fromLatLngZoom(markerState.position, 10f)
     }
 
+    LaunchedEffect(locationState) {
+        if (locationState is Response.Success) {
+            val locationResult = (locationState as Response.Success).data
+            val newLatLng = LatLng(locationResult.first.lat, locationResult.first.lon)
+
+            markerState.position = newLatLng
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(newLatLng, 10f)
+            isTapped = true
+        }
+    }
 
     LaunchedEffect(searchText) {
         if (searchText.isNotEmpty()) {
@@ -102,6 +129,7 @@ fun MapScreen(){
                 result = autocompletePlace
                 predictions = emptyList()
                 isTapped = true
+                viewModel.getLocationByCityName(result?.primaryText.toString())
             },
             selectedPlace = result
         )

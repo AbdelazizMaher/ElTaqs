@@ -24,14 +24,14 @@ class WeatherRemoteDataSource(private val service: WeatherApiService) : IWeather
         return service.getForecast(lat, lon, units, lang)
     }
 
-    override suspend fun getCoordByCityName(cityName: String): List<GeocodingResponse>? {
+    override suspend fun getCoordByCityName(cityName: String): List<GeocodingResponse> {
         return service.getCoordByCityName(cityName)
     }
 
     override suspend fun getCityNameByCoord(
         latitude: Double,
         longitude: Double
-    ): List<GeocodingResponse>? {
+    ): List<GeocodingResponse> {
         return service.getCityNameByCoord(latitude, longitude)
     }
 }

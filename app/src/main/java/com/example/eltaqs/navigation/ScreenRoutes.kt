@@ -18,6 +18,9 @@ sealed class ScreenRoutes() {
     object Settings : ScreenRoutes()
 
     @Serializable
+    object Map : ScreenRoutes()
+
+    @Serializable
     data class Details(val lat: Double, val lon: Double, val location: String) : ScreenRoutes()
 
 }

@@ -3,7 +3,10 @@ package com.example.eltaqs.repo
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.local.WeatherLocalDataSource
+import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 
 class WeatherRepository private constructor(
@@ -31,8 +34,8 @@ class WeatherRepository private constructor(
         lon: Double,
         units: String,
         lang: String
-    ): CurrentWeatherResponse? {
-        return remoteDataSource.getCurrentWeather(lat, lon, units, lang)
+    ): Flow<CurrentWeatherResponse?> {
+        return flowOf(remoteDataSource.getCurrentWeather(lat, lon, units, lang))
     }
 
     override suspend fun getForecast(
@@ -40,7 +43,18 @@ class WeatherRepository private constructor(
         lon: Double,
         units: String,
         lang: String
-    ): ForecastResponse? {
-        return remoteDataSource.getForecast(lat, lon, units, lang)
+    ): Flow<ForecastResponse?> {
+        return flowOf(remoteDataSource.getForecast(lat, lon, units, lang))
+    }
+
+    override suspend fun getCoordByCityName(cityName: String): Flow<List<GeocodingResponse>> {
+        return flowOf(remoteDataSource.getCoordByCityName(cityName))
+    }
+
+    override suspend fun getCityNameByCoord(
+        latitude: Double,
+        longitude: Double
+    ): Flow<List<GeocodingResponse>> {
+        return flowOf(remoteDataSource.getCityNameByCoord(latitude, longitude))
     }
 }

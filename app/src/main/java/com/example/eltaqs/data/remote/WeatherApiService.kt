@@ -16,7 +16,7 @@ interface WeatherApiService {
         @Query("lon") lon: Double,
         @Query("units") units: String,
         @Query("lang") lang: String
-    ): Response<CurrentWeatherResponse>
+    ): CurrentWeatherResponse
 
     @GET("data/2.5/forecast")
     suspend fun getForecast(
@@ -24,10 +24,18 @@ interface WeatherApiService {
         @Query("lon") lon: Double,
         @Query("units") units: String,
         @Query("lang") lang: String
-    ): Response<ForecastResponse>
+    ): ForecastResponse
 
-    @GET("maps/api/geocode/json")
-    suspend fun getGeocode(
-        @Query("address") address: String
-    ): Response<GeocodingResponse>
+    @GET("geo/1.0/direct")
+    suspend fun getCoordByCityName(
+        @Query("q") cityName: String,
+        @Query("limit") limit: Int = 1,
+    ): List<GeocodingResponse>
+
+    @GET("geo/1.0/reverse")
+    suspend fun getCityNameByCoord(
+        @Query("lat") latitude: Double,
+        @Query("lon") longitude: Double,
+        @Query("limit") limit: Int = 1,
+    ): List<GeocodingResponse>
 }

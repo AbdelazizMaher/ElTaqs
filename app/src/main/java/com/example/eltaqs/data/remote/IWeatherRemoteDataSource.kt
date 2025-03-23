@@ -20,7 +20,13 @@ interface IWeatherRemoteDataSource {
         lang: String
     ): ForecastResponse?
 
-    suspend fun getGeocode(
-        address: String
-    ): GeocodingResponse?
+    suspend fun getCoordByCityName(
+        cityName: String
+    ): List<GeocodingResponse>
+
+    suspend fun getCityNameByCoord(
+        latitude: Double,
+        longitude: Double
+    ): List<GeocodingResponse>
+
 }

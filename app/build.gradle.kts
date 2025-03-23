@@ -22,6 +22,7 @@ android {
         }
     }
     val apiKey = localProperties.getProperty("weatherApiKey") ?: ""
+    val googleApiKey = localProperties.getProperty("googleMapApiKey") ?: ""
 
     defaultConfig {
         applicationId = "com.example.eltaqs"
@@ -33,6 +34,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "WEATHER_API_KEY", "\"$apiKey\"")
+        buildConfigField("String", "GOOGLE_MAP_API_KEY", "\"$googleApiKey\"")
+        manifestPlaceholders["GOOGLE_MAP_API_KEY"] = googleApiKey
     }
 
     buildTypes {
@@ -110,6 +113,8 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:maps-compose:6.4.1")
+    implementation("com.google.android.libraries.places:places:3.1.0")
+    implementation("com.google.maps.android:places-compose:0.1.3")
 
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 

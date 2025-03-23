@@ -12,7 +12,7 @@ class WeatherRemoteDataSource(private val service: WeatherApiService) : IWeather
         units: String,
         lang: String
     ): CurrentWeatherResponse? {
-        return service.getCurrentWeather(lat, lon, units, lang).body()
+        return service.getCurrentWeather(lat, lon, units, lang)
     }
 
     override suspend fun getForecast(
@@ -21,11 +21,17 @@ class WeatherRemoteDataSource(private val service: WeatherApiService) : IWeather
         units: String,
         lang: String
     ): ForecastResponse? {
-        return service.getForecast(lat, lon, units, lang).body()
+        return service.getForecast(lat, lon, units, lang)
     }
 
-    override suspend fun getGeocode(address: String): GeocodingResponse? {
-        return service.getGeocode(address).body()
+    override suspend fun getCoordByCityName(cityName: String): List<GeocodingResponse>? {
+        return service.getCoordByCityName(cityName)
     }
 
+    override suspend fun getCityNameByCoord(
+        latitude: Double,
+        longitude: Double
+    ): List<GeocodingResponse>? {
+        return service.getCityNameByCoord(latitude, longitude)
+    }
 }

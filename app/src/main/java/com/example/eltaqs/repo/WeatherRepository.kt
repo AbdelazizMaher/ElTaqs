@@ -3,6 +3,7 @@ package com.example.eltaqs.repo
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.local.WeatherLocalDataSource
+import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 
 
@@ -42,5 +43,16 @@ class WeatherRepository private constructor(
         lang: String
     ): ForecastResponse? {
         return remoteDataSource.getForecast(lat, lon, units, lang)
+    }
+
+    override suspend fun getCoordByCityName(cityName: String): List<GeocodingResponse>? {
+        return remoteDataSource.getCoordByCityName(cityName)
+    }
+
+    override suspend fun getCityNameByCoord(
+        latitude: Double,
+        longitude: Double
+    ): List<GeocodingResponse>? {
+        return remoteDataSource.getCityNameByCoord(latitude, longitude)
     }
 }

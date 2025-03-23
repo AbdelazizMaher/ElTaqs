@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.eltaqs.home.HomeScreen2
+import com.example.eltaqs.map.MapScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -32,6 +33,9 @@ fun SetUpNavHost(navController: NavHostController, location: Location) {
         composable<ScreenRoutes.Details> {
 
            // DetailsScreen()
+        }
+        composable<ScreenRoutes.Map> {
+            MapScreen()
         }
     }
 }

@@ -34,7 +34,7 @@ class WeatherRepository private constructor(
         lon: Double,
         units: String,
         lang: String
-    ): Flow<CurrentWeatherResponse?> {
+    ): Flow<CurrentWeatherResponse> {
         return flowOf(remoteDataSource.getCurrentWeather(lat, lon, units, lang))
     }
 
@@ -43,7 +43,7 @@ class WeatherRepository private constructor(
         lon: Double,
         units: String,
         lang: String
-    ): Flow<ForecastResponse?> {
+    ): Flow<ForecastResponse> {
         return flowOf(remoteDataSource.getForecast(lat, lon, units, lang))
     }
 

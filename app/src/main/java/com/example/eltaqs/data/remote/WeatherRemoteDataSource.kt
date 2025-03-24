@@ -11,7 +11,7 @@ class WeatherRemoteDataSource(private val service: WeatherApiService) : IWeather
         lon: Double,
         units: String,
         lang: String
-    ): CurrentWeatherResponse? {
+    ): CurrentWeatherResponse {
         return service.getCurrentWeather(lat, lon, units, lang)
     }
 
@@ -20,7 +20,7 @@ class WeatherRemoteDataSource(private val service: WeatherApiService) : IWeather
         lon: Double,
         units: String,
         lang: String
-    ): ForecastResponse? {
+    ): ForecastResponse {
         return service.getForecast(lat, lon, units, lang)
     }
 

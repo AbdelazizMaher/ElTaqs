@@ -3,6 +3,7 @@ package com.example.eltaqs.repo
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.local.WeatherLocalDataSource
+import com.example.eltaqs.data.model.FavoriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import kotlinx.coroutines.flow.Flow
@@ -56,5 +57,17 @@ class WeatherRepository private constructor(
         longitude: Double
     ): Flow<List<GeocodingResponse>> {
         return flowOf(remoteDataSource.getCityNameByCoord(latitude, longitude))
+    }
+
+    override suspend fun getAllFavourites(): Flow<List<FavoriteLocation>> {
+        return localDataSource.getAllFavourites()
+    }
+
+    override suspend fun insertFavourite(location: FavoriteLocation): Long {
+        return localDataSource.insertFavourite(location)
+    }
+
+    override suspend fun deleteFavourite(location: FavoriteLocation): Int {
+        return localDataSource.deleteFavourite(location)
     }
 }

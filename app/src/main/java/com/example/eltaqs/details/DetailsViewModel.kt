@@ -5,27 +5,26 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
+import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class DetailsViewModel(private val repository: WeatherRepository) : ViewModel() {
-    private val mutableForecast = MutableLiveData<ForecastResponse>()
-    val forecast: LiveData<ForecastResponse> = mutableForecast
+    private val mutableForecast = MutableStateFlow<Response<ForecastResponse>>(Response.Loading)
+    val forecast = mutableForecast.asStateFlow()
 
     fun getForecast(lat: Double, lon: Double, units: String, lang: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = repository.getForecast(lat, lon, units, lang)
-                if (response != null) {
-                    val data: ForecastResponse = response
-                    mutableForecast.postValue(data)
-                } else {
+            repository.getForecast(lat, lon, units, lang).catch {
 
-                }
-            } catch (e: Exception) {
-
+            }.collect {
+                mutableForecast.value = Response.Success(it)
             }
         }
     }

@@ -11,14 +11,14 @@ interface IWeatherRemoteDataSource {
         lon: Double,
         units: String,
         lang: String
-    ): CurrentWeatherResponse?
+    ): CurrentWeatherResponse
 
     suspend fun getForecast(
         lat: Double,
         lon: Double,
         units: String,
         lang: String
-    ): ForecastResponse?
+    ): ForecastResponse
 
     suspend fun getCoordByCityName(
         cityName: String

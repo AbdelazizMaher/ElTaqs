@@ -11,13 +11,13 @@ interface IWeatherRepository {
         lat: Double,
         lon: Double,
         units: String,
-        lang: String): Flow<CurrentWeatherResponse?>
+        lang: String): Flow<CurrentWeatherResponse>
 
     suspend fun getForecast(
         lat: Double,
         lon: Double,
         units: String,
-        lang: String): Flow<ForecastResponse?>
+        lang: String): Flow<ForecastResponse>
 
     suspend fun getCoordByCityName(
         cityName: String

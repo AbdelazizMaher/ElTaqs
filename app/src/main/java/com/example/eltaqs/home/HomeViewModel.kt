@@ -1,52 +1,36 @@
 package com.example.eltaqs.home
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
+import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
-    private val mutableCurrentWeather = MutableLiveData<CurrentWeatherResponse>()
-    val currentWeather: LiveData<CurrentWeatherResponse> = mutableCurrentWeather
+    private val mutableWeatherData = MutableStateFlow<Response<Pair<CurrentWeatherResponse, ForecastResponse>>>(Response.Loading)
+    val weatherData = mutableWeatherData.asStateFlow()
 
-    private val mutableForecast = MutableLiveData<ForecastResponse>()
-    val forecast: LiveData<ForecastResponse> = mutableForecast
-
-    fun getCurrentWeather(lat: Double, lon: Double, units: String, lang: String) {
+    fun getWeatherAndForecast(lat: Double, lon: Double, units: String, lang: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = repository.getCurrentWeather(lat, lon, units, lang)
-                if (response != null) {
-                    val data: CurrentWeatherResponse = response
-                    mutableCurrentWeather.postValue(data)
-                }else {
-                    Log.d("TAG", "getCurrentWeather: null")
-                }
-            }catch (e: Exception) {
-                    Log.d("TAG", "getCurrentWeather: ${e.message}")
-            }
-        }
-    }
+                mutableWeatherData.value = Response.Loading
 
-    fun getForecast(lat: Double, lon: Double, units: String, lang: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = repository.getForecast(lat, lon, units, lang)
-                if (response != null) {
-                    val data: ForecastResponse = response
-                    mutableForecast.postValue(data)
-                } else {
+                val currentWeather = repository.getCurrentWeather(lat, lon, units, lang).first()
+                val forecast = repository.getForecast(lat, lon, units, lang).first()
 
-                }
+                mutableWeatherData.value = Response.Success(Pair(currentWeather, forecast))
+
             } catch (e: Exception) {
-
+                mutableWeatherData.value = Response.Error(e.message ?: "Something went wrong")
             }
         }
     }

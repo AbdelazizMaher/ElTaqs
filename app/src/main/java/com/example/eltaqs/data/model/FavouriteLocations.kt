@@ -8,8 +8,8 @@ import com.google.android.gms.maps.model.LatLng
 @Entity(tableName = "favorite_locations")
 data class FavoriteLocation(
     @PrimaryKey
-    val latLng: LatLng,
     val locationName: String,
+    val latLng: LatLng,
     val currentWeather: CurrentWeatherResponse,
     val forecastWeather: ForecastResponse
 )

@@ -6,16 +6,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.eltaqs.data.model.FavoriteLocation
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
 interface WeatherDAO {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWeatherLocation(location: FavoriteLocation)
+    @Query("SELECT * FROM favorite_locations")
+    fun getAllFavoriteLocations(): Flow<List<FavoriteLocation>>
 
-    @Query("SELECT * FROM favorite_locations WHERE id = :id")
-    suspend fun getWeatherLocationById(id: Int): FavoriteLocation?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavoriteLocation(location: FavoriteLocation) : Long
 
     @Delete
-    suspend fun deleteWeatherLocation(location: FavoriteLocation)
+    suspend fun deleteFavoriteLocation(location: FavoriteLocation) : Int
 }

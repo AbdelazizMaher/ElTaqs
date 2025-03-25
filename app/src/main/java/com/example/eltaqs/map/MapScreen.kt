@@ -1,26 +1,38 @@
 package com.example.eltaqs.map
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.BuildConfig
-import com.example.eltaqs.data.db.AppDataBase
+import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.repo.WeatherRepository
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.Places
@@ -31,7 +43,6 @@ import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.kotlin.awaitFindAutocompletePredictions
 import com.google.android.libraries.places.compose.autocomplete.components.PlacesAutocompleteTextField
 import com.google.android.libraries.places.compose.autocomplete.models.AutocompletePlace
-import com.google.android.libraries.places.compose.autocomplete.models.toPlaceDetails
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -52,7 +63,7 @@ fun MapScreen(){
     )
 
     val context = LocalContext.current
-    val locationState by viewModel.location.collectAsStateWithLifecycle()
+    val locationState by viewModel.locationByCity.collectAsStateWithLifecycle()
 
     Places.initializeWithNewPlacesApiEnabled(context, BuildConfig.GOOGLE_MAP_API_KEY)
     val placesClient = Places.createClient(context)
@@ -67,6 +78,7 @@ fun MapScreen(){
     var predictions by remember { mutableStateOf(emptyList<AutocompletePrediction>()) }
     var markerState = rememberMarkerState(position = LatLng(1.35, 103.87))
     var result by remember { mutableStateOf<AutocompletePlace?>(null) }
+    var selectedCityName by remember { mutableStateOf<String>("") }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(markerState.position, 10f)
@@ -78,11 +90,14 @@ fun MapScreen(){
 
     LaunchedEffect(locationState) {
         if (locationState is Response.Success) {
-            val locationResult = (locationState as Response.Success).data
-            val newLatLng = LatLng(locationResult.first.lat, locationResult.first.lon)
+            val locationResult = (locationState as Response.Success).data[0]
+            val newLatLng = LatLng(locationResult.lat, locationResult.lon)
 
             markerState.position = newLatLng
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(newLatLng, 10f)
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(newLatLng, 12f),
+                durationMs = 1000
+            )
             isTapped = true
         }
     }
@@ -105,6 +120,8 @@ fun MapScreen(){
             properties = MapProperties(mapType = MapType.HYBRID),
             onMapClick = {
                 latLng -> markerState.position = latLng
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 10f)
+                viewModel.getCityNameByLocation(latLng)
                 isTapped = true
             }
         ) {
@@ -129,10 +146,44 @@ fun MapScreen(){
                 result = autocompletePlace
                 predictions = emptyList()
                 isTapped = true
+                selectedCityName = result?.primaryText.toString()
                 viewModel.getLocationByCityName(result?.primaryText.toString())
             },
             selectedPlace = result
         )
+        if (isTapped) {
+            Card(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .fillMaxWidth(0.8f),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Save this location?",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            viewModel.saveLocation(selectedCityName, markerState.position)
+                            isTapped = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Save Location")
+                    }
+                }
+            }
+        }
     }
 
 }

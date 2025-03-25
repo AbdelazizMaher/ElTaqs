@@ -30,12 +30,12 @@ interface WeatherApiService {
     suspend fun getCoordByCityName(
         @Query("q") cityName: String,
         @Query("limit") limit: Int = 1,
-    ): List<GeocodingResponse>
+    ): GeocodingResponse
 
     @GET("geo/1.0/reverse")
     suspend fun getCityNameByCoord(
         @Query("lat") latitude: Double,
         @Query("lon") longitude: Double,
         @Query("limit") limit: Int = 1,
-    ): List<GeocodingResponse>
+    ): GeocodingResponse
 }

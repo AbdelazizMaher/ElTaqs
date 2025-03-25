@@ -4,23 +4,23 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class ScreenRoutes() {
+sealed class ScreenRoutes(val route: String) {
     @Serializable
-    object Home : ScreenRoutes()
+    object Home : ScreenRoutes("home")
 
     @Serializable
-    object Alerts : ScreenRoutes()
+    object Alerts : ScreenRoutes("alerts")
 
     @Serializable
-    object Favorite : ScreenRoutes()
+    object Favorite : ScreenRoutes("favorite")
 
     @Serializable
-    object Settings : ScreenRoutes()
+    object Settings : ScreenRoutes("settings")
 
     @Serializable
-    object Map : ScreenRoutes()
+    object Map : ScreenRoutes("map")
 
     @Serializable
-    data class Details(val lat: Double, val lon: Double, val location: String) : ScreenRoutes()
+    data class Details(val lat: Double, val lon: Double, val location: String) : ScreenRoutes("details")
 
 }

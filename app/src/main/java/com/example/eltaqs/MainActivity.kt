@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.SetUpNavHost
@@ -63,6 +65,11 @@ class MainActivity : ComponentActivity() {
                         Color(0xFF3A3C5B)
                     )
                 )
+
+                val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
+                val screensWithoutBottomBar = listOf("com.example.eltaqs.ScreenRoutes.Map", "com.example.eltaqs.ScreenRoutes.Alerts", "com.example.eltaqs.ScreenRoutes.Favorite")
+
                 Scaffold(
                 ) { innerPadding ->
                     Box(
@@ -72,7 +79,9 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                     ) {
                         SetUpNavHost(navController = navController, location = locationState.value)
-                        AnimatedBottomSection(navController = navController)
+                        if (currentRoute !in screensWithoutBottomBar) {
+                            AnimatedBottomSection(navController = navController)
+                        }
                     }
                 }
             }
@@ -107,13 +116,6 @@ class MainActivity : ComponentActivity() {
 fun AlertsScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Alerts Screen")
-    }
-}
-
-@Composable
-fun FavoriteScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Favorite Screen")
     }
 }
 

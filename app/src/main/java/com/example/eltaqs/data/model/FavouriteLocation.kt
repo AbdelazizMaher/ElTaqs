@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLng
 
 @Entity(tableName = "favorite_locations")
-data class FavoriteLocation(
+data class FavouriteLocation(
     @PrimaryKey
     val locationName: String,
     val latLng: LatLng,

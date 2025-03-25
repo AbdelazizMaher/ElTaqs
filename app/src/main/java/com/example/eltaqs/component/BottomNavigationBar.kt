@@ -164,7 +164,7 @@ fun CustomBottomNavigation(navController: NavHostController) {
     ) {
         IconButton(onClick = {
             navController.popBackStack()
-            navController.navigate(ScreenRoutes.Alerts)
+            navController.navigate(ScreenRoutes.Home)
         }) {
             Icon(imageVector = Icons.Filled.ShoppingCart, contentDescription = null, tint = Color.White)
         }

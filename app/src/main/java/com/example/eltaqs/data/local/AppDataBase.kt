@@ -1,15 +1,18 @@
-package com.example.eltaqs.data.db
+package com.example.eltaqs.data.local
 
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.eltaqs.data.model.FavoriteLocation
+import androidx.room.TypeConverters
+import com.example.eltaqs.Utils.DBConverters
+import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.db.WeatherDAO
 
 
-@Database(entities = [FavoriteLocation::class], version = 1)
+@Database(entities = [FavouriteLocation::class], version = 1)
+@TypeConverters(DBConverters::class)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun getFavouritesDAO(): WeatherDAO
 

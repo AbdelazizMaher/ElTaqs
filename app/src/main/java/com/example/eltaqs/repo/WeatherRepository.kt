@@ -3,7 +3,7 @@ package com.example.eltaqs.repo
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.local.WeatherLocalDataSource
-import com.example.eltaqs.data.model.FavoriteLocation
+import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import kotlinx.coroutines.flow.Flow
@@ -48,26 +48,26 @@ class WeatherRepository private constructor(
         return flowOf(remoteDataSource.getForecast(lat, lon, units, lang))
     }
 
-    override suspend fun getCoordByCityName(cityName: String): Flow<List<GeocodingResponse>> {
+    override suspend fun getCoordByCityName(cityName: String): Flow<GeocodingResponse> {
         return flowOf(remoteDataSource.getCoordByCityName(cityName))
     }
 
     override suspend fun getCityNameByCoord(
         latitude: Double,
         longitude: Double
-    ): Flow<List<GeocodingResponse>> {
+    ): Flow<GeocodingResponse> {
         return flowOf(remoteDataSource.getCityNameByCoord(latitude, longitude))
     }
 
-    override suspend fun getAllFavourites(): Flow<List<FavoriteLocation>> {
+    override suspend fun getAllFavourites(): Flow<List<FavouriteLocation>> {
         return localDataSource.getAllFavourites()
     }
 
-    override suspend fun insertFavourite(location: FavoriteLocation): Long {
+    override suspend fun insertFavourite(location: FavouriteLocation): Long {
         return localDataSource.insertFavourite(location)
     }
 
-    override suspend fun deleteFavourite(location: FavoriteLocation): Int {
+    override suspend fun deleteFavourite(location: FavouriteLocation): Int {
         return localDataSource.deleteFavourite(location)
     }
 }

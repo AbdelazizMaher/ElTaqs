@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -95,7 +95,6 @@ fun FavouriteScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val favouriteList = remember { mutableStateListOf<FavouriteLocation>() }
-    val restoredItems = remember { mutableStateMapOf<FavouriteLocation, Boolean>() }
 
     LaunchedEffect(uiState.value) {
         if (uiState.value is Response.Success) {
@@ -153,25 +152,9 @@ fun FavouriteScreen() {
 
                         SwipeToDeleteContainer(
                             item = favouriteLocation,
-                            onDelete = { deletedItem ->
-                                viewModel.removeFromFavourite(deletedItem)
-
-                                coroutineScope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = "${deletedItem.locationName} removed",
-                                        actionLabel = "Undo",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        favouriteList.add(0, deletedItem) // ✅ Add back to list
-                                        restoredItems[deletedItem] = true // ✅ Mark item as restored
-                                        viewModel.addToFavourite(deletedItem)
-                                    } else {
-                                        restoredItems.remove(deletedItem) // ✅ Ensure no false positives
-                                    }
-                                }
-                            },
-                            isRestored = restoredItems[favouriteLocation] ?: false,
+                            onDelete = { viewModel.removeFromFavourite(it) },
+                            onRestore = { viewModel.addToFavourite(it) },
+                            snackbarHostState = snackbarHostState
                         ) { _ ->
                             FavouriteItem(
                                 forecast = favouriteLocation.currentWeather.weather.firstOrNull()?.main ?: "",
@@ -350,11 +333,13 @@ fun getImageResId(weatherType: String): Int {
 fun <T> SwipeToDeleteContainer(
     item: T,
     onDelete: (T) -> Unit,
-    isRestored: Boolean,
+    onRestore: (T) -> Unit,
+    snackbarHostState: SnackbarHostState,
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
 ) {
     var isRemoved by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -367,16 +352,23 @@ fun <T> SwipeToDeleteContainer(
         }
     )
 
-    LaunchedEffect(isRestored) {  // ✅ Reset if item is restored
-        if (isRestored) {
-            isRemoved = false
-        }
-    }
-
-    LaunchedEffect(key1 = isRemoved) {
+    LaunchedEffect(isRemoved) {
         if (isRemoved) {
-            delay(animationDuration.toLong())
-            onDelete(item)
+            val result = snackbarHostState.showSnackbar(
+                message = "Item deleted",
+                actionLabel = "Undo",
+                duration = SnackbarDuration.Short
+            )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                onRestore(item)
+                isRemoved = false
+
+                state.snapTo(SwipeToDismissBoxValue.Settled)
+            } else {
+                delay(animationDuration.toLong())
+                onDelete(item)
+            }
         }
     }
 
@@ -401,14 +393,13 @@ fun <T> SwipeToDeleteContainer(
     }
 }
 
-
 @Composable
-fun DeleteBackground(
-    swipeDismissState: SwipeToDismissBoxState
-) {
+fun DeleteBackground(swipeDismissState: SwipeToDismissBoxState) {
     val color = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
         Color.Red
-    } else Color.Transparent
+    } else {
+        Color.Transparent
+    }
 
     Box(
         modifier = Modifier
@@ -424,6 +415,7 @@ fun DeleteBackground(
         )
     }
 }
+
 
 @Composable
 private fun CardBackground(

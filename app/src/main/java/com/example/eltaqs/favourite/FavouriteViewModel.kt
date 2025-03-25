@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel() {
@@ -26,7 +27,7 @@ class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllFavourites().catch {
                 mutableMessage.emit(it.message ?: "Something went wrong")
-            }.collect {
+            }.map { it -> it.sortedBy { it.locationName } }.collect {
                 mutableFavourites.value = Response.Success(it)
             }
         }
@@ -35,14 +36,12 @@ class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel(
     fun removeFromFavourite(location: FavouriteLocation) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteFavourite(location)
-            //getFavourites()
         }
     }
 
     fun addToFavourite(location: FavouriteLocation) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertFavourite(location)
-            //getFavourites()
         }
     }
 }

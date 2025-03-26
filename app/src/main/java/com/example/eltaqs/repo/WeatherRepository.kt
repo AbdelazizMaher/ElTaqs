@@ -1,16 +1,16 @@
 package com.example.eltaqs.repo
 
+import com.example.eltaqs.Utils.settings.enums.Language
+import com.example.eltaqs.Utils.settings.enums.LocationSource
+import com.example.eltaqs.Utils.settings.enums.SpeedUnit
+import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
-import com.example.eltaqs.data.sharedpreference.Language
-import com.example.eltaqs.data.sharedpreference.LocationSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.example.eltaqs.data.sharedpreference.TemperatureUnit
-import com.example.eltaqs.data.sharedpreference.WindSpeedUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -94,11 +94,11 @@ class WeatherRepository private constructor(
         return sharedPrefDataSource.getTemperatureUnit()
     }
 
-    override fun setWindSpeedUnit(unit: WindSpeedUnit) {
+    override fun setWindSpeedUnit(unit: SpeedUnit) {
         sharedPrefDataSource.setWindSpeedUnit(unit)
     }
 
-    override fun getWindSpeedUnit(): WindSpeedUnit {
+    override fun getWindSpeedUnit(): SpeedUnit {
         return sharedPrefDataSource.getWindSpeedUnit()
     }
 

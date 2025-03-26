@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import com.example.eltaqs.favourite.FavouriteScreen
 import com.example.eltaqs.home.HomeScreen
 import com.example.eltaqs.map.MapScreen
+import com.example.eltaqs.settings.SettingsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

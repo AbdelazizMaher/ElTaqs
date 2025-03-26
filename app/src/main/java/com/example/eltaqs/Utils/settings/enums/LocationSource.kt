@@ -1,10 +1,16 @@
 package com.example.eltaqs.Utils.settings.enums
 
-enum class LocationSource(val english: String, val arabic: String) {
-    GPS("GPS", "نظام تحديد المواقع"),
-    MAP("Map", "الخريطة");
+enum class LocationSource(val translations: Map<Language, String>) {
+    GPS(mapOf(Language.ENGLISH to "GPS", Language.ARABIC to "نظام تحديد المواقع")),
+    MAP(mapOf(Language.ENGLISH to "Map", Language.ARABIC to "الخريطة"));
 
-    fun getDisplayName(isArabic: Boolean): String {
-        return if (isArabic) arabic else english
+    fun getDisplayName(language: Language): String {
+        return translations[language] ?: translations[Language.ENGLISH]!!
+    }
+
+    companion object {
+        fun fromDisplayName(displayName: String, language: Language): LocationSource {
+            return entries.find { it.getDisplayName(language) == displayName } ?: GPS
+        }
     }
 }

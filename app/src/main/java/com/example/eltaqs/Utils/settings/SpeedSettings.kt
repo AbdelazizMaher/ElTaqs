@@ -1,35 +1,33 @@
 package com.example.eltaqs.Utils.settings
 
+import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
 
 object SpeedSettings {
-    private val arabicNumbers = arrayOf("٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩")
-    private val englishNumbers = arrayOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+    private val arabicNumbers = ('٠'..'٩').toList()
+    private val englishNumbers = ('0'..'9').toList()
 
     private fun convertArabicToEnglish(input: String): String {
-        var result = input
-        for (i in arabicNumbers.indices) {
-            result = result.replace(arabicNumbers[i], englishNumbers[i])
-        }
-        return result
+        return input.map { char ->
+            arabicNumbers.indexOf(char).takeIf { it != -1 }?.let { englishNumbers[it] } ?: char
+        }.joinToString("")
     }
 
     private fun convertEnglishToArabic(input: String): String {
-        var result = input
-        for (i in englishNumbers.indices) {
-            result = result.replace(englishNumbers[i], arabicNumbers[i])
-        }
-        return result
+        return input.map { char ->
+            englishNumbers.indexOf(char).takeIf { it != -1 }?.let { arabicNumbers[it] } ?: char
+        }.joinToString("")
     }
 
-    fun convertSpeed(speed: String, targetUnit: SpeedUnit, outputInArabic: Boolean): String {
-        val numericSpeed = convertArabicToEnglish(speed).toDouble()
-        val convertedSpeed = SpeedUnit.METER_PER_SECOND.convert(numericSpeed, targetUnit)
+    fun convertSpeed(speed: String, sourceUnit: SpeedUnit, targetUnit: SpeedUnit, language: Language): String {
+        val numericSpeed = convertArabicToEnglish(speed).toDoubleOrNull() ?: return "Invalid Input"
+        val convertedSpeed = sourceUnit.convert(numericSpeed, targetUnit)
 
-        return if (outputInArabic) {
-            "${convertEnglishToArabic(String.format("%.2f", convertedSpeed))} ${targetUnit.arabic}"
+        val formattedSpeed = String.format("%.2f", convertedSpeed)
+        return if (language == Language.ARABIC) {
+            "${convertEnglishToArabic(formattedSpeed)} ${targetUnit.getDisplayName(language)}"
         } else {
-            "${String.format("%.2f", convertedSpeed)} ${targetUnit.english}"
+            "$formattedSpeed ${targetUnit.getDisplayName(language)}"
         }
     }
 }

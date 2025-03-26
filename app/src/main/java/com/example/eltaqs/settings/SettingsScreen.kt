@@ -1,7 +1,9 @@
 package com.example.eltaqs.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eltaqs.Utils.settings.enums.Language
+import com.example.eltaqs.Utils.settings.enums.LocationSource
+import com.example.eltaqs.Utils.settings.enums.SpeedUnit
+import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
@@ -63,37 +70,57 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
         ToggleGroup(
-            title = "Temperature",
-            options = listOf("°C", "°F"),
-            selected = temperatureUnit,
-            onOptionSelected = { viewModel.setTemperatureUnit(it) }
+            title = "Language",
+            options = Language.entries.map { it.getDisplayName(language) },
+            selected = language.getDisplayName(language), // Ensures correct display name
+            onOptionSelected = { selectedName ->
+                val selectedLanguage = Language.entries.find {
+                    it.getDisplayName(language) == selectedName
+                }
+                selectedLanguage?.let { viewModel.setLanguage(it) } // Updates correctly
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
             title = "Wind Speed",
-            options = listOf("m/s", "km/h", "mph", "knots"),
-            selected = windSpeedUnit,
-            onOptionSelected = { viewModel.setWindSpeedUnit(it) }
+            options = SpeedUnit.entries.map { it.getDisplayName(language) },
+            selected = windSpeedUnit.getDisplayName(language),
+            onOptionSelected = { selectedName ->
+                val selectedUnit = SpeedUnit.entries.find {
+                    it.getDisplayName(language) == selectedName
+                }
+                selectedUnit?.let { viewModel.setWindSpeedUnit(it) }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Pressure",
-            options = listOf("Map", "Gps"),
-            selected = locationSource,
-            onOptionSelected = { viewModel.setLocationSource(it) }
+            title = "Location",
+            options = LocationSource.entries.map { it.getDisplayName(language) },
+            selected = locationSource.getDisplayName(language),
+            onOptionSelected = { selectedName ->
+                val selectedSource = LocationSource.entries.find {
+                    it.getDisplayName(language) == selectedName
+                }
+                selectedSource?.let { viewModel.setLocationSource(it) }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Theme",
-            options = listOf("English", "Arabic"),
-            selected = language,
-            onOptionSelected = { viewModel.setLanguage(it) }
+            title = "Temperature",
+            options = TemperatureUnit.entries.map { it.getDisplayName(language) },
+            selected = temperatureUnit.getDisplayName(language),
+            onOptionSelected = { selectedValue ->
+                val selectedUnit = TemperatureUnit.entries.find {
+                    it.getDisplayName(language) == selectedValue
+                }
+                selectedUnit?.let { viewModel.setTemperatureUnit(it) }
+            }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -107,25 +134,42 @@ fun ToggleGroup(
     selected: String,
     onOptionSelected: (String) -> Unit
 ) {
-    Column {
-        Text(title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Text(
+            text = title,
+            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color(0xFFF0F0F3)),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             options.forEach { option ->
-                Button(
-                    onClick = { onOptionSelected(option) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (option == selected) Color.Black else Color.LightGray,
-                        contentColor = if (option == selected) Color.White else Color.Black
-                    ),
-                    shape = RoundedCornerShape(50),
-                    modifier = Modifier.padding(4.dp)
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(if (option == selected) Color.Black else Color.Transparent)
+                        .clickable { onOptionSelected(option) }
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(option)
+                    Text(
+                        text = option,
+                        color = if (option == selected) Color.White else Color.Gray,
+                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
     }
 }
+
 
 

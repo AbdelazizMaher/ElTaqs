@@ -1,11 +1,11 @@
 package com.example.eltaqs.Utils.settings.enums
 
-enum class TemperatureUnit(val english: String, val arabic: String) {
-    KELVIN("K", "كلفن"),
-    CELSIUS("°C", "درجة مئوية"),
-    FAHRENHEIT("°F", "فهرنهايت");
+enum class TemperatureUnit(private val names: Map<Language, String>) {
+    KELVIN(mapOf(Language.ENGLISH to "K", Language.ARABIC to "كلفن")),
+    CELSIUS(mapOf(Language.ENGLISH to "°C", Language.ARABIC to "درجة مئوية")),
+    FAHRENHEIT(mapOf(Language.ENGLISH to "°F", Language.ARABIC to "فهرنهايت"));
 
-    fun getDisplayName(isArabic: Boolean): String {
-        return if (isArabic) arabic else english
+    fun getDisplayName(language: Language): String {
+        return names[language] ?: names[Language.ENGLISH]!!
     }
 }

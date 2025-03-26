@@ -3,11 +3,10 @@ package com.example.eltaqs.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.eltaqs.data.model.Response
-import com.example.eltaqs.data.sharedpreference.Language
-import com.example.eltaqs.data.sharedpreference.LocationSource
-import com.example.eltaqs.data.sharedpreference.TemperatureUnit
-import com.example.eltaqs.data.sharedpreference.WindSpeedUnit
+import com.example.eltaqs.Utils.settings.enums.Language
+import com.example.eltaqs.Utils.settings.enums.LocationSource
+import com.example.eltaqs.Utils.settings.enums.SpeedUnit
+import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
 import com.example.eltaqs.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,7 @@ class SettingsViewModel(private val repository: WeatherRepository) : ViewModel()
     private val mutableLocationSource = MutableStateFlow(LocationSource.GPS)
     val locationSource = mutableLocationSource.asStateFlow()
 
-    private val mutableWindSpeedUnit = MutableStateFlow(WindSpeedUnit.METER_PER_SEC)
+    private val mutableWindSpeedUnit = MutableStateFlow(SpeedUnit.METER_PER_SECOND)
     val windSpeedUnit = mutableWindSpeedUnit.asStateFlow()
 
     private val mutableLanguage = MutableStateFlow(Language.ENGLISH)
@@ -54,7 +53,7 @@ class SettingsViewModel(private val repository: WeatherRepository) : ViewModel()
         }
     }
 
-    fun setWindSpeedUnit(unit: WindSpeedUnit) {
+    fun setWindSpeedUnit(unit: SpeedUnit) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.setWindSpeedUnit(unit)
             mutableWindSpeedUnit.value = unit

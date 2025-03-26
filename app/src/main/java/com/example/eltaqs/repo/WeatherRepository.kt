@@ -6,13 +6,19 @@ import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
+import com.example.eltaqs.data.sharedpreference.Language
+import com.example.eltaqs.data.sharedpreference.LocationSource
+import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
+import com.example.eltaqs.data.sharedpreference.TemperatureUnit
+import com.example.eltaqs.data.sharedpreference.WindSpeedUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 
 class WeatherRepository private constructor(
     private val remoteDataSource: WeatherRemoteDataSource,
-    private val localDataSource: WeatherLocalDataSource
+    private val localDataSource: WeatherLocalDataSource,
+    private val sharedPrefDataSource: SharedPrefDataSource
 ) : IWeatherRepository {
 
     companion object {
@@ -20,10 +26,11 @@ class WeatherRepository private constructor(
         private var instance: WeatherRepository? = null
         fun getInstance(
             remoteDataSource: WeatherRemoteDataSource,
-            localDataSource: WeatherLocalDataSource
+            localDataSource: WeatherLocalDataSource,
+            sharedPrefDataSource: SharedPrefDataSource
         ): WeatherRepository {
             return instance ?: synchronized(this) {
-                val tempInstance = WeatherRepository(remoteDataSource, localDataSource)
+                val tempInstance = WeatherRepository(remoteDataSource, localDataSource, sharedPrefDataSource)
                 instance = tempInstance
                 tempInstance
             }
@@ -69,5 +76,45 @@ class WeatherRepository private constructor(
 
     override suspend fun deleteFavourite(location: FavouriteLocation): Int {
         return localDataSource.deleteFavourite(location)
+    }
+
+    override fun setLocationSource(source: LocationSource) {
+        sharedPrefDataSource.setLocationSource(source)
+    }
+
+    override fun getLocationSource(): LocationSource {
+        return sharedPrefDataSource.getLocationSource()
+    }
+
+    override fun setTemperatureUnit(unit: TemperatureUnit) {
+        sharedPrefDataSource.setTemperatureUnit(unit)
+    }
+
+    override fun getTemperatureUnit(): TemperatureUnit {
+        return sharedPrefDataSource.getTemperatureUnit()
+    }
+
+    override fun setWindSpeedUnit(unit: WindSpeedUnit) {
+        sharedPrefDataSource.setWindSpeedUnit(unit)
+    }
+
+    override fun getWindSpeedUnit(): WindSpeedUnit {
+        return sharedPrefDataSource.getWindSpeedUnit()
+    }
+
+    override fun setLanguage(language: Language) {
+        sharedPrefDataSource.setLanguage(language)
+    }
+
+    override fun getLanguage(): Language {
+        return sharedPrefDataSource.getLanguage()
+    }
+
+    override fun setMapCoordinates(lat: Double, lon: Double) {
+        sharedPrefDataSource.setMapCoordinates(lat, lon)
+    }
+
+    override fun getMapCoordinates(): Pair<Double, Double>? {
+        return sharedPrefDataSource.getMapCoordinates()
     }
 }

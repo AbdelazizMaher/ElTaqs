@@ -55,6 +55,7 @@ import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
+import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.repo.WeatherRepository
 import com.example.eltaqs.ui.theme.ColorTextSecondary
 import com.example.eltaqs.ui.theme.ColorTextSecondaryVariant
@@ -78,7 +79,8 @@ fun HomeScreen(location: Location) {
         factory = HomeViewModelFactory(
             WeatherRepository.getInstance(
                 WeatherRemoteDataSource(RetrofitHelper.apiService),
-                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO())
+                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO()),
+                SharedPrefDataSource.getInstance(LocalContext.current)
             )
         )
     )

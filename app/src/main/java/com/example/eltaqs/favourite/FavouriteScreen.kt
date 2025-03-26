@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +71,7 @@ import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
+import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.repo.WeatherRepository
 import com.example.eltaqs.ui.theme.ColorTextSecondary
 import kotlinx.coroutines.delay
@@ -86,14 +88,14 @@ fun FavouriteScreen() {
         factory = FavouriteViewModelFactory(
             WeatherRepository.getInstance(
                 WeatherRemoteDataSource(RetrofitHelper.apiService),
-                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO())
+                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO()),
+                    SharedPrefDataSource.getInstance(LocalContext.current)
             )
         )
     )
 
     val uiState = viewModel.favourites.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
     val favouriteList = remember { mutableStateListOf<FavouriteLocation>() }
 
     LaunchedEffect(uiState.value) {
@@ -154,7 +156,7 @@ fun FavouriteScreen() {
                             item = favouriteLocation,
                             onDelete = { viewModel.removeFromFavourite(it) },
                             onRestore = { viewModel.addToFavourite(it) },
-                            snackbarHostState = snackbarHostState
+                            snackBarHostState = snackbarHostState
                         ) { _ ->
                             FavouriteItem(
                                 forecast = favouriteLocation.currentWeather.weather.firstOrNull()?.main ?: "",
@@ -334,12 +336,12 @@ fun <T> SwipeToDeleteContainer(
     item: T,
     onDelete: (T) -> Unit,
     onRestore: (T) -> Unit,
-    snackbarHostState: SnackbarHostState,
+    snackBarHostState: SnackbarHostState,
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
 ) {
     var isRemoved by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val currentItem by rememberUpdatedState(item)
 
     val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -352,22 +354,23 @@ fun <T> SwipeToDeleteContainer(
         }
     )
 
-    LaunchedEffect(isRemoved) {
+    LaunchedEffect(isRemoved, currentItem) {
         if (isRemoved) {
-            val result = snackbarHostState.showSnackbar(
+            val result = snackBarHostState.showSnackbar(
                 message = "Item deleted",
                 actionLabel = "Undo",
                 duration = SnackbarDuration.Short
             )
 
             if (result == SnackbarResult.ActionPerformed) {
-                onRestore(item)
+                onRestore(currentItem)
                 isRemoved = false
 
+                // Reset state for swipe to work again
                 state.snapTo(SwipeToDismissBoxValue.Settled)
             } else {
                 delay(animationDuration.toLong())
-                onDelete(item)
+                onDelete(currentItem)
             }
         }
     }
@@ -384,15 +387,23 @@ fun <T> SwipeToDeleteContainer(
         ) + fadeOut()
     ) {
         SwipeToDismissBox(
-            state = state,
+            state = rememberSwipeToDismissBoxState( // Ensure state resets properly
+                confirmValueChange = { value ->
+                    if (value == SwipeToDismissBoxValue.EndToStart) {
+                        isRemoved = true
+                        true
+                    } else {
+                        false
+                    }
+                }
+            ),
             backgroundContent = { DeleteBackground(swipeDismissState = state) },
             enableDismissFromStartToEnd = false
         ) {
-            content(item)
+            content(currentItem)
         }
     }
 }
-
 @Composable
 fun DeleteBackground(swipeDismissState: SwipeToDismissBoxState) {
     val color = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {

@@ -36,7 +36,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.SetUpNavHost
 import com.example.eltaqs.Utils.LocationProvider
+import com.example.eltaqs.Utils.settings.LanguageUtils
 import com.example.eltaqs.component.AnimatedBottomSection
+import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -51,6 +53,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().name)
 
         locationProvider = LocationProvider(this)
         setContent {
@@ -107,6 +111,15 @@ class MainActivity : ComponentActivity() {
         locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
             locationState.value = location
         }
+    }
+
+    private fun applyLanguage(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = resources.configuration
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
     }
 }
 

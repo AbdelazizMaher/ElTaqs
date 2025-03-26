@@ -6,7 +6,7 @@ enum class SpeedUnit(val translations: Map<Language, String>, private val toMpsF
     MILE_PER_HOUR(mapOf(Language.ENGLISH to "mph", Language.ARABIC to "ميل/ساعة"), 0.44704);
 
     fun getDisplayName(language: Language): String {
-        return translations[language] ?: translations[Language.ENGLISH]!! // Default to English
+        return translations[language] ?: translations[Language.ENGLISH]!!
     }
 
     fun convert(value: Double, targetUnit: SpeedUnit): Double {

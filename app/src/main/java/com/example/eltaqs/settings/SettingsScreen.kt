@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eltaqs.Utils.settings.LanguageUtils
 import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
@@ -53,6 +54,7 @@ fun SettingsScreen() {
         )
     )
 
+    val context = LocalContext.current
     val temperatureUnit by viewModel.temperatureUnit.collectAsStateWithLifecycle()
     val windSpeedUnit by viewModel.windSpeedUnit.collectAsStateWithLifecycle()
     val locationSource by viewModel.locationSource.collectAsStateWithLifecycle()
@@ -72,12 +74,15 @@ fun SettingsScreen() {
         ToggleGroup(
             title = "Language",
             options = Language.entries.map { it.getDisplayName(language) },
-            selected = language.getDisplayName(language), // Ensures correct display name
+            selected = language.getDisplayName(language),
             onOptionSelected = { selectedName ->
                 val selectedLanguage = Language.entries.find {
                     it.getDisplayName(language) == selectedName
                 }
-                selectedLanguage?.let { viewModel.setLanguage(it) } // Updates correctly
+                selectedLanguage?.let {
+                    viewModel.setLanguage(it)
+                    LanguageUtils.restartActivity(context)
+                }
             }
         )
 

@@ -1,47 +1,27 @@
 package com.example.eltaqs.Utils.settings
 
-import com.example.eltaqs.Utils.settings.enums.Language
-import java.text.NumberFormat
+
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import java.util.Locale
 
 object LanguageUtils {
 
-
-    var currentLanguage: Language = Language.ENGLISH
-
-    fun translateNumber(number: Int): String {
-        val numberFormat = NumberFormat.getInstance(currentLanguage.locale)
-        return numberFormat.format(number)
+    fun convertToArabicNumbers(number: String): String {
+        val arabicDigits = arrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
+        return number.map { if (it.isDigit()) arabicDigits[it.digitToInt()] else it }.joinToString("")
     }
 
-    fun convertToArabicNumber(englishNumberInput: String): String {
-        val arabicNumbers = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
-        val englishNumbers = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-        val builder = StringBuilder()
-
-        for (char in englishNumberInput) {
-            val index = englishNumbers.indexOf(char)
-            builder.append(if (index != -1) arabicNumbers[index] else char)
-        }
-
-        return builder.toString()
+    fun formatNumberBasedOnLanguage(number: String): String {
+        val language = Locale.getDefault().language
+        return if (language == "ar") convertToArabicNumbers(number) else number
     }
 
-    fun convertToEnglishNumber(arabicNumberInput: String): String {
-        val arabicNumbers = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
-        val englishNumbers = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
-        val builder = StringBuilder()
-
-        for (char in arabicNumberInput) {
-            val index = arabicNumbers.indexOf(char)
-            builder.append(if (index != -1) englishNumbers[index] else char)
-        }
-
-        return builder.toString()
-    }
-
-    fun formatDateToLocale(dateString: String, format: String): String {
-        val locale = currentLanguage.locale
-        val formatter = java.text.SimpleDateFormat(format, locale)
-        return formatter.format(java.util.Date(dateString.toLong()))
+    fun restartActivity(context: Context) {
+        val intent = (context as? Activity)?.intent
+        intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+        (context as? Activity)?.finish()
     }
 }

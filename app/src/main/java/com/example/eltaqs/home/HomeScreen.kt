@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -95,7 +96,9 @@ fun HomeScreen(location: Location) {
         when (val state = uiState.value) {
             is Response.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize().wrapContentSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize()
                 ) {
                     CircularProgressIndicator()
                 }
@@ -158,10 +161,10 @@ fun WeatherStatsRow(current: CurrentWeatherResponse) {
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(end = 8.dp)
     ) {
-        WeatherInfoCard("Wind Speed", "${current.wind.speed} km/h", R.drawable.windspeed)
-        WeatherInfoCard("Humidity", "${current.main.humidity} %", R.drawable.humidity)
-        WeatherInfoCard("Max Temp", "${current.main.tempMax} °C", R.drawable.sleet)
-        WeatherInfoCard("Pressure", "${current.main.pressure} hPa", R.drawable.hail)
+        WeatherInfoCard(stringResource(R.string.wind_speed), "${current.wind.speed} km/h", R.drawable.windspeed)
+        WeatherInfoCard(stringResource(R.string.humidity), "${current.main.humidity} %", R.drawable.humidity)
+        WeatherInfoCard(stringResource(R.string.max_temp), "${current.main.tempMax} °C", R.drawable.sleet)
+        WeatherInfoCard(stringResource(R.string.pressure), "${current.main.pressure} hPa", R.drawable.hail)
     }
 }
 
@@ -177,14 +180,14 @@ fun TodayForecastRow() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Today",
+            text = stringResource(R.string.today),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
 
         Text(
-            text = "Next 5 Days",
+            text = stringResource(R.string.next_5_days),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF4466E5),
@@ -337,12 +340,12 @@ fun  getDayName(dateString: String): String {
 @Composable
 fun DailyForecast(
     modifier: Modifier = Modifier,
-    forecast: String = "Rain showers",
+    forecast: String = stringResource(R.string.forecast),
     temp: Int = 21,
     feelsLike: Int = 26,
     sunset: Long,
     sunrise: Long,
-    date: String = "Monday, 12 Feb"
+    date: String = stringResource(R.string.date)
 ) {
     ConstraintLayout(
         modifier = modifier.fillMaxWidth()
@@ -386,7 +389,7 @@ fun DailyForecast(
         )
 
         Text(
-            text = "Feels like $feelsLike°C",
+            text = stringResource(R.string.feels_like, feelsLike),
             style = MaterialTheme.typography.bodyMedium,
             color = ColorTextSecondaryVariant,
             modifier = Modifier
@@ -500,7 +503,7 @@ fun SunriseSunsetRow(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 painter = painterResource(R.drawable.windicon),
-                contentDescription = "Sunrise",
+                contentDescription = stringResource(R.string.sunrise),
                 modifier = Modifier.size(40.dp),
                 tint = Color.Yellow
             )
@@ -510,7 +513,7 @@ fun SunriseSunsetRow(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 painter = painterResource(R.drawable.cloudsicon),
-                contentDescription = "Sunset",
+                contentDescription = stringResource(R.string.sunset),
                 modifier = Modifier.size(40.dp),
                 tint = Color(0xFFFFA500)
             )

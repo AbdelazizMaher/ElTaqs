@@ -1,6 +1,10 @@
 package com.example.eltaqs.data.sharedpreference
 
 import android.content.Context
+import com.example.eltaqs.Utils.settings.enums.Language
+import com.example.eltaqs.Utils.settings.enums.LocationSource
+import com.example.eltaqs.Utils.settings.enums.SpeedUnit
+import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
 
 class SharedPrefDataSource private constructor(context: Context) : ISharedPreference {
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
@@ -52,15 +56,15 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
         return TemperatureUnit.valueOf(value ?: TemperatureUnit.CELSIUS.name)
     }
 
-    override fun setWindSpeedUnit(unit: WindSpeedUnit) {
+    override fun setWindSpeedUnit(unit: SpeedUnit) {
         prefs.edit()
             .putString("wind_speed_unit", unit.name)
             .apply()
     }
 
-    override fun getWindSpeedUnit(): WindSpeedUnit {
-        val value = prefs.getString("wind_speed_unit", WindSpeedUnit.METER_PER_SEC.name)
-        return WindSpeedUnit.valueOf(value ?: WindSpeedUnit.METER_PER_SEC.name)
+    override fun getWindSpeedUnit(): SpeedUnit {
+        val value = prefs.getString("wind_speed_unit", SpeedUnit.METER_PER_SECOND.name)
+        return SpeedUnit.valueOf(value ?: SpeedUnit.METER_PER_SECOND.name)
     }
 
     override fun setLanguage(language: Language) {
@@ -79,19 +83,4 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
     }
 }
 
-enum class LocationSource {
-    GPS,
-    MAP
-}
 
-enum class TemperatureUnit {
-    KELVIN, CELSIUS, FAHRENHEIT
-}
-
-enum class WindSpeedUnit {
-    METER_PER_SEC, MILES_PER_HOUR
-}
-
-enum class Language {
-    ARABIC, ENGLISH
-}

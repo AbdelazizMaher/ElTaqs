@@ -2,9 +2,9 @@ package com.example.eltaqs.Utils.settings.enums
 
 import java.util.Locale
 
-enum class Language(val locale: Locale, val displayNameInEnglish: String, val displayNameInArabic: String) {
-    ENGLISH(Locale.ENGLISH, "English", "الإنجليزية"),
-    ARABIC(Locale("ar"), "Arabic", "العربية");
+enum class Language(val locale: Locale, val apiCode: String, val displayNameInEnglish: String, val displayNameInArabic: String) {
+    ENGLISH(Locale.ENGLISH, "en", "English", "الإنجليزية"),
+    ARABIC(Locale("ar"), "ar", "Arabic", "العربية");
 
     fun getDisplayName(currentLanguage: Language): String {
         return when (currentLanguage) {

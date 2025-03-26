@@ -44,6 +44,18 @@ class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel(
             repository.insertFavourite(location)
         }
     }
+
+    fun getWindSpeedUnitSymbol(): String {
+        val speedUnit = repository.getWindSpeedUnit()
+        val language = repository.getLanguage()
+        return speedUnit.getDisplayName(language)
+    }
+
+    fun getTemperatureUnitSymbol(): String {
+        val tempUnit = repository.getTemperatureUnit()
+        val language = repository.getLanguage()
+        return tempUnit.getSymbol(language)
+    }
 }
 
 class FavouriteViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {

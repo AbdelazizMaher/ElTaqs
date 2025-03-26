@@ -1,5 +1,8 @@
 package com.example.eltaqs.Utils
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -16,3 +19,10 @@ operator fun PaddingValues.times(value: Float): PaddingValues = PaddingValues(
     start = calculateStartPadding(LayoutDirection.Ltr) * value,
     end = calculateEndPadding(LayoutDirection.Ltr) * value
 )
+
+fun restartActivity(context: Context) {
+    val intent = (context as? Activity)?.intent
+    intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
+    (context as? Activity)?.finish()
+}

@@ -24,12 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.eltaqs.Utils.settings.LanguageUtils
+import com.example.eltaqs.R
+import com.example.eltaqs.Utils.restartActivity
 import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
@@ -72,7 +74,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
         ToggleGroup(
-            title = "Language",
+            title = stringResource(R.string.language),
             options = Language.entries.map { it.getDisplayName(language) },
             selected = language.getDisplayName(language),
             onOptionSelected = { selectedName ->
@@ -81,7 +83,7 @@ fun SettingsScreen() {
                 }
                 selectedLanguage?.let {
                     viewModel.setLanguage(it)
-                    LanguageUtils.restartActivity(context)
+                    restartActivity(context)
                 }
             }
         )
@@ -89,7 +91,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Wind Speed",
+            title = stringResource(R.string.wind_speed),
             options = SpeedUnit.entries.map { it.getDisplayName(language) },
             selected = windSpeedUnit.getDisplayName(language),
             onOptionSelected = { selectedName ->
@@ -103,7 +105,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Location",
+            title = stringResource(R.string.location),
             options = LocationSource.entries.map { it.getDisplayName(language) },
             selected = locationSource.getDisplayName(language),
             onOptionSelected = { selectedName ->
@@ -117,7 +119,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Temperature",
+            title = stringResource(R.string.temperature),
             options = TemperatureUnit.entries.map { it.getDisplayName(language) },
             selected = temperatureUnit.getDisplayName(language),
             onOptionSelected = { selectedValue ->
@@ -139,7 +141,9 @@ fun ToggleGroup(
     selected: String,
     onOptionSelected: (String) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp)) {
         Text(
             text = title,
             fontWeight = FontWeight.SemiBold,

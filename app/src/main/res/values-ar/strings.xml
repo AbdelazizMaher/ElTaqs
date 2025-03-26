@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">الطقس</string>
+    <string name="wind_speed">سرعة الرياح</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="max_temp">أعلى درجة حرارة</string>
+    <string name="pressure">الضغط</string>
+    <string name="today">اليوم</string>
+    <string name="next_5_days">الخمسة أيام القادمة</string>
+    <string name="feels_like">يبدو كأنها %1$s°م</string>
+    <string name="sunrise">شروق الشمس</string>
+    <string name="sunset">غروب الشمس</string>
+    <string name="date">الإثنين، 12 فبراير</string>
+    <string name="forecast">زخات مطر</string>
+    <string name="n_a">غير متوفر</string>
+    <string name="favourite_locations">المواقع المفضلة</string>
+    <string name="last_updated">آخر تحديث: %1$s</string>
+    <string name="language">اللغة</string>
+    <string name="location">الموقع</string>
+    <string name="temperature">درجة الحرارة</string>
+</resources>

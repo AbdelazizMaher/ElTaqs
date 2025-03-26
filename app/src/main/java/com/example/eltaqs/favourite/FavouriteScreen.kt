@@ -39,6 +39,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -55,9 +56,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -98,6 +102,9 @@ fun FavouriteScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val favouriteList = remember { mutableStateListOf<FavouriteLocation>() }
 
+    val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
+    val tempSymbol = viewModel.getTemperatureUnitSymbol()
+
     LaunchedEffect(uiState.value) {
         if (uiState.value is Response.Success) {
             favouriteList.clear()
@@ -112,7 +119,9 @@ fun FavouriteScreen() {
         when (val state = uiState.value) {
             is Response.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize().wrapContentSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize()
                 ) {
                     CircularProgressIndicator()
                 }
@@ -134,7 +143,7 @@ fun FavouriteScreen() {
                                 tint = Color.White
                             )
                             Text(
-                                text = "Favourite Locations",
+                                text = stringResource(R.string.favourite_locations),
                                 fontSize = 24.sp
                             )
                             Spacer(modifier = Modifier.height(60.dp))
@@ -162,7 +171,8 @@ fun FavouriteScreen() {
                                 forecast = favouriteLocation.currentWeather.weather.firstOrNull()?.main ?: "",
                                 cityName = cityName,
                                 temp = temperature.toInt(),
-                                lastUpdated = lastUpdated
+                                lastUpdated = lastUpdated,
+                                tempSymbol = tempSymbol
                             )
                         }
                     }
@@ -192,94 +202,124 @@ fun FavouriteScreen() {
 @Composable
 fun FavouriteItem(
     modifier: Modifier = Modifier,
-    forecast: String = "Rain showers",
+    forecast: String,
     cityName: String,
-    temp: Int = 21,
-    lastUpdated: String
+    temp: Int,
+    lastUpdated: String,
+    tempSymbol: String
 ) {
 
-    ConstraintLayout(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        val (cityTitle, forecastImage, forecastValue, title, lastUpdatedText, background) = createRefs()
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    CompositionLocalProvider(LocalLayoutDirection provides if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
+        ConstraintLayout(
+            modifier = modifier.fillMaxWidth()
+        ) {
+            val (cityTitle, forecastImage, forecastValue, title, lastUpdatedText, background) = createRefs()
 
-        CardBackground(
-            modifier = Modifier.constrainAs(background) {
-                linkTo(
-                    start = parent.start,
-                    end = parent.end,
-                    top = parent.top,
-                    bottom = lastUpdatedText.bottom,
-                    topMargin = 24.dp
-                )
-                height = Dimension.fillToConstraints
-            }
-        )
-
-        Text(
-            text = cityName,
-            style = MaterialTheme.typography.headlineSmall,
-            color = ColorTextSecondary,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .constrainAs(cityTitle) {
-                    start.linkTo(parent.start, margin = 24.dp)
-                    top.linkTo(parent.top)
+            CardBackground(
+                modifier = Modifier.constrainAs(background) {
+                    linkTo(
+                        start = parent.start,
+                        end = parent.end,
+                        top = parent.top,
+                        bottom = lastUpdatedText.bottom,
+                        topMargin = 24.dp
+                    )
+                    height = Dimension.fillToConstraints
                 }
-        )
+            )
 
-        Image(
-            painter = painterResource(id = getImageResId(forecast)),
-            contentDescription = null,
-            contentScale = ContentScale.None,
-            modifier = Modifier
-                .height(175.dp)
-                .constrainAs(forecastImage) {
-                    start.linkTo(anchor = parent.start, margin = 100.dp)
-                    top.linkTo(parent.top)
-                }
-        )
+            Text(
+                text = cityName,
+                style = MaterialTheme.typography.headlineSmall,
+                color = ColorTextSecondary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .constrainAs(cityTitle) {
+                        if (isRtl) {
+                            end.linkTo(parent.end, margin = 24.dp)
+                        } else {
+                            start.linkTo(parent.start, margin = 24.dp)
+                        }
+                        top.linkTo(parent.top)
+                    }
+            )
 
-        Text(
-            text = forecast,
-            style = MaterialTheme.typography.titleLarge,
-            color = ColorTextSecondary,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.constrainAs(title) {
-                start.linkTo(anchor = parent.start, margin = 24.dp)
-                top.linkTo(anchor = forecastImage.bottom)
-            }.padding(start = 24.dp)
-        )
+            Image(
+                painter = painterResource(id = getImageResId(forecast)),
+                contentDescription = null,
+                contentScale = ContentScale.None,
+                modifier = Modifier
+                    .height(175.dp)
+                    .constrainAs(forecastImage) {
+                        if (isRtl) {
+                            end.linkTo(parent.end, margin = 100.dp)
+                        } else {
+                            start.linkTo(parent.start, margin = 100.dp)
+                        }
+                        top.linkTo(parent.top)
+                    }
+            )
 
-        Text(
-            text = "Last updated: $lastUpdated",
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Black,
-            modifier = Modifier
-                .constrainAs(lastUpdatedText) {
-                    start.linkTo(title.start)
-                    top.linkTo(title.bottom)
-                }
-                .padding(start = 24.dp, bottom = 24.dp)
-        )
+            Text(
+                text = forecast,
+                style = MaterialTheme.typography.titleLarge,
+                color = ColorTextSecondary,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .constrainAs(title) {
+                        if (isRtl) {
+                            end.linkTo(parent.end, margin = 32.dp)
+                        } else {
+                            start.linkTo(parent.start, margin = 32.dp)
+                        }
+                        top.linkTo(forecastImage.bottom)
+                    }
+                    .padding(horizontal = 32.dp)
+            )
 
-        ForecastValue(
-            modifier = Modifier
-                .constrainAs(forecastValue) {
-                    end.linkTo(anchor = parent.end, margin = 36.dp)
-                    top.linkTo(forecastImage.top)
-                    bottom.linkTo(forecastImage.bottom)
-                },
-            degree = temp.toString()
-        )
+            Text(
+                text = stringResource(R.string.last_updated, lastUpdated),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Black,
+                fontWeight = FontWeight.Light,
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .constrainAs(lastUpdatedText) {
+                        if (isRtl) {
+                            end.linkTo(title.end)
+                        } else {
+                            start.linkTo(title.start)
+                        }
+                        top.linkTo(title.bottom)
+                    }
+                    .padding(horizontal = 12.dp, vertical = 12.dp)
+            )
+
+            ForecastValue(
+                modifier = Modifier
+                    .constrainAs(forecastValue) {
+                        if (isRtl) {
+                            start.linkTo(parent.start, margin = 36.dp)
+                        } else {
+                            end.linkTo(parent.end, margin = 36.dp)
+                        }
+                        top.linkTo(forecastImage.top)
+                        bottom.linkTo(forecastImage.bottom)
+                    },
+                degree = temp.toString(),
+                tempSymbol = tempSymbol
+            )
+        }
     }
 }
 
 @Composable
 private fun ForecastValue(
     modifier: Modifier = Modifier,
-    degree: String = "21",
+    degree: String,
+    tempSymbol: String,
 ) {
     Column(
         modifier = modifier,
@@ -302,7 +342,7 @@ private fun ForecastValue(
                 modifier = Modifier.padding(end = 48.dp)
             )
             Text(
-                text = "°C",
+                text = tempSymbol,
                 style = TextStyle(
                     brush = Brush.verticalGradient(
                         0f to Color.White,
@@ -340,6 +380,7 @@ fun <T> SwipeToDeleteContainer(
     animationDuration: Int = 500,
     content: @Composable (T) -> Unit
 ) {
+    val context = LocalContext.current
     var isRemoved by remember { mutableStateOf(false) }
     val currentItem by rememberUpdatedState(item)
 
@@ -357,8 +398,8 @@ fun <T> SwipeToDeleteContainer(
     LaunchedEffect(isRemoved, currentItem) {
         if (isRemoved) {
             val result = snackBarHostState.showSnackbar(
-                message = "Item deleted",
-                actionLabel = "Undo",
+                message = context.getString(R.string.item_deleted),
+                actionLabel = context.getString(R.string.undo),
                 duration = SnackbarDuration.Short
             )
 
@@ -366,7 +407,6 @@ fun <T> SwipeToDeleteContainer(
                 onRestore(currentItem)
                 isRemoved = false
 
-                // Reset state for swipe to work again
                 state.snapTo(SwipeToDismissBoxValue.Settled)
             } else {
                 delay(animationDuration.toLong())
@@ -387,7 +427,7 @@ fun <T> SwipeToDeleteContainer(
         ) + fadeOut()
     ) {
         SwipeToDismissBox(
-            state = rememberSwipeToDismissBoxState( // Ensure state resets properly
+            state = rememberSwipeToDismissBoxState(
                 confirmValueChange = { value ->
                     if (value == SwipeToDismissBoxValue.EndToStart) {
                         isRemoved = true
@@ -416,13 +456,14 @@ fun DeleteBackground(swipeDismissState: SwipeToDismissBoxState) {
         modifier = Modifier
             .fillMaxSize()
             .background(color)
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 64.dp, vertical = 64.dp),
         contentAlignment = Alignment.CenterEnd
     ) {
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = null,
-            tint = Color.White
+            tint = Color.White,
+            modifier = Modifier.padding(top = 32.dp)
         )
     }
 }

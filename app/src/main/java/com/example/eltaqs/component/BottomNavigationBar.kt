@@ -25,6 +25,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.FloatingActionButton
@@ -166,13 +169,13 @@ fun CustomBottomNavigation(navController: NavHostController) {
             navController.popBackStack()
             navController.navigate(ScreenRoutes.Home)
         }) {
-            Icon(imageVector = Icons.Filled.ShoppingCart, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Filled.Home, contentDescription = null, tint = Color.White)
         }
         IconButton(onClick = {
             navController.popBackStack()
-            navController.navigate(ScreenRoutes.Favorite)
+            navController.navigate(ScreenRoutes.Settings)
         }) {
-            Icon(imageVector = Icons.Filled.Face, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Filled.Settings, contentDescription = null, tint = Color.White)
         }
     }
 }
@@ -210,7 +213,7 @@ fun FabGroup(
         )
 
         AnimatedFab(
-            icon = Icons.Default.Settings,
+            icon = Icons.Default.Favorite,
             modifier = Modifier.padding(
                 PaddingValues(
                     bottom = 88.dp,
@@ -219,12 +222,12 @@ fun FabGroup(
             opacity = LinearEasing.transform(0.3f, 0.8f, animationProgress),
             onClick = {
                 navController.popBackStack()
-                navController.navigate(ScreenRoutes.Settings)
+                navController.navigate(ScreenRoutes.Favorite)
             }
         )
 
         AnimatedFab(
-            icon = Icons.Default.ShoppingCart,
+            icon = Icons.Default.LocationOn,
             modifier = Modifier.padding(
                 PaddingValues(
                     bottom = 72.dp,

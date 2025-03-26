@@ -31,6 +31,7 @@ import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
+import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.repo.WeatherRepository
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -57,7 +58,8 @@ fun MapScreen(){
         factory = MapViewModelFactory(
             WeatherRepository.getInstance(
                 WeatherRemoteDataSource(RetrofitHelper.apiService),
-                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO())
+                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO()),
+                SharedPrefDataSource.getInstance(LocalContext.current)
             )
         )
     )

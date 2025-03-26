@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.sharedpreference.Language
+import com.example.eltaqs.data.sharedpreference.LocationSource
 import com.example.eltaqs.data.sharedpreference.TemperatureUnit
 import com.example.eltaqs.data.sharedpreference.WindSpeedUnit
 import com.example.eltaqs.repo.WeatherRepository
@@ -14,14 +15,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val repository: WeatherRepository) : ViewModel() {
-    private val mutableTemperatureUnit = MutableStateFlow<Response<TemperatureUnit>>(Response.Loading)
+    private val mutableTemperatureUnit = MutableStateFlow(TemperatureUnit.CELSIUS)
     val temperatureUnit = mutableTemperatureUnit.asStateFlow()
 
-    private val mutableWindSpeedUnit = MutableStateFlow<Response<WindSpeedUnit>>(Response.Loading)
+    private val mutableLocationSource = MutableStateFlow(LocationSource.GPS)
+    val locationSource = mutableLocationSource.asStateFlow()
+
+    private val mutableWindSpeedUnit = MutableStateFlow(WindSpeedUnit.METER_PER_SEC)
     val windSpeedUnit = mutableWindSpeedUnit.asStateFlow()
 
-    private val mutablelanguage = MutableStateFlow<Response<Language>>(Response.Loading)
-    val language = mutablelanguage.asStateFlow()
+    private val mutableLanguage = MutableStateFlow(Language.ENGLISH)
+    val language = mutableLanguage.asStateFlow()
 
     init {
         loadSettings()
@@ -29,36 +33,38 @@ class SettingsViewModel(private val repository: WeatherRepository) : ViewModel()
 
     private fun loadSettings() {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                mutableTemperatureUnit.value = Response.Success(repository.getTemperatureUnit())
-                mutableWindSpeedUnit.value = Response.Success(repository.getWindSpeedUnit())
-                mutablelanguage.value = Response.Success(repository.getLanguage())
-            } catch (e: Exception) {
-                mutableTemperatureUnit.value = Response.Error("Failed to load temperature unit")
-                mutableWindSpeedUnit.value = Response.Error("Failed to load wind speed unit")
-                mutablelanguage.value = Response.Error("Failed to load language")
-            }
+            mutableTemperatureUnit.value = repository.getTemperatureUnit()
+            mutableWindSpeedUnit.value = repository.getWindSpeedUnit()
+            mutableLocationSource.value = repository.getLocationSource()
+            mutableLanguage.value = repository.getLanguage()
+        }
+    }
+
+    fun setLocationSource(source: LocationSource) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.setLocationSource(source)
+            mutableLocationSource.value = source
         }
     }
 
     fun setTemperatureUnit(unit: TemperatureUnit) {
-        viewModelScope.launch(Dispatchers.IO)  {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setTemperatureUnit(unit)
-            mutableTemperatureUnit.value = Response.Success(unit)
+            mutableTemperatureUnit.value = unit
         }
     }
 
     fun setWindSpeedUnit(unit: WindSpeedUnit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.setWindSpeedUnit(unit)
-            mutableWindSpeedUnit.value = Response.Success(unit)
+            mutableWindSpeedUnit.value = unit
         }
     }
 
-    fun setLanguage(language: Language) {
-        viewModelScope.launch {
-            repository.setLanguage(language)
-            mutablelanguage.value = Response.Success(language)
+    fun setLanguage(newLanguage: Language) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.setLanguage(newLanguage)
+            mutableLanguage.value = newLanguage
         }
     }
 }

@@ -10,6 +10,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,16 +26,20 @@ class LocationProvider(private val context: Context) {
 
     fun fetchLatLong(activity: Activity, onResult: (Location) -> Unit) {
         if (!checkPermissions()) {
+            Log.d("TAG", "fetchLatLong: Permissions not granted, requesting permissions")
             requestPermissions(activity)
             return
         }
 
         if (!isLocationEnabled()) {
+            Log.d("TAG", "fetchLatLong: Location services disabled")
             enableLocationServices()
             return
         }
 
+        Log.d("TAG", "fetchLatLong: Fetching fresh location")
         getFreshLocation { location ->
+            Log.d("TAG", "fetchLatLong: Got location - $location")
             onResult(location)
         }
     }
@@ -50,7 +55,7 @@ class LocationProvider(private val context: Context) {
         }
 
         fusedLocationClient.requestLocationUpdates(
-            LocationRequest.Builder(0)
+            LocationRequest.Builder(500)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .build(),
             locationCallback,
@@ -96,6 +101,7 @@ class LocationProvider(private val context: Context) {
         onResult: (Location) -> Unit
     ) {
         if (requestCode == REQUEST_LOCATION_CODE) {
+            Log.d("TAG", "handlePermissionResult called with grantResults: ${grantResults.joinToString()}")
             if (grantResults.isNotEmpty() &&
                 (grantResults[0] == PackageManager.PERMISSION_GRANTED ||
                         grantResults.getOrNull(1) == PackageManager.PERMISSION_GRANTED)

@@ -1,10 +1,5 @@
 package com.example.eltaqs
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -36,14 +31,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.SetUpNavHost
 import com.example.eltaqs.Utils.LocationProvider
-import com.example.eltaqs.Utils.settings.LanguageUtils
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
 import java.util.Locale
 
 
@@ -54,7 +43,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().name)
+        Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
+        applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
 
         locationProvider = LocationProvider(this)
         setContent {
@@ -72,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
                 val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-                val screensWithoutBottomBar = listOf("com.example.eltaqs.ScreenRoutes.Map", "com.example.eltaqs.ScreenRoutes.Alerts", "com.example.eltaqs.ScreenRoutes.Favorite")
+                val screensWithoutBottomBar = listOf("com.example.eltaqs.ScreenRoutes.Map")
 
                 Scaffold(
                 ) { innerPadding ->
@@ -97,7 +87,6 @@ class MainActivity : ComponentActivity() {
 
         locationProvider.fetchLatLong(this) { location ->
             locationState.value = location
-
         }
     }
 
@@ -110,6 +99,7 @@ class MainActivity : ComponentActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
         locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
             locationState.value = location
+            Log.d("TAG", "onRequestPermissionsResult: ${locationState.value}")
         }
     }
 

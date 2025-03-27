@@ -1,6 +1,6 @@
 package com.example.eltaqs.home
 
-
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,7 +11,6 @@ import com.example.eltaqs.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -19,11 +18,14 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
     private val mutableWeatherData = MutableStateFlow<Response<Pair<CurrentWeatherResponse, ForecastResponse>>>(Response.Loading)
     val weatherData = mutableWeatherData.asStateFlow()
 
-    fun getWeatherAndForecast(lat: Double, lon: Double, units: String, lang: String) {
+    fun getWeatherAndForecast(lat: Double,
+                              lon: Double,
+                              units: String = repository.getTemperatureUnit().apiUnit,
+                              lang: String = repository.getLanguage().apiCode
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 mutableWeatherData.value = Response.Loading
-
                 val currentWeather = repository.getCurrentWeather(lat, lon, units, lang).first()
                 val forecast = repository.getForecast(lat, lon, units, lang).first()
 
@@ -33,6 +35,18 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
                 mutableWeatherData.value = Response.Error(e.message ?: "Something went wrong")
             }
         }
+    }
+
+    fun getWindSpeedUnitSymbol(): String {
+        val speedUnit = repository.getWindSpeedUnit()
+        val language = repository.getLanguage()
+        return speedUnit.getDisplayName(language)
+    }
+
+    fun getTemperatureUnitSymbol(): String {
+        val tempUnit = repository.getTemperatureUnit()
+        val language = repository.getLanguage()
+        return tempUnit.getSymbol(language)
     }
 }
 

@@ -11,5 +11,13 @@
     <string name="sunset">Sunset</string>
     <string name="date">Monday, 12 Feb</string>
     <string name="forecast">Rain showers</string>
+    <string name="n_a">N/A</string>
+    <string name="favourite_locations">Favourite Locations</string>
+    <string name="last_updated">Last updated: %1$s</string>
+    <string name="language">Language</string>
+    <string name="location">Location</string>
+    <string name="temperature">Temperature</string>
+    <string name="item_deleted">Item deleted</string>
+    <string name="undo">Undo</string>
 
 </resources>

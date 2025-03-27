@@ -28,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,11 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -50,6 +53,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.R
+import com.example.eltaqs.Utils.settings.formatBasedOnLanguage
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.CurrentWeatherResponse
@@ -87,9 +91,11 @@ fun HomeScreen(location: Location) {
     )
 
     val uiState = viewModel.weatherData.collectAsStateWithLifecycle()
+    val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
+    val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
-    LaunchedEffect(Unit) {
-        viewModel.getWeatherAndForecast(location.latitude, location.longitude, "metric", "en")
+    LaunchedEffect(location) {
+        viewModel.getWeatherAndForecast(location.latitude, location.longitude)
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -108,10 +114,10 @@ fun HomeScreen(location: Location) {
                 val current = state.data.first
                 val forecast = state.data.second
 
-                CurrentWeatherSection(current)
-                WeatherStatsRow(current)
+                CurrentWeatherSection(current, tempSymbol)
+                WeatherStatsRow(current, tempSymbol, windSpeedSymbol)
                 TodayForecastRow()
-                HourlyForecastRow(forecast)
+                HourlyForecastRow(forecast, tempSymbol)
             }
 
             is Response.Error -> {
@@ -128,7 +134,7 @@ fun HomeScreen(location: Location) {
 
 
 @Composable
-fun CurrentWeatherSection(current: CurrentWeatherResponse) {
+fun CurrentWeatherSection(current: CurrentWeatherResponse, tempSymbol: String) {
     Text(
         text = current.name,
         fontSize = 30.sp,
@@ -136,7 +142,7 @@ fun CurrentWeatherSection(current: CurrentWeatherResponse) {
     )
 
     Text(
-        text = getCurrentDate(),
+        text = getCurrentDate().formatBasedOnLanguage(),
         color = Color.Gray,
         fontSize = 16.sp
     )
@@ -144,26 +150,27 @@ fun CurrentWeatherSection(current: CurrentWeatherResponse) {
     Spacer(modifier = Modifier.height(20.dp))
 
     DailyForecast(
-        forecast = current.weather.firstOrNull()?.main ?: "N/A",
+        forecast = current.weather.firstOrNull()?.description ?: stringResource(R.string.n_a),
         temp = current.main.temp.toInt(),
         feelsLike = current.main.feelsLike.toInt(),
         sunrise = current.sys.sunrise.toLong(),
         sunset = current.sys.sunset.toLong(),
-        date = getCurrentDate()
+        date = getCurrentDate().formatBasedOnLanguage(),
+        tempSymbol = tempSymbol.formatBasedOnLanguage()
     )
 
     Spacer(modifier = Modifier.height(30.dp))
 }
 
 @Composable
-fun WeatherStatsRow(current: CurrentWeatherResponse) {
+fun WeatherStatsRow(current: CurrentWeatherResponse, tempSymbol: String, windSpeedSymbol: String) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.padding(end = 8.dp)
     ) {
-        WeatherInfoCard(stringResource(R.string.wind_speed), "${current.wind.speed} km/h", R.drawable.windspeed)
+        WeatherInfoCard(stringResource(R.string.wind_speed), "${current.wind.speed}" + windSpeedSymbol.formatBasedOnLanguage(), R.drawable.windspeed)
         WeatherInfoCard(stringResource(R.string.humidity), "${current.main.humidity} %", R.drawable.humidity)
-        WeatherInfoCard(stringResource(R.string.max_temp), "${current.main.tempMax} °C", R.drawable.sleet)
+        WeatherInfoCard(stringResource(R.string.max_temp), "${current.main.tempMax}" + tempSymbol.formatBasedOnLanguage(), R.drawable.sleet)
         WeatherInfoCard(stringResource(R.string.pressure), "${current.main.pressure} hPa", R.drawable.hail)
     }
 }
@@ -200,7 +207,7 @@ fun TodayForecastRow() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HourlyForecastRow(forecast: ForecastResponse) {
+fun HourlyForecastRow(forecast: ForecastResponse, tempSymbol: String) {
     val today = LocalDate.now()
 
     val todayHourlyList = forecast.list.filter { item ->
@@ -212,7 +219,8 @@ fun HourlyForecastRow(forecast: ForecastResponse) {
         itemsIndexed(todayHourlyList) { index, hour ->
             DailyWeatherCard(
                 data = hour,
-                isSelected = index == 0
+                isSelected = index == 0,
+                tempSymbol = tempSymbol.formatBasedOnLanguage()
             )
         }
     }
@@ -248,7 +256,7 @@ fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
         }
 
         Text(
-            text = value,
+            text = value.formatBasedOnLanguage(),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
@@ -264,7 +272,8 @@ fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
 @Composable
 fun DailyWeatherCard(
     data: ForecastResponse.Item0,
-    isSelected: Boolean = false
+    isSelected: Boolean = false,
+    tempSymbol: String
 ) {
     val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
@@ -291,7 +300,7 @@ fun DailyWeatherCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "${data.main.temp.toInt()}°C",
+                text = data.main.temp.toInt().toString().formatBasedOnLanguage() + tempSymbol.formatBasedOnLanguage(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -303,7 +312,7 @@ fun DailyWeatherCard(
                     .size(35.dp)
             )
             Text(
-                text = hour,
+                text = hour.formatBasedOnLanguage(),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Gray
@@ -340,88 +349,115 @@ fun  getDayName(dateString: String): String {
 @Composable
 fun DailyForecast(
     modifier: Modifier = Modifier,
-    forecast: String = stringResource(R.string.forecast),
-    temp: Int = 21,
-    feelsLike: Int = 26,
+    forecast: String,
+    temp: Int,
+    feelsLike: Int,
     sunset: Long,
     sunrise: Long,
-    date: String = stringResource(R.string.date)
+    date: String,
+    tempSymbol: String
 ) {
-    ConstraintLayout(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        val (forecastImage, forecastValue, windImage, title, description, background) = createRefs()
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-        CardBackground(
-            modifier = Modifier.constrainAs(background) {
-                linkTo(
-                    start = parent.start,
-                    end = parent.end,
-                    top = parent.top,
-                    bottom = description.bottom,
-                    topMargin = 24.dp
-                )
-                height = Dimension.fillToConstraints
-            }
-        )
+    CompositionLocalProvider(LocalLayoutDirection provides if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
+        ConstraintLayout(
+            modifier = modifier.fillMaxWidth()
+        ) {
+            val (forecastImage, forecastValue, windImage, title, description, background) = createRefs()
 
-        Image(
-            painter = painterResource(id = getImageResId(forecast)),
-            contentDescription = null,
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier
-                .height(175.dp)
-                .constrainAs(forecastImage) {
-                    start.linkTo(anchor = parent.start, margin = 4.dp)
-                    top.linkTo(parent.top)
+            CardBackground(
+                modifier = Modifier.constrainAs(background) {
+                    linkTo(
+                        start = parent.start,
+                        end = parent.end,
+                        top = parent.top,
+                        bottom = description.bottom,
+                        topMargin = 24.dp
+                    )
+                    height = Dimension.fillToConstraints
                 }
-        )
+            )
 
-        Text(
-            text = forecast,
-            style = MaterialTheme.typography.titleLarge,
-            color = ColorTextSecondary,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.constrainAs(title) {
-                start.linkTo(anchor = parent.start, margin = 24.dp)
-                top.linkTo(anchor = forecastImage.bottom)
-            }
-        )
+            Image(
+                painter = painterResource(id = getImageResId(forecast)),
+                contentDescription = null,
+                contentScale = ContentScale.FillHeight,
+                modifier = Modifier
+                    .height(175.dp)
+                    .constrainAs(forecastImage) {
+                        if (isRtl) {
+                            end.linkTo(parent.end, margin = 4.dp)
+                        } else {
+                            start.linkTo(parent.start, margin = 4.dp)
+                        }
+                        top.linkTo(parent.top)
+                    }
+            )
 
-        Text(
-            text = stringResource(R.string.feels_like, feelsLike),
-            style = MaterialTheme.typography.bodyMedium,
-            color = ColorTextSecondaryVariant,
-            modifier = Modifier
-                .constrainAs(description) {
-                    start.linkTo(anchor = title.start)
-                    top.linkTo(anchor = title.bottom)
+            Text(
+                text = forecast,
+                style = MaterialTheme.typography.titleLarge,
+                color = ColorTextSecondary,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.constrainAs(title) {
+                    if (isRtl) {
+                        end.linkTo(parent.end, margin = 24.dp)
+                    } else {
+                        start.linkTo(parent.start, margin = 24.dp)
+                    }
+                    top.linkTo(anchor = forecastImage.bottom)
                 }
-                .padding(bottom = 24.dp)
-        )
+            )
 
-        ForecastValue(
-            modifier = Modifier
-                .constrainAs(forecastValue) {
-                    end.linkTo(anchor = parent.end, margin = 36.dp)
-                    top.linkTo(forecastImage.top)
-                    bottom.linkTo(forecastImage.bottom)
-                },
-            degree = temp.toString()
-        )
+            Text(
+                text = stringResource(R.string.feels_like, feelsLike.toString().formatBasedOnLanguage()),
+                style = MaterialTheme.typography.bodyMedium,
+                color = ColorTextSecondaryVariant,
+                modifier = Modifier
+                    .constrainAs(description) {
+                        if (isRtl) {
+                            end.linkTo(title.end)
+                        } else {
+                            start.linkTo(title.start)
+                        }
+                        top.linkTo(anchor = title.bottom)
+                    }
+                    .padding(bottom = 24.dp)
+            )
 
-        SunriseSunsetRow(
-            sunrise = sunrise,
-            sunset = sunset,
-            modifier = Modifier
-                .constrainAs(windImage) {
-                    linkTo(top = title.top, bottom = title.bottom)
-                    end.linkTo(anchor = parent.end, margin = 24.dp)
-                }
-                .padding(bottom = 24.dp)
-        )
+            ForecastValue(
+                modifier = Modifier
+                    .constrainAs(forecastValue) {
+                        if (isRtl) {
+                            start.linkTo(parent.start, margin = 36.dp)
+                        } else {
+                            end.linkTo(parent.end, margin = 36.dp)
+                        }
+                        top.linkTo(forecastImage.top)
+                        bottom.linkTo(forecastImage.bottom)
+                    },
+                degree = temp.toString().formatBasedOnLanguage(),
+                tempSymbol = tempSymbol.formatBasedOnLanguage()
+            )
+
+            SunriseSunsetRow(
+                sunrise = sunrise,
+                sunset = sunset,
+                modifier = Modifier
+                    .constrainAs(windImage) {
+                        linkTo(top = title.top, bottom = title.bottom)
+                        if (isRtl) {
+                            start.linkTo(parent.start, margin = 24.dp)
+                        } else {
+                            end.linkTo(parent.end, margin = 24.dp)
+                        }
+                    }
+                    .padding(bottom = 24.dp)
+            )
+        }
     }
 }
+
 
 @Composable
 private fun CardBackground(
@@ -443,7 +479,8 @@ private fun CardBackground(
 @Composable
 private fun ForecastValue(
     modifier: Modifier = Modifier,
-    degree: String = "21",
+    degree: String,
+    tempSymbol: String
 ) {
     Column(
         modifier = modifier,
@@ -453,7 +490,7 @@ private fun ForecastValue(
             contentAlignment = Alignment.TopEnd
         ) {
             Text(
-                text = degree,
+                text = degree.formatBasedOnLanguage(),
                 letterSpacing = 0.sp,
                 style = TextStyle(
                     brush = Brush.verticalGradient(
@@ -466,7 +503,7 @@ private fun ForecastValue(
                 modifier = Modifier.padding(end = 48.dp)
             )
             Text(
-                text = "°C",
+                text = tempSymbol,
                 style = TextStyle(
                     brush = Brush.verticalGradient(
                         0f to Color.White,
@@ -507,7 +544,7 @@ fun SunriseSunsetRow(
                 modifier = Modifier.size(40.dp),
                 tint = Color.Yellow
             )
-            Text(text = sunriseTime, fontSize = 14.sp, color = Color.Black)
+            Text(text = sunriseTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.Black)
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -517,7 +554,7 @@ fun SunriseSunsetRow(
                 modifier = Modifier.size(40.dp),
                 tint = Color(0xFFFFA500)
             )
-            Text(text = sunsetTime, fontSize = 14.sp, color = Color.Black)
+            Text(text = sunsetTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.Black)
         }
     }
 }

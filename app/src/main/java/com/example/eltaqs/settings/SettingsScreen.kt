@@ -24,12 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.eltaqs.Utils.settings.LanguageUtils
+import com.example.eltaqs.R
+import com.example.eltaqs.Utils.restartActivity
 import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
@@ -42,8 +44,7 @@ import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.repo.WeatherRepository
 
 @Composable
-@Preview(showBackground = true)
-fun SettingsScreen() {
+fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
     val viewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
             WeatherRepository.getInstance(
@@ -72,7 +73,7 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(20.dp))
 
         ToggleGroup(
-            title = "Language",
+            title = stringResource(R.string.language),
             options = Language.entries.map { it.getDisplayName(language) },
             selected = language.getDisplayName(language),
             onOptionSelected = { selectedName ->
@@ -81,7 +82,7 @@ fun SettingsScreen() {
                 }
                 selectedLanguage?.let {
                     viewModel.setLanguage(it)
-                    LanguageUtils.restartActivity(context)
+                    restartActivity(context)
                 }
             }
         )
@@ -89,42 +90,48 @@ fun SettingsScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Wind Speed",
+            title = stringResource(R.string.wind_speed),
             options = SpeedUnit.entries.map { it.getDisplayName(language) },
             selected = windSpeedUnit.getDisplayName(language),
             onOptionSelected = { selectedName ->
                 val selectedUnit = SpeedUnit.entries.find {
                     it.getDisplayName(language) == selectedName
                 }
-                selectedUnit?.let { viewModel.setWindSpeedUnit(it) }
+                selectedUnit?.let { viewModel.updateUnitsFromSelection(selectedSpeedUnit = it) }
             }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         ToggleGroup(
-            title = "Location",
-            options = LocationSource.entries.map { it.getDisplayName(language) },
-            selected = locationSource.getDisplayName(language),
-            onOptionSelected = { selectedName ->
-                val selectedSource = LocationSource.entries.find {
-                    it.getDisplayName(language) == selectedName
-                }
-                selectedSource?.let { viewModel.setLocationSource(it) }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ToggleGroup(
-            title = "Temperature",
+            title = stringResource(R.string.temperature),
             options = TemperatureUnit.entries.map { it.getDisplayName(language) },
             selected = temperatureUnit.getDisplayName(language),
             onOptionSelected = { selectedValue ->
                 val selectedUnit = TemperatureUnit.entries.find {
                     it.getDisplayName(language) == selectedValue
                 }
-                selectedUnit?.let { viewModel.setTemperatureUnit(it) }
+                selectedUnit?.let { viewModel.updateUnitsFromSelection(selectedTempUnit = it) }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ToggleGroup(
+            title = stringResource(R.string.location),
+            options = LocationSource.entries.map { it.getDisplayName(language) },
+            selected = locationSource.getDisplayName(language),
+            onOptionSelected = { selectedName ->
+                val selectedSource = LocationSource.entries.find {
+                    it.getDisplayName(language) == selectedName
+                }
+                selectedSource?.let {
+                    viewModel.setLocationSource(it)
+                    when (it) {
+                        LocationSource.GPS -> { /*viewModel.fetchLocationFromGPS()*/ }
+                        LocationSource.MAP -> { onNavigateToMap(true) }
+                    }
+                }
             }
         )
 
@@ -139,7 +146,9 @@ fun ToggleGroup(
     selected: String,
     onOptionSelected: (String) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp)) {
         Text(
             text = title,
             fontWeight = FontWeight.SemiBold,

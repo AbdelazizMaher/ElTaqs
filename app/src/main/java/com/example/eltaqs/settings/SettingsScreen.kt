@@ -44,8 +44,7 @@ import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.repo.WeatherRepository
 
 @Composable
-@Preview(showBackground = true)
-fun SettingsScreen() {
+fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
     val viewModel: SettingsViewModel = viewModel(
         factory = SettingsViewModelFactory(
             WeatherRepository.getInstance(
@@ -98,21 +97,7 @@ fun SettingsScreen() {
                 val selectedUnit = SpeedUnit.entries.find {
                     it.getDisplayName(language) == selectedName
                 }
-                selectedUnit?.let { viewModel.setWindSpeedUnit(it) }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        ToggleGroup(
-            title = stringResource(R.string.location),
-            options = LocationSource.entries.map { it.getDisplayName(language) },
-            selected = locationSource.getDisplayName(language),
-            onOptionSelected = { selectedName ->
-                val selectedSource = LocationSource.entries.find {
-                    it.getDisplayName(language) == selectedName
-                }
-                selectedSource?.let { viewModel.setLocationSource(it) }
+                selectedUnit?.let { viewModel.updateUnitsFromSelection(selectedSpeedUnit = it) }
             }
         )
 
@@ -126,7 +111,27 @@ fun SettingsScreen() {
                 val selectedUnit = TemperatureUnit.entries.find {
                     it.getDisplayName(language) == selectedValue
                 }
-                selectedUnit?.let { viewModel.setTemperatureUnit(it) }
+                selectedUnit?.let { viewModel.updateUnitsFromSelection(selectedTempUnit = it) }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ToggleGroup(
+            title = stringResource(R.string.location),
+            options = LocationSource.entries.map { it.getDisplayName(language) },
+            selected = locationSource.getDisplayName(language),
+            onOptionSelected = { selectedName ->
+                val selectedSource = LocationSource.entries.find {
+                    it.getDisplayName(language) == selectedName
+                }
+                selectedSource?.let {
+                    viewModel.setLocationSource(it)
+                    when (it) {
+                        LocationSource.GPS -> { /*viewModel.fetchLocationFromGPS()*/ }
+                        LocationSource.MAP -> { onNavigateToMap(true) }
+                    }
+                }
             }
         )
 

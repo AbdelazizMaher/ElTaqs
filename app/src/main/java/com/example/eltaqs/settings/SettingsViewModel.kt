@@ -66,6 +66,17 @@ class SettingsViewModel(private val repository: WeatherRepository) : ViewModel()
             mutableLanguage.value = newLanguage
         }
     }
+
+    fun updateUnitsFromSelection(selectedTempUnit: TemperatureUnit? = null, selectedSpeedUnit: SpeedUnit? = null) {
+        val newApiUnit = selectedTempUnit?.apiUnit ?: selectedSpeedUnit?.apiUnit ?: return
+
+        val newTempUnit = selectedTempUnit ?: TemperatureUnit.entries.find { it.apiUnit == newApiUnit } ?: TemperatureUnit.KELVIN
+        val newSpeedUnit = selectedSpeedUnit ?: SpeedUnit.entries.find { it.apiUnit == newApiUnit } ?: SpeedUnit.METER_PER_SECOND
+
+        setTemperatureUnit(newTempUnit)
+        setWindSpeedUnit(newSpeedUnit)
+    }
+
 }
 
 class SettingsViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {

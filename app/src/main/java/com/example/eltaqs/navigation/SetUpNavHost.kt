@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.example.eltaqs.favourite.FavouriteScreen
 import com.example.eltaqs.home.HomeScreen
 import com.example.eltaqs.map.MapScreen
@@ -30,7 +31,9 @@ fun SetUpNavHost(navController: NavHostController, location: Location) {
             FavouriteScreen()
         }
         composable<ScreenRoutes.Settings> {
-            SettingsScreen()
+            SettingsScreen() {
+                navController.navigate(ScreenRoutes.Map)
+            }
         }
         composable<ScreenRoutes.Details> {
            // DetailsScreen()

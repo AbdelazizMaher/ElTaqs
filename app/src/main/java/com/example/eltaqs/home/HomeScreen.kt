@@ -95,7 +95,6 @@ fun HomeScreen(location: Location) {
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
     LaunchedEffect(location) {
-        if(location.latitude == 0.0 && location.longitude == 0.0) return@LaunchedEffect
         viewModel.getWeatherAndForecast(location.latitude, location.longitude)
     }
 
@@ -151,7 +150,7 @@ fun CurrentWeatherSection(current: CurrentWeatherResponse, tempSymbol: String) {
     Spacer(modifier = Modifier.height(20.dp))
 
     DailyForecast(
-        forecast = current.weather.firstOrNull()?.main ?: stringResource(R.string.n_a),
+        forecast = current.weather.firstOrNull()?.description ?: stringResource(R.string.n_a),
         temp = current.main.temp.toInt(),
         feelsLike = current.main.feelsLike.toInt(),
         sunrise = current.sys.sunrise.toLong(),
@@ -301,7 +300,7 @@ fun DailyWeatherCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "${data.main.temp.toInt()}" + tempSymbol.formatBasedOnLanguage(),
+                text = data.main.temp.toInt().toString().formatBasedOnLanguage() + tempSymbol.formatBasedOnLanguage(),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black

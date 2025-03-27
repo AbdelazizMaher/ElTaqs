@@ -1,10 +1,5 @@
 package com.example.eltaqs
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -67,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
                 val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-                val screensWithoutBottomBar = listOf("com.example.eltaqs.ScreenRoutes.Map", "com.example.eltaqs.ScreenRoutes.Alerts", "com.example.eltaqs.ScreenRoutes.Favorite")
+                val screensWithoutBottomBar = listOf("com.example.eltaqs.ScreenRoutes.Map")
 
                 Scaffold(
                 ) { innerPadding ->

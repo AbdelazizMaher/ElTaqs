@@ -38,8 +38,7 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
             .apply()
     }
 
-    override fun getMapCoordinates(): Pair<Double, Double>? {
-        if (!prefs.contains("map_lat") || !prefs.contains("map_lon")) return null
+    override fun getMapCoordinates(): Pair<Double, Double> {
         val lat = prefs.getFloat("map_lat", 0f).toDouble()
         val lon = prefs.getFloat("map_lon", 0f).toDouble()
         return Pair(lat, lon)

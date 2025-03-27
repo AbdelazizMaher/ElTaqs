@@ -1,9 +1,5 @@
 package com.example.eltaqs.Utils.settings
 
-
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import com.example.eltaqs.Utils.settings.enums.Language
 import java.util.Locale
 

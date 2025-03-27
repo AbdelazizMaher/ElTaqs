@@ -94,10 +94,11 @@ fun HomeScreen(location: Location) {
     val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
-    LaunchedEffect(location) {
-        viewModel.getWeatherAndForecast(location.latitude, location.longitude)
+    if (location.latitude != 0.0 && location.longitude != 0.0) {
+        LaunchedEffect(location) {
+            viewModel.getWeatherAndForecast(location.latitude, location.longitude)
+        }
     }
-
     Column(modifier = Modifier.padding(16.dp)) {
         when (val state = uiState.value) {
             is Response.Loading -> {

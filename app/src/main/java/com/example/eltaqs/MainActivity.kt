@@ -3,34 +3,25 @@ package com.example.eltaqs
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Looper
-import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
-import com.example.eltaqs.SetUpNavHost
 import com.example.eltaqs.Utils.LocationProvider
+import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import java.util.Locale
@@ -85,9 +76,11 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        locationProvider.fetchLatLong(this) { location ->
-            locationState.value = location
-        }
+        //if (SharedPrefDataSource.getInstance(this@MainActivity).getLocationSource() == LocationSource.GPS) {
+            locationProvider.fetchLatLong(this) { location ->
+                locationState.value = location
+            }
+        //}
     }
 
     override fun onRequestPermissionsResult(
@@ -97,9 +90,12 @@ class MainActivity : ComponentActivity() {
         deviceId: Int
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        Log.d("TAG", "onRequestPermissionsResult: called")
         locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
             locationState.value = location
-            Log.d("TAG", "onRequestPermissionsResult: ${locationState.value}")
+            SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
+            Log.d("TAG", "onRequestPermissionsResult: ${location.latitude} ${location.longitude}")
+            Log.d("TAG", "onRequestPermissionsResult: ${SharedPrefDataSource.getInstance(this@MainActivity).getMapCoordinates()}")
         }
     }
 
@@ -115,12 +111,6 @@ class MainActivity : ComponentActivity() {
 
 
 
-@Composable
-fun AlertsScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Alerts Screen")
-    }
-}
 
 
 

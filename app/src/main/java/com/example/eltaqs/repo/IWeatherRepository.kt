@@ -50,5 +50,5 @@ interface IWeatherRepository {
     fun getLanguage(): Language
 
     fun setMapCoordinates(lat: Double, lon: Double)
-    fun getMapCoordinates(): Pair<Double, Double>?
+    fun getMapCoordinates(): Pair<Double, Double>
 }

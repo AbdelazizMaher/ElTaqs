@@ -114,7 +114,7 @@ class WeatherRepository private constructor(
         sharedPrefDataSource.setMapCoordinates(lat, lon)
     }
 
-    override fun getMapCoordinates(): Pair<Double, Double>? {
+    override fun getMapCoordinates(): Pair<Double, Double> {
         return sharedPrefDataSource.getMapCoordinates()
     }
 }

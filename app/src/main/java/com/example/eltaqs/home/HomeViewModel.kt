@@ -25,7 +25,7 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                mutableWeatherData.value = Response.Loading
+                //val latlng = repository.getMapCoordinates()
                 val currentWeather = repository.getCurrentWeather(lat, lon, units, lang).first()
                 val forecast = repository.getForecast(lat, lon, units, lang).first()
 

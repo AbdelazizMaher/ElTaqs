@@ -55,7 +55,7 @@ class LocationProvider(private val context: Context) {
         }
 
         fusedLocationClient.requestLocationUpdates(
-            LocationRequest.Builder(500)
+            LocationRequest.Builder(0)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .build(),
             locationCallback,

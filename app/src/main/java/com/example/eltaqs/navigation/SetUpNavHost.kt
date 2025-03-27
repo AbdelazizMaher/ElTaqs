@@ -25,7 +25,7 @@ fun SetUpNavHost(navController: NavHostController, location: Location) {
             HomeScreen(location)
         }
         composable<ScreenRoutes.Alerts> {
-            AlertsScreen()
+            //AlertsScreen()
         }
         composable<ScreenRoutes.Favorite> {
             FavouriteScreen()

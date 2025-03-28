@@ -24,7 +24,6 @@ import com.example.eltaqs.Utils.LocationProvider
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import java.util.Locale
 

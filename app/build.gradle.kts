@@ -119,4 +119,6 @@ dependencies {
     implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
     implementation("com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation ("androidx.compose.material:material:1.5.4")
 }

@@ -17,12 +17,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.Utils.LocationProvider
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 
@@ -73,11 +76,17 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
+        val sharedPref = SharedPrefDataSource.getInstance(this)
         if (SharedPrefDataSource.getInstance(this@MainActivity).getLocationSource() == LocationSource.GPS) {
             locationProvider.fetchLatLong(this) { location ->
                 locationState.value = location
                 SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
-                Log.d("TAG", "onStart: ${location.latitude}, ${location.longitude}")
+            }
+        }
+        lifecycleScope.launch {
+            sharedPref.getLocationChange().collect { (lat, lon) ->
+                locationState.value.latitude = lat
+                locationState.value.longitude = lon
             }
         }
     }

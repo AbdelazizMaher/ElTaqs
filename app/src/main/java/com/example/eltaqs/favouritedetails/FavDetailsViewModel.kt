@@ -38,11 +38,21 @@ class FavDetailsViewModel(private val repository: WeatherRepository) : ViewModel
         }
     }
 
+    fun getItemFromDatabase(location: FavouriteLocation) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getFavouriteByLocation(location.locationName).collect {
+                mutableWeatherData.value = Response.Success(Pair(it.currentWeather, it.forecastWeather))
+            }
+        }
+    }
+
     fun updateFavourite(location: FavouriteLocation) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.insertFavourite(location)
         }
     }
+
+
 
     fun getWindSpeedUnitSymbol(): String {
         val speedUnit = repository.getWindSpeedUnit()

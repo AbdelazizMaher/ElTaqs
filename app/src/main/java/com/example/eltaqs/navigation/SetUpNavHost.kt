@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.eltaqs.alert.AlertsScreen
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.favourite.FavouriteScreen
 import com.example.eltaqs.favouritedetails.FavDetails
@@ -37,7 +38,8 @@ fun SetUpNavHost(
             }
         }
         composable<ScreenRoutes.Alerts> {
-            //AlertsScreen()
+            showBottomBar.value = false
+            AlertsScreen()
         }
         composable<ScreenRoutes.Favorite> {
             showBottomBar.value = true

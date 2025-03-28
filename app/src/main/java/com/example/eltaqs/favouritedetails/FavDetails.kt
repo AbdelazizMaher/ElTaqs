@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.FavouriteLocation
@@ -41,12 +42,18 @@ fun FavDetails(location: FavouriteLocation, onNavigateToDetails: (lat: Double, l
         )
     )
 
+    val context = LocalContext.current
+
     val uiState = viewModel.weatherData.collectAsStateWithLifecycle()
     val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
     LaunchedEffect(Unit) {
-        viewModel.getWeatherAndForecast(location)
+        if(NetworkConnectivity.isInternetAvailable(context)) {
+            viewModel.getWeatherAndForecast(location)
+        }else {
+            viewModel.getItemFromDatabase(location)
+        }
     }
 
     Column(modifier = Modifier.padding(16.dp)) {

@@ -2,7 +2,7 @@ package com.example.eltaqs.alert
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 
 class AlertsViewModel(private val repository: WeatherRepository) : ViewModel()  {
 

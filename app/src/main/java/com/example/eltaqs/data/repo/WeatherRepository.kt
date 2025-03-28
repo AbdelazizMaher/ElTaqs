@@ -1,4 +1,4 @@
-package com.example.eltaqs.repo
+package com.example.eltaqs.data.repo
 
 import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
@@ -70,6 +70,14 @@ class WeatherRepository private constructor(
         return localDataSource.getAllFavourites()
     }
 
+    override suspend fun getFavouriteByLocation(locationName: String): Flow<FavouriteLocation> {
+        return localDataSource.getFavouriteByLocation(locationName)
+    }
+
+    override suspend fun updateFavourite(location: FavouriteLocation): Int {
+        return localDataSource.updateFavourite(location)
+    }
+
     override suspend fun insertFavourite(location: FavouriteLocation): Long {
         return localDataSource.insertFavourite(location)
     }
@@ -84,6 +92,10 @@ class WeatherRepository private constructor(
 
     override fun getLocationSource(): LocationSource {
         return sharedPrefDataSource.getLocationSource()
+    }
+
+    override fun getLocationChange(): Flow<Pair<Double, Double>> {
+        return sharedPrefDataSource.getLocationChange()
     }
 
     override fun setTemperatureUnit(unit: TemperatureUnit) {

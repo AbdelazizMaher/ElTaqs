@@ -2,6 +2,7 @@ package com.example.eltaqs.home
 
 import android.location.Location
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,7 +45,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +61,7 @@ import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 import com.example.eltaqs.ui.theme.ColorTextSecondary
 import com.example.eltaqs.ui.theme.ColorTextSecondaryVariant
 import java.time.Instant
@@ -71,15 +71,9 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
-@Composable
-@Preview(showBackground = true)
-fun PreviewHomeScreen2() {
-    //HomeScreen2()
-}
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(location: Location) {
+fun HomeScreen(location: Location, onNavigateToDetails: (lat: Double, lon: Double, location: String)-> Unit) {
     val viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
             WeatherRepository.getInstance(
@@ -91,14 +85,17 @@ fun HomeScreen(location: Location) {
     )
 
     val uiState = viewModel.weatherData.collectAsStateWithLifecycle()
+    val locationState = viewModel.locationState.collectAsStateWithLifecycle()
     val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
-    if (location.latitude != 0.0 && location.longitude != 0.0) {
-        LaunchedEffect(location) {
-            viewModel.getWeatherAndForecast(location.latitude, location.longitude)
+    Log.d("TAG", "HomeScreen: ${locationState.value.lng}, ${locationState.value.lat}")
+
+    //if (locationState.value.lat != 0.0 && locationState.value.lng != 0.0) {
+        LaunchedEffect(locationState.value) {
+            viewModel.getWeatherAndForecast(locationState.value.lat, locationState.value.lng)
         }
-    }
+    //}
     Column(modifier = Modifier.padding(16.dp)) {
         when (val state = uiState.value) {
             is Response.Loading -> {
@@ -117,7 +114,7 @@ fun HomeScreen(location: Location) {
 
                 CurrentWeatherSection(current, tempSymbol)
                 WeatherStatsRow(current, tempSymbol, windSpeedSymbol)
-                TodayForecastRow()
+                TodayForecastRow(locationState.value.lat, locationState.value.lng,current.name, onNavigateToDetails)
                 HourlyForecastRow(forecast, tempSymbol)
             }
 
@@ -177,7 +174,7 @@ fun WeatherStatsRow(current: CurrentWeatherResponse, tempSymbol: String, windSpe
 }
 
 @Composable
-fun TodayForecastRow() {
+fun TodayForecastRow(lat: Double, lon: Double, location: String, onNavigateToDetails: (lat: Double, lon: Double, location: String)-> Unit) {
     Spacer(modifier = Modifier.height(30.dp))
 
     Row(
@@ -200,7 +197,7 @@ fun TodayForecastRow() {
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF4466E5),
             modifier = Modifier.clickable {
-                // Handle click if needed
+                onNavigateToDetails(lat, lon, location)
             }
         )
     }
@@ -341,7 +338,7 @@ fun getCurrentDate(): String {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun  getDayName(dateString: String): String {
+fun getDayName(dateString: String): String {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val date = LocalDate.parse(dateString, formatter)
     return date.format(DateTimeFormatter.ofPattern("EEEE"))
@@ -411,7 +408,7 @@ fun DailyForecast(
             )
 
             Text(
-                text = stringResource(R.string.feels_like, feelsLike.toString().formatBasedOnLanguage()),
+                text = stringResource(R.string.feels_like , feelsLike.toString().formatBasedOnLanguage() +tempSymbol),
                 style = MaterialTheme.typography.bodyMedium,
                 color = ColorTextSecondaryVariant,
                 modifier = Modifier

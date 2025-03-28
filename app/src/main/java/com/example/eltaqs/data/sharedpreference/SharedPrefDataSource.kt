@@ -1,10 +1,16 @@
 package com.example.eltaqs.data.sharedpreference
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
 import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 
 class SharedPrefDataSource private constructor(context: Context) : ISharedPreference {
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
@@ -18,6 +24,16 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
                 instance ?: SharedPrefDataSource(context.applicationContext).also { instance = it }
             }
         }
+    }
+
+    override fun getLocationChange(): Flow<Pair<Double, Double>> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "map_lat" || key == "map_lon") {
+                trySend(getMapCoordinates())
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
     override fun setLocationSource(source: LocationSource) {

@@ -237,7 +237,7 @@ fun FabGroup(
             opacity = LinearEasing.transform(0.4f, 0.9f, animationProgress),
             onClick = {
                 navController.popBackStack()
-                navController.navigate(ScreenRoutes.Map)
+                navController.navigate(ScreenRoutes.Map(isMap = false))
             }
         )
 

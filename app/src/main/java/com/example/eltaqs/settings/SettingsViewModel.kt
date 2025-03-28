@@ -7,7 +7,7 @@ import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
 import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

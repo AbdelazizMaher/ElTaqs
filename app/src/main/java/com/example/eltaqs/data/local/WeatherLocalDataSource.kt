@@ -10,6 +10,14 @@ class WeatherLocalDataSource(private val dao: WeatherDAO) : IWeatherLocalDataSou
         return dao.getAllFavoriteLocations()
     }
 
+    override suspend fun getFavouriteByLocation(locationName: String): Flow<FavouriteLocation> {
+        return dao.getFavoriteLocationByLocation(locationName)
+    }
+
+    override suspend fun updateFavourite(location: FavouriteLocation): Int {
+        return dao.updateFavoriteLocation(location)
+    }
+
     override suspend fun insertFavourite(location: FavouriteLocation): Long {
         return dao.insertFavoriteLocation(location)
     }

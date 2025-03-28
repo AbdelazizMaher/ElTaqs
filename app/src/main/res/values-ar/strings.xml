@@ -7,7 +7,7 @@
     <string name="pressure">الضغط</string>
     <string name="today">اليوم</string>
     <string name="next_5_days">الخمسة أيام القادمة</string>
-    <string name="feels_like">يبدو كأنها %1$s°م</string>
+    <string name="feels_like">يبدو كأنها %1</string>
     <string name="sunrise">شروق الشمس</string>
     <string name="sunset">غروب الشمس</string>
     <string name="date">الإثنين، 12 فبراير</string>

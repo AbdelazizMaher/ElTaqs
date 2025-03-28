@@ -1,5 +1,6 @@
 package com.example.eltaqs.map
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,12 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.BuildConfig
+import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -53,7 +55,7 @@ import com.google.maps.android.compose.rememberMarkerState
 
 
 @Composable
-fun MapScreen(){
+fun MapScreen(isMap: Boolean = false){
     val viewModel: MapViewModel = viewModel(
         factory = MapViewModelFactory(
             WeatherRepository.getInstance(
@@ -100,6 +102,9 @@ fun MapScreen(){
                 update = CameraUpdateFactory.newLatLngZoom(newLatLng, 12f),
                 durationMs = 1000
             )
+            viewModel.getCityNameByLocation(newLatLng)
+            Log.d("TAG", "MapScreen1: ${newLatLng}")
+            Log.d("TAG", "MapScreen2: ${locationResult.name}")
             isTapped = true
         }
     }
@@ -112,6 +117,15 @@ fun MapScreen(){
                 query = searchText
             }
             predictions = response.autocompletePredictions
+        }
+    }
+
+    val cityByLocationState by viewModel.cityByLocation.collectAsStateWithLifecycle()
+
+    LaunchedEffect(cityByLocationState) {
+        if (cityByLocationState is Response.Success) {
+            selectedCityName = (cityByLocationState as Response.Success).data[0].name
+            Log.d("TAG", "MapScreen3: ${selectedCityName}")
         }
     }
 
@@ -148,7 +162,6 @@ fun MapScreen(){
                 result = autocompletePlace
                 predictions = emptyList()
                 isTapped = true
-                selectedCityName = result?.primaryText.toString()
                 viewModel.getLocationByCityName(result?.primaryText.toString())
             },
             selectedPlace = result
@@ -176,6 +189,10 @@ fun MapScreen(){
 
                     Button(
                         onClick = {
+                            if(isMap){
+                                viewModel.setHomeLocation(markerState.position)
+                                viewModel.setLocationSource(LocationSource.MAP)
+                            }
                             viewModel.saveLocation(selectedCityName, markerState.position)
                             isTapped = false
                         },

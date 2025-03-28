@@ -4,10 +4,13 @@ import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
 import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import kotlinx.coroutines.flow.Flow
 
 interface ISharedPreference {
     fun setLocationSource(source: LocationSource)
     fun getLocationSource(): LocationSource
+
+    fun getLocationChange(): Flow<Pair<Double, Double>>
 
     fun setTemperatureUnit(unit: TemperatureUnit)
     fun getTemperatureUnit(): TemperatureUnit

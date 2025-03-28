@@ -18,9 +18,12 @@ sealed class ScreenRoutes(val route: String) {
     object Settings : ScreenRoutes("settings")
 
     @Serializable
-    object Map : ScreenRoutes("map")
+    data class Map(val isMap: Boolean) : ScreenRoutes("map")
 
     @Serializable
     data class Details(val lat: Double, val lon: Double, val location: String) : ScreenRoutes("details")
+
+    @Serializable
+    data class FavDetails(val location: String) : ScreenRoutes("favDetails")
 
 }

@@ -1,15 +1,14 @@
 package com.example.eltaqs.map
 
-import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.model.Response
-import com.example.eltaqs.home.HomeViewModel
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -38,7 +37,7 @@ class MapViewModel(private val repository: WeatherRepository) : ViewModel() {
                     mutableLocationByCity.value = Response.Error(it.message.toString())
                 }.collect{
                     mutableLocationByCity.value = Response.Success(it)
-                    Log.d("TAG", "getLocationByCityName1: ${it}")
+                    Log.d("TAG", "getLocationByCityName1: ${it.first.name}")
                 }
             }catch (e: Exception){
                 mutableMessage.emit(e.message.toString())
@@ -53,7 +52,7 @@ class MapViewModel(private val repository: WeatherRepository) : ViewModel() {
                     mutableCityByLocation.value = Response.Error(it.message.toString())
                 }.collect {
                     mutableCityByLocation.value = Response.Success(it)
-                    Log.d("TAG", "getCityNameByLocation: ${it}")
+                    Log.d("TAG", "getCityNameByLocation: ${it.first.name}")
                 }
             }catch (e: Exception){
                 mutableMessage.emit(e.message.toString())
@@ -69,6 +68,18 @@ class MapViewModel(private val repository: WeatherRepository) : ViewModel() {
             }catch (e: Exception){
                 mutableMessage.emit(e.message.toString())
             }
+        }
+    }
+
+    fun setHomeLocation(position: LatLng) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.setMapCoordinates(position.latitude, position.longitude)
+        }
+    }
+
+    fun setLocationSource(source: LocationSource) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.setLocationSource(source)
         }
     }
 }

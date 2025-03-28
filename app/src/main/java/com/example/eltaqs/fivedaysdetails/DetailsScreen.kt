@@ -1,4 +1,4 @@
-package com.example.eltaqs.details
+package com.example.eltaqs.fivedaysdetails
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -35,27 +34,16 @@ import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 import java.time.LocalDate
 
-@Composable
-@Preview(showBackground = true)
-fun PreviewWeatherDetailScreen() {
-    WeatherDetailScreen(
-        lat = 32.34,
-        lon = 20.99,
-        location = "Cairo",
-        onBackClick = {}
-    )
-}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeatherDetailScreen(
+fun DetailsScreen(
     lat: Double,
     lon: Double,
-    units: String = "metric",
-    lang: String = "en",
     location: String,
     onBackClick: () -> Unit
 ) {
@@ -74,7 +62,7 @@ fun WeatherDetailScreen(
     var selectedDay by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.getForecast(lat, lon, units, lang)
+        viewModel.getForecast(lat, lon)
     }
 
     Scaffold(

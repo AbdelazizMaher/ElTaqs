@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.home.HomeViewModel
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

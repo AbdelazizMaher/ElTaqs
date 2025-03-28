@@ -1,4 +1,4 @@
-package com.example.eltaqs.repo
+package com.example.eltaqs.data.repo
 
 import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
@@ -34,11 +34,15 @@ interface IWeatherRepository {
     ): Flow<GeocodingResponse>
 
     suspend fun getAllFavourites() : Flow<List<FavouriteLocation>>
+    suspend fun getFavouriteByLocation(locationName: String) : Flow<FavouriteLocation>
+    suspend fun updateFavourite(location: FavouriteLocation) : Int
     suspend fun insertFavourite(location: FavouriteLocation) : Long
     suspend fun deleteFavourite(location: FavouriteLocation) : Int
 
     fun setLocationSource(source: LocationSource)
     fun getLocationSource(): LocationSource
+
+    fun getLocationChange(): Flow<Pair<Double, Double>>
 
     fun setTemperatureUnit(unit: TemperatureUnit)
     fun getTemperatureUnit(): TemperatureUnit

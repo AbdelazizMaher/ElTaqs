@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.Utils.LocationProvider
@@ -30,6 +29,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     private lateinit var locationProvider: LocationProvider
     private lateinit var locationState: MutableState<Location>
+    lateinit var showBottomBar : MutableState<Boolean>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
             FluidBottomNavigationTheme {
                 val navController = rememberNavController()
                 locationState = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
+                showBottomBar = remember { mutableStateOf(true) }
 
                 val backgroundGradient = Brush.verticalGradient(
                     colors = listOf(
@@ -51,10 +52,6 @@ class MainActivity : ComponentActivity() {
                     )
                 )
 
-                val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-
-                val screensWithoutBottomBar = listOf("com.example.eltaqs.ScreenRoutes.Map")
-
                 Scaffold(
                 ) { innerPadding ->
                     Box(
@@ -63,8 +60,8 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        SetUpNavHost(navController = navController, location = locationState.value)
-                        if (currentRoute !in screensWithoutBottomBar) {
+                        SetUpNavHost(navController = navController, location = locationState.value, showBottomBar = showBottomBar)
+                        if(showBottomBar.value) {
                             AnimatedBottomSection(navController = navController)
                         }
                     }
@@ -76,11 +73,13 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        //if (SharedPrefDataSource.getInstance(this@MainActivity).getLocationSource() == LocationSource.GPS) {
+        if (SharedPrefDataSource.getInstance(this@MainActivity).getLocationSource() == LocationSource.GPS) {
             locationProvider.fetchLatLong(this) { location ->
                 locationState.value = location
+                SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
+                Log.d("TAG", "onStart: ${location.latitude}, ${location.longitude}")
             }
-        //}
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -94,8 +93,6 @@ class MainActivity : ComponentActivity() {
         locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
             locationState.value = location
             SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
-            Log.d("TAG", "onRequestPermissionsResult: ${location.latitude} ${location.longitude}")
-            Log.d("TAG", "onRequestPermissionsResult: ${SharedPrefDataSource.getInstance(this@MainActivity).getMapCoordinates()}")
         }
     }
 

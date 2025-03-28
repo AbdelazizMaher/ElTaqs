@@ -41,7 +41,7 @@ import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 
-import com.example.eltaqs.repo.WeatherRepository
+import com.example.eltaqs.data.repo.WeatherRepository
 
 @Composable
 fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
@@ -126,9 +126,8 @@ fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
                     it.getDisplayName(language) == selectedName
                 }
                 selectedSource?.let {
-                    viewModel.setLocationSource(it)
                     when (it) {
-                        LocationSource.GPS -> { /*viewModel.fetchLocationFromGPS()*/ }
+                        LocationSource.GPS -> { viewModel.setLocationSource(it)/*viewModel.fetchLocationFromGPS()*/ }
                         LocationSource.MAP -> { onNavigateToMap(true) }
                     }
                 }

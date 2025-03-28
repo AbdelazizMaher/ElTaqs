@@ -7,7 +7,7 @@ enum class TemperatureUnit(
 ) {
     KELVIN(
         mapOf(Language.ENGLISH to "Kelvin", Language.ARABIC to "كلفن"),
-        mapOf(Language.ENGLISH to "K", Language.ARABIC to "ك"),
+        mapOf(Language.ENGLISH to "°K", Language.ARABIC to "°ك"),
         "standard"
     ),
     CELSIUS(

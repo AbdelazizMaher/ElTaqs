@@ -18,6 +18,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 
 
 class LocationProvider(private val context: Context) {
@@ -55,8 +56,8 @@ class LocationProvider(private val context: Context) {
         }
 
         fusedLocationClient.requestLocationUpdates(
-            LocationRequest.Builder(0)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,1000)
+                .setWaitForAccurateLocation(true)
                 .build(),
             locationCallback,
             Looper.getMainLooper()

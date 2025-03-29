@@ -16,8 +16,8 @@ val Pink = Color(0xFFFF4081)
 val DarkPurple = Color(0xFF121212)
 
 val ColorGradient1 = Color(0xFFA0C8F9)
-val ColorGradient2 = Color(0xFF8AB8F8)
-val ColorGradient3 = Color(0xFF75A7F7)
+val ColorGradient2 = Color(0xFF69A1EF)
+val ColorGradient3 = Color(0xFF1F6DEA)
 
 val ColorBackground = Color(0xFFF4DCF7).copy(alpha = 0.4f)
 val ColorSurface = Color.White

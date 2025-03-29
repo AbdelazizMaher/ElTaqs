@@ -98,6 +98,10 @@ class WeatherRepository private constructor(
         return sharedPrefDataSource.getLocationChange()
     }
 
+    override fun getLocationSourceFlow():  Flow<LocationSource> {
+        return sharedPrefDataSource.getLocationSourceFlow()
+    }
+
     override fun setTemperatureUnit(unit: TemperatureUnit) {
         sharedPrefDataSource.setTemperatureUnit(unit)
     }

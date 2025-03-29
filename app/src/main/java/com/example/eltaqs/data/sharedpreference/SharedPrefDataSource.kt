@@ -36,6 +36,16 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override fun getLocationSourceFlow(): Flow<LocationSource> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == "location_source") {
+                trySend(getLocationSource())
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override fun setLocationSource(source: LocationSource) {
         prefs.edit()
             .putString("location_source", source.name)

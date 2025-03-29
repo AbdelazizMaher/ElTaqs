@@ -24,7 +24,8 @@ import com.google.gson.Gson
 @Composable
 fun SetUpNavHost(
     navController: NavHostController,
-    location: Location,
+    showFloatingBtn: MutableState<Boolean>,
+    onFabClick: MutableState<() -> Unit>,
     showBottomBar: MutableState<Boolean>
 ) {
     NavHost(
@@ -33,12 +34,13 @@ fun SetUpNavHost(
     ) {
         composable<ScreenRoutes.Home> {
             showBottomBar.value = true
-            HomeScreen(location){lat,lon, location ->
+            HomeScreen(){lat,lon, location ->
                 navController.navigate(ScreenRoutes.Details(lat, lon, location))
             }
         }
         composable<ScreenRoutes.Alerts> {
             showBottomBar.value = false
+            showFloatingBtn.value = true
             AlertsScreen()
         }
         composable<ScreenRoutes.Favorite> {
@@ -64,8 +66,12 @@ fun SetUpNavHost(
         }
         composable<ScreenRoutes.Map> {
             showBottomBar.value = false
+            showFloatingBtn.value = true
             val isMap = it.toRoute<ScreenRoutes.Map>().isMap
             MapScreen(isMap)
+            onFabClick.value = {
+                navController.navigate(ScreenRoutes.Favorite)
+            }
         }
         composable<ScreenRoutes.FavDetails> {
             showBottomBar.value = true

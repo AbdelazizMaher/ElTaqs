@@ -127,7 +127,7 @@ fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
                 }
                 selectedSource?.let {
                     when (it) {
-                        LocationSource.GPS -> { viewModel.setLocationSource(it)/*viewModel.fetchLocationFromGPS()*/ }
+                        LocationSource.GPS -> { viewModel.setLocationSource(it) }
                         LocationSource.MAP -> { onNavigateToMap(true) }
                     }
                 }

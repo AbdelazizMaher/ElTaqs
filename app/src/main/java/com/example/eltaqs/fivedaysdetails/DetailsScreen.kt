@@ -1,5 +1,6 @@
 package com.example.eltaqs.fivedaysdetails
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -20,14 +21,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.R
+import com.example.eltaqs.Utils.settings.formatBasedOnLanguage
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.ForecastResponse
@@ -35,8 +46,19 @@ import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
+import com.example.eltaqs.home.DailyForecast
+import com.example.eltaqs.home.SunriseSunsetRow
+import com.example.eltaqs.home.getImageResId
+import com.example.eltaqs.ui.theme.ColorGradient1
+import com.example.eltaqs.ui.theme.ColorGradient2
+import com.example.eltaqs.ui.theme.ColorGradient3
+import com.example.eltaqs.ui.theme.ColorTextSecondary
+import com.example.eltaqs.ui.theme.ColorTextSecondaryVariant
 import java.time.LocalDate
-
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -67,7 +89,7 @@ fun DetailsScreen(
 
     Scaffold(
         topBar = { TopBarSection(location, onBackClick) },
-        backgroundColor = Color(0xFFD6E0F5)
+        backgroundColor = Color(0xFFA9BDE8)
     ) { paddingValues ->
 
         when (val state = uiState) {
@@ -119,27 +141,50 @@ fun DetailsScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(60.dp))
 
-                    groupedByDay[selectedDay]?.firstOrNull()?.let {
-                        WeatherDetailsCard(it)
-                    }
+                    Box (
 
-                    selectedDay?.let { dayKey ->
-                        val hourlyList = groupedByDay[dayKey] ?: emptyList()
-
-                        LazyColumn(
+                    ){
+                        Box(
                             modifier = Modifier
+                                .padding(top = 70.dp)
+                                .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
+                                .background(Color(0xFFE5F2FF))
                                 .fillMaxSize()
-                                .background(Color.White)
-                                .padding(horizontal = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(hourlyList) { forecastItem ->
-                                HourlyForecastItem(forecastItem)
+
+                        }
+                        Column(
+
+                        ) {
+                            groupedByDay[selectedDay]?.firstOrNull()?.let {
+                                WeatherDetailsCard1(it)
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            selectedDay?.let { dayKey ->
+                                val hourlyList = groupedByDay[dayKey] ?: emptyList()
+
+                                LazyColumn(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color.Transparent)
+                                        .padding(horizontal = 16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    items(hourlyList) { forecastItem ->
+                                        HourlyForecastItem(forecastItem)
+                                    }
+                                }
                             }
                         }
                     }
+
+
+
+
                 }
             }
         }
@@ -151,7 +196,7 @@ fun DetailsScreen(
 @Composable
 fun TopBarSection(location: String, onBackClick: () -> Unit) {
     TopAppBar(
-        backgroundColor = Color(0xFFD6E0F5),
+        backgroundColor = Color(0xFFA9BDE8),
         elevation = 0.dp,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
@@ -170,6 +215,7 @@ fun TopBarSection(location: String, onBackClick: () -> Unit) {
 }
 
 
+@SuppressLint("NewApi")
 @Composable
 fun DaySelectorItem(
     day: String,
@@ -209,63 +255,136 @@ fun DaySelectorItem(
     }
 }
 
-
 @Composable
-fun WeatherDetailsCard(today:  ForecastResponse.Item0) {
+fun WeatherDetailsCard1(today: ForecastResponse.Item0) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
             .wrapContentHeight()
             .background(
-                color = Color.White,
+                color = Color.Transparent,
                 shape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)
             )
     ) {
-        Box(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .offset(y = (-60).dp)
-                .fillMaxWidth()
-                .height(300.dp)
-                .background(
-                    brush = Brush.linearGradient(
-                        listOf(
-                            Color(0xffa9c1f5),
-                            Color(0xff6696f5)
-                        )
-                    ),
-                    shape = RoundedCornerShape(15.dp)
-                )
+        DailyForecast(
+            modifier = Modifier.wrapContentHeight(),
+            forecast = today.weather.firstOrNull()?.description.orEmpty(),
+            temp = today.main.temp.toInt(),
+            feelsLike = today.main.feelsLike.toInt(),
+            date = today.dtTxt,
+            tempSymbol = "°C",
+            today = today
+        )
+    }
+
+}
+
+@Composable
+fun DailyForecast(
+    modifier: Modifier = Modifier,
+    forecast: String,
+    temp: Int,
+    feelsLike: Int,
+    date: String,
+    tempSymbol: String,
+    today: ForecastResponse.Item0
+) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
+    CompositionLocalProvider(LocalLayoutDirection provides if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
+        Column(
+            modifier = modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                val icon = today.weather.firstOrNull()?.icon ?: "01d"
-                val description = today.weather.firstOrNull()?.description.orEmpty()
+            ConstraintLayout(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                val (forecastImage, forecastValue, weatherInfo, title, description, background) = createRefs()
+
+                CardBackground(
+                    modifier = Modifier
+                        .constrainAs(background) {
+                        linkTo(
+                            start = parent.start,
+                            end = parent.end,
+                            top = parent.top,
+                            bottom = weatherInfo.bottom,
+                            topMargin = 24.dp
+                        )
+                        height = Dimension.fillToConstraints
+                    }
+                )
 
                 Image(
-                    painter = painterResource(id = getWeatherIcon(icon)),
+                    painter = painterResource(id = getImageResId(forecast)),
                     contentDescription = null,
+                    contentScale = ContentScale.FillHeight,
                     modifier = Modifier
-                        .size(100.dp)
-                        .align(Alignment.CenterHorizontally)
+                        .height(175.dp)
+                        .constrainAs(forecastImage) {
+                            if (isRtl) {
+                                end.linkTo(parent.end, margin = 4.dp)
+                            } else {
+                                start.linkTo(parent.start, margin = 4.dp)
+                            }
+                            top.linkTo(parent.top)
+                        }
                 )
 
-                Text(
-                    text = description.replaceFirstChar { it.uppercase() },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                androidx.compose.material3.Text(
+                    text = forecast,
+                    style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                    color = ColorTextSecondary,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.constrainAs(title) {
+                        if (isRtl) {
+                            end.linkTo(parent.end, margin = 24.dp)
+                        } else {
+                            start.linkTo(parent.start, margin = 24.dp)
+                        }
+                        top.linkTo(anchor = forecastImage.bottom)
+                    }
+                        .padding(start = 16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-                WeatherInfoRow(today)
-                Spacer(modifier = Modifier.height(24.dp))
+                androidx.compose.material3.Text(
+                    text = stringResource(R.string.feels_like, feelsLike.toString().formatBasedOnLanguage() + tempSymbol),
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                    color = ColorTextSecondaryVariant,
+                    modifier = Modifier
+                        .constrainAs(description) {
+                            if (isRtl) {
+                                end.linkTo(title.end)
+                            } else {
+                                start.linkTo(title.start)
+                            }
+                            top.linkTo(anchor = title.bottom)
+                        }
+                        .padding(start = 16.dp)
+                )
 
-                Text(
-                    text = "${today.main.temp.toInt()}°C",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ForecastValue(
+                    modifier = Modifier
+                        .constrainAs(forecastValue) {
+                            if (isRtl) {
+                                start.linkTo(parent.start, margin = 36.dp)
+                            } else {
+                                end.linkTo(parent.end, margin = 36.dp)
+                            }
+                            top.linkTo(forecastImage.top)
+                            bottom.linkTo(forecastImage.bottom)
+                        },
+                    degree = temp.toString().formatBasedOnLanguage(),
+                    tempSymbol = tempSymbol.formatBasedOnLanguage()
+                )
+
+                WeatherInfoRow(
+                    today,
+                    modifier = Modifier.constrainAs(weatherInfo) {
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                        top.linkTo(description.bottom)
+                    }
+                        .padding(bottom = 16.dp)
                 )
             }
         }
@@ -273,23 +392,91 @@ fun WeatherDetailsCard(today:  ForecastResponse.Item0) {
 }
 
 
+
 @Composable
-fun WeatherInfoRow(item:  ForecastResponse.Item0) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+private fun CardBackground(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .background(
+                brush = Brush.linearGradient(
+                    0f to ColorGradient1,
+                    0.5f to ColorGradient2,
+                    1f to ColorGradient3
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+    )
+}
+
+@Composable
+private fun ForecastValue(
+    modifier: Modifier = Modifier,
+    degree: String,
+    tempSymbol: String
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.Start
     ) {
-        WeatherInfoCard("Humidity", "${item.main.humidity}%", R.drawable.humidity)
-        WeatherInfoCard("Wind", "${item.wind.speed} km/h", R.drawable.windspeed)
-        WeatherInfoCard("Max Temp", "${item.main.tempMax.toInt()}°C", R.drawable.maxtemp)
-        WeatherInfoCard("Pressure", "${item.main.pressure} hPa", R.drawable.hail)
+        Box(
+            contentAlignment = Alignment.TopEnd
+        ) {
+            androidx.compose.material3.Text(
+                text = degree.formatBasedOnLanguage(),
+                letterSpacing = 0.sp,
+                style = TextStyle(
+                    brush = Brush.verticalGradient(
+                        0f to Color.White,
+                        1f to Color.White.copy(alpha = 0.3f)
+                    ),
+                    fontSize = 80.sp,
+                    fontWeight = FontWeight.Black
+                ),
+                modifier = Modifier.padding(end = 48.dp)
+            )
+            androidx.compose.material3.Text(
+                text = tempSymbol,
+                style = TextStyle(
+                    brush = Brush.verticalGradient(
+                        0f to Color.White,
+                        1f to Color.White.copy(alpha = 0.3f)
+                    ),
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Light,
+                ),
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        }
     }
 }
 
 
 @Composable
-fun HourlyForecastItem(hourForecast:  ForecastResponse.Item0) {
-    val time = hourForecast.dtTxt.split(" ")[1].substring(0, 5)
+fun WeatherInfoRow(item:  ForecastResponse.Item0, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        WeatherInfoCard("Humidity", "${item.main.humidity}%", R.drawable.humidity)
+        WeatherInfoCard("Wind", "${item.wind.speed} km/h", R.drawable.windspeed)
+        WeatherInfoCard("Max Temp", "${item.main.tempMax.toInt()}°C", R.drawable.maxtemp)
+    }
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun HourlyForecastItem(hourForecast: ForecastResponse.Item0) {
+    val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+    val dateTime = LocalDateTime.parse(hourForecast.dtTxt, inputFormatter)
+    val time = outputFormatter.format(dateTime)
+
     val temp = hourForecast.main.temp.toInt()
     val icon = hourForecast.weather.firstOrNull()?.icon ?: "01d"
     val desc = hourForecast.weather.firstOrNull()?.description.orEmpty()
@@ -302,36 +489,65 @@ fun HourlyForecastItem(hourForecast:  ForecastResponse.Item0) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(time, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text("$temp°C", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(desc.replaceFirstChar { it.uppercase() }, fontSize = 12.sp)
+        }
+
         Image(
             painter = painterResource(getWeatherIcon(icon)),
             contentDescription = null,
             modifier = Modifier.size(32.dp)
         )
-        Column(horizontalAlignment = Alignment.End) {
-            Text("$temp°C", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(desc.replaceFirstChar { it.uppercase() }, fontSize = 12.sp)
-        }
+
+        Text(
+            time,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End
+        )
     }
 }
-
-
 
 @Composable
 fun WeatherInfoCard(title: String, value: String, iconResId: Int) {
     Column(
-        modifier = Modifier
-            .width(100.dp)
-            .padding(4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.width(100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(id = iconResId),
-            contentDescription = null,
-            modifier = Modifier.size(32.dp)
+        androidx.compose.material3.Text(
+            text = title,
+            fontSize = 12.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 4.dp)
         )
-        Text(text = title, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-        Text(text = value, fontSize = 14.sp, fontWeight = FontWeight.Normal)
+
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFF2F4FA)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = iconResId),
+                contentDescription = null,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+
+        androidx.compose.material3.Text(
+            text = value.formatBasedOnLanguage(),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier.padding(top = 6.dp)
+        )
     }
 }
 

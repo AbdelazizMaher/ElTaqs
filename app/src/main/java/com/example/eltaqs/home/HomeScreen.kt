@@ -77,7 +77,7 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(location: Location, onNavigateToDetails: (lat: Double, lon: Double, location: String)-> Unit) {
+fun HomeScreen(onNavigateToDetails: (lat: Double, lon: Double, location: String)-> Unit) {
     val viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
             WeatherRepository.getInstance(
@@ -88,26 +88,21 @@ fun HomeScreen(location: Location, onNavigateToDetails: (lat: Double, lon: Doubl
         )
     )
 
-    val context = LocalContext.current
-
     val uiState = viewModel.weatherData.collectAsStateWithLifecycle()
     val locationState = viewModel.locationState.collectAsStateWithLifecycle()
     val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
-
     val isInternetAvailable by NetworkConnectivity.isInternetAvailable.collectAsState()
-    //if (locationState.value.lat != 0.0 && locationState.value.lng != 0.0) {
 
     LaunchedEffect(isInternetAvailable, locationState.value) {
         if (isInternetAvailable) {
-            Log.d("TAG", "HomeScreen: ${locationState.value.lng}, ${locationState.value.lat}")
-            viewModel.getWeatherAndForecast(locationState.value.lat, locationState.value.lng)
+            viewModel.getWeatherAndForecast()
         } else {
-            viewModel.getWeatherAndForecastFromLocal(locationState.value.lat, locationState.value.lng)
+            viewModel.getWeatherAndForecastFromLocal()
         }
     }
-    //}
+
     Column(modifier = Modifier.padding(16.dp)) {
         when (val state = uiState.value) {
             is Response.Loading -> {

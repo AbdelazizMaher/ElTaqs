@@ -9,7 +9,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
@@ -25,14 +33,16 @@ import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
+import com.google.android.libraries.places.api.Places
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 
 class MainActivity : ComponentActivity() {
     private lateinit var locationProvider: LocationProvider
-    private lateinit var locationState: MutableState<Location>
     lateinit var showBottomBar : MutableState<Boolean>
+    lateinit var showfloatingBtn: MutableState<Boolean>
+    lateinit var onFabClick: MutableState<() -> Unit>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,13 +50,15 @@ class MainActivity : ComponentActivity() {
         NetworkConnectivity.startObserving(applicationContext)
         Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
         applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
+        Places.initializeWithNewPlacesApiEnabled(this, BuildConfig.GOOGLE_MAP_API_KEY)
 
         locationProvider = LocationProvider(this)
         setContent {
             FluidBottomNavigationTheme {
                 val navController = rememberNavController()
-                locationState = remember { mutableStateOf(Location(LocationManager.GPS_PROVIDER)) }
                 showBottomBar = remember { mutableStateOf(true) }
+                showfloatingBtn = remember { mutableStateOf(false) }
+                onFabClick = remember { mutableStateOf({}) }
 
                 val backgroundGradient = Brush.verticalGradient(
                     colors = listOf(
@@ -57,6 +69,24 @@ class MainActivity : ComponentActivity() {
                 )
 
                 Scaffold(
+                    floatingActionButton = {
+                        if (showfloatingBtn.value) {
+                            FloatingActionButton(
+                                onClick = {
+                                    onFabClick.value()
+                                },
+                                containerColor = colorResource(R.color.purple_700),
+                                shape = CircleShape,
+                                modifier = Modifier.offset(y = (-120).dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Favorite,
+                                    contentDescription = "Favorite",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    }
                 ) { innerPadding ->
                     Box(
                         modifier = Modifier
@@ -64,7 +94,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        SetUpNavHost(navController = navController, location = locationState.value, showBottomBar = showBottomBar)
+                        SetUpNavHost(navController = navController, showFloatingBtn = showfloatingBtn, onFabClick= onFabClick, showBottomBar = showBottomBar)
                         if(showBottomBar.value) {
                             AnimatedBottomSection(navController = navController)
                         }

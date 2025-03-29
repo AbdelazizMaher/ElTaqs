@@ -32,8 +32,8 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
         getLocation()
     }
 
-    fun getWeatherAndForecast(lat: Double,
-                              lon: Double,
+    fun getWeatherAndForecast(lat: Double = repository.getMapCoordinates().first,
+                              lon: Double = repository.getMapCoordinates().second,
                               units: String = repository.getTemperatureUnit().apiUnit,
                               lang: String = repository.getLanguage().apiCode
     ) {
@@ -43,6 +43,7 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
                 val currentWeather = repository.getCurrentWeather(lat, lon, units, lang).first()
                 val forecast = repository.getForecast(lat, lon, units, lang).first()
 
+                mutableWeatherData.value = Response.Loading
                 mutableWeatherData.value = Response.Success(Pair(currentWeather, forecast))
 
                 repository.insertFavourite(FavouriteLocation("CACHED_HOME", latLng = LatLng(lat, lon),currentWeather, forecast))
@@ -53,10 +54,10 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
         }
     }
 
-    fun getWeatherAndForecastFromLocal(lat: Double,
-                                        lon: Double,
-                                        units: String = repository.getTemperatureUnit().apiUnit,
-                                        lang: String = repository.getLanguage().apiCode
+    fun getWeatherAndForecastFromLocal(lat: Double = repository.getMapCoordinates().first,
+                                       lon: Double = repository.getMapCoordinates().second,
+                                       units: String = repository.getTemperatureUnit().apiUnit,
+                                       lang: String = repository.getLanguage().apiCode
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -96,7 +97,6 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
             _locationState.value = Location(latLng.first, latLng.second)
         }
     }
-
 }
 
 class HomeViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {

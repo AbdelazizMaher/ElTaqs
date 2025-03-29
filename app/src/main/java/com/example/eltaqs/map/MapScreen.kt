@@ -69,7 +69,7 @@ fun MapScreen(isMap: Boolean = false){
     val context = LocalContext.current
     val locationState by viewModel.locationByCity.collectAsStateWithLifecycle()
 
-    Places.initializeWithNewPlacesApiEnabled(context, BuildConfig.GOOGLE_MAP_API_KEY)
+
     val placesClient = Places.createClient(context)
 
     val bias: LocationBias = RectangularBounds.newInstance(

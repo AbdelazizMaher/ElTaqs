@@ -11,6 +11,7 @@ interface ISharedPreference {
     fun getLocationSource(): LocationSource
 
     fun getLocationChange(): Flow<Pair<Double, Double>>
+    fun getLocationSourceFlow(): Flow<LocationSource>
 
     fun setTemperatureUnit(unit: TemperatureUnit)
     fun getTemperatureUnit(): TemperatureUnit

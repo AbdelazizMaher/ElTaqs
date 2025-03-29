@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.Utils.LocationProvider
+import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        NetworkConnectivity.startObserving(applicationContext)
         Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
         applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
 
@@ -76,18 +78,26 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         val sharedPref = SharedPrefDataSource.getInstance(this)
-        if (SharedPrefDataSource.getInstance(this@MainActivity).getLocationSource() == LocationSource.GPS) {
-            locationProvider.fetchLatLong(this) { location ->
-                locationState.value = location
-                SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
+        lifecycleScope.launch {
+            sharedPref.getLocationSourceFlow().collect { locationSource ->
+                if (locationSource == LocationSource.GPS) {
+                    locationProvider.fetchLatLong(this@MainActivity) { location ->
+                        sharedPref.setMapCoordinates(location.latitude, location.longitude)
+                    }
+                }
             }
         }
+
         lifecycleScope.launch {
             sharedPref.getLocationChange().collect { (lat, lon) ->
-                locationState.value.latitude = lat
-                locationState.value.longitude = lon
+                sharedPref.setMapCoordinates(lat, lon)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        NetworkConnectivity.stopObserving()
     }
 
     override fun onRequestPermissionsResult(
@@ -99,7 +109,6 @@ class MainActivity : ComponentActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
         Log.d("TAG", "onRequestPermissionsResult: called")
         locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
-            locationState.value = location
             SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
         }
     }

@@ -4,13 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.data.model.CurrentWeatherResponse
+import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.repo.WeatherRepository
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.compose.autocomplete.models.geocoder.Location
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -21,6 +25,7 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
 
     private val _locationState = MutableStateFlow(Location(0.0, 0.0))
     val locationState = _locationState.asStateFlow()
+
 
     init {
         onLocationChange()
@@ -40,6 +45,24 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
 
                 mutableWeatherData.value = Response.Success(Pair(currentWeather, forecast))
 
+                repository.insertFavourite(FavouriteLocation("CACHED_HOME", latLng = LatLng(lat, lon),currentWeather, forecast))
+
+            } catch (e: Exception) {
+                mutableWeatherData.value = Response.Error(e.message ?: "Something went wrong")
+            }
+        }
+    }
+
+    fun getWeatherAndForecastFromLocal(lat: Double,
+                                        lon: Double,
+                                        units: String = repository.getTemperatureUnit().apiUnit,
+                                        lang: String = repository.getLanguage().apiCode
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repository.getFavouriteByLocation("CACHED_HOME").collect {
+                    mutableWeatherData.value = Response.Success(Pair(it.currentWeather, it.forecastWeather))
+                }
             } catch (e: Exception) {
                 mutableWeatherData.value = Response.Error(e.message ?: "Something went wrong")
             }
@@ -73,6 +96,7 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
             _locationState.value = Location(latLng.first, latLng.second)
         }
     }
+
 }
 
 class HomeViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {

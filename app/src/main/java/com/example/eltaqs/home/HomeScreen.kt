@@ -1,5 +1,6 @@
 package com.example.eltaqs.home
 
+import android.annotation.SuppressLint
 import android.location.Location
 import android.os.Build
 import android.util.Log
@@ -31,6 +32,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +56,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.R
+import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.Utils.settings.formatBasedOnLanguage
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
@@ -84,17 +88,25 @@ fun HomeScreen(location: Location, onNavigateToDetails: (lat: Double, lon: Doubl
         )
     )
 
+    val context = LocalContext.current
+
     val uiState = viewModel.weatherData.collectAsStateWithLifecycle()
     val locationState = viewModel.locationState.collectAsStateWithLifecycle()
     val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
-    Log.d("TAG", "HomeScreen: ${locationState.value.lng}, ${locationState.value.lat}")
 
+    val isInternetAvailable by NetworkConnectivity.isInternetAvailable.collectAsState()
     //if (locationState.value.lat != 0.0 && locationState.value.lng != 0.0) {
-        LaunchedEffect(locationState.value) {
+
+    LaunchedEffect(isInternetAvailable, locationState.value) {
+        if (isInternetAvailable) {
+            Log.d("TAG", "HomeScreen: ${locationState.value.lng}, ${locationState.value.lat}")
             viewModel.getWeatherAndForecast(locationState.value.lat, locationState.value.lng)
+        } else {
+            viewModel.getWeatherAndForecastFromLocal(locationState.value.lat, locationState.value.lng)
         }
+    }
     //}
     Column(modifier = Modifier.padding(16.dp)) {
         when (val state = uiState.value) {
@@ -344,6 +356,7 @@ fun getDayName(dateString: String): String {
     return date.format(DateTimeFormatter.ofPattern("EEEE"))
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun DailyForecast(
     modifier: Modifier = Modifier,

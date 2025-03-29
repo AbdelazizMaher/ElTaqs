@@ -9,6 +9,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,8 +49,10 @@ fun FavDetails(location: FavouriteLocation, onNavigateToDetails: (lat: Double, l
     val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
     val tempSymbol = viewModel.getTemperatureUnitSymbol()
 
-    LaunchedEffect(Unit) {
-        if(NetworkConnectivity.isInternetAvailable(context)) {
+    val isInternetAvailable = NetworkConnectivity.isInternetAvailable
+
+    LaunchedEffect(isInternetAvailable) {
+        if(isInternetAvailable.value) {
             viewModel.getWeatherAndForecast(location)
         }else {
             viewModel.getItemFromDatabase(location)

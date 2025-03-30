@@ -121,6 +121,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             sharedPref.getLocationChange().collect { (lat, lon) ->
                 sharedPref.setMapCoordinates(lat, lon)
+                Log.d("TAG", "onStart: $lat, $lon")
             }
         }
     }
@@ -130,15 +131,28 @@ class MainActivity : ComponentActivity() {
         NetworkConnectivity.stopObserving()
     }
 
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int,
+//        permissions: Array<out String>,
+//        grantResults: IntArray,
+//        deviceId: Int
+//    ) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+//        Log.d("TAG", "onRequestPermissionsResult: called")
+//        locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
+//            SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
+//        }
+//    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-        deviceId: Int
+        permissions: Array<String>,
+        grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         Log.d("TAG", "onRequestPermissionsResult: called")
         locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
+            if(location.latitude == 0.0 && location.longitude == 0.0) return@handlePermissionResult
             SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
         }
     }

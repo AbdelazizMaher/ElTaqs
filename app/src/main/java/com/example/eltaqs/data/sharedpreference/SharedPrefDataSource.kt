@@ -33,6 +33,7 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(getMapCoordinates())
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
@@ -43,6 +44,7 @@ class SharedPrefDataSource private constructor(context: Context) : ISharedPrefer
             }
         }
         prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(getLocationSource())
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 

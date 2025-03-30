@@ -68,7 +68,9 @@ fun SetUpNavHost(
             showBottomBar.value = false
             showFloatingBtn.value = true
             val isMap = it.toRoute<ScreenRoutes.Map>().isMap
-            MapScreen(isMap)
+            MapScreen(isMap) {
+                navController.popBackStack()
+            }
             onFabClick.value = {
                 navController.navigate(ScreenRoutes.Favorite)
             }

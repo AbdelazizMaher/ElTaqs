@@ -7,6 +7,7 @@ import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.ForecastResponse
 import com.example.eltaqs.data.local.WeatherLocalDataSource
+import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
@@ -84,6 +85,22 @@ class WeatherRepository private constructor(
 
     override suspend fun deleteFavourite(location: FavouriteLocation): Int {
         return localDataSource.deleteFavourite(location)
+    }
+
+    override suspend fun getAlarms(): Flow<List<Alarm>> {
+        return localDataSource.getAlarms()
+    }
+
+    override suspend fun getAlarm(alarmId: Int): Alarm? {
+        return localDataSource.getAlarm(alarmId)
+    }
+
+    override suspend fun insertAlarm(alarm: Alarm): Long {
+        return localDataSource.insertAlarm(alarm)
+    }
+
+    override suspend fun deleteAlarm(alarm: Alarm): Int {
+        return localDataSource.deleteAlarm(alarm)
     }
 
     override fun setLocationSource(source: LocationSource) {

@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.model.FavouriteLocation
 import kotlinx.coroutines.flow.Flow
 
@@ -26,4 +27,16 @@ interface WeatherDAO {
 
     @Delete
     suspend fun deleteFavoriteLocation(location: FavouriteLocation) : Int
+
+    @Query("SELECT * FROM alarms")
+    fun getAlarms(): Flow<List<Alarm>>
+
+    @Query("SELECT * FROM alarms WHERE id = :alarmId")
+    suspend fun getAlarm(alarmId: Int): Alarm?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAlarm(alarm: Alarm) : Long
+
+    @Delete
+    suspend fun deleteAlarm(alarm: Alarm) : Int
 }

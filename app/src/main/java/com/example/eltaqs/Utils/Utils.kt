@@ -16,8 +16,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.app.NotificationCompat
 import com.example.eltaqs.MainActivity
 import com.example.eltaqs.R
-import com.example.eltaqs.alert.receiver.AlarmBroadcastCancelReceiver
-import com.example.eltaqs.alert.service.MediaPlayerFacade
+import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -59,8 +58,9 @@ fun createNotification(
         notificationManager.createNotificationChannel(channel)
     }
 
-    val deleteIntent = Intent(context, AlarmBroadcastCancelReceiver::class.java).apply {
+    val deleteIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
         putExtra("ALARM_ID", alarmId)
+        putExtra("ALARM_ACTION", "STOP")
         action = "DELETE"
     }
     val deletePendingIntent = PendingIntent.getBroadcast(
@@ -70,8 +70,9 @@ fun createNotification(
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val cancelIntent = Intent(context, AlarmBroadcastCancelReceiver::class.java).apply {
+    val cancelIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
         putExtra("ALARM_ID", alarmId)
+        putExtra("ALARM_ACTION", "STOP")
     }
     val cancelPendingIntent = PendingIntent.getBroadcast(
         context,
@@ -98,6 +99,7 @@ fun createNotification(
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .setAutoCancel(true)
+        .setOngoing(true)
         .addAction(
             R.drawable.hail,
             "Cancel",
@@ -125,7 +127,6 @@ fun parseTimeToMillis(timeString: String): Long {
     val calendar = Calendar.getInstance()
     calendar.time = date
 
-    // Get the current date and set the extracted time
     val now = Calendar.getInstance()
     calendar.set(Calendar.YEAR, now.get(Calendar.YEAR))
     calendar.set(Calendar.MONTH, now.get(Calendar.MONTH))

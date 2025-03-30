@@ -6,8 +6,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import com.example.eltaqs.Utils.parseTimeToMillis
-import com.example.eltaqs.alert.receiver.AlarmBroadcastCancelReceiver
 import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
 import com.example.eltaqs.data.model.Alarm
 
@@ -18,6 +18,7 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
     override fun scheduleAlarm(alarm: Alarm) {
         val alarmIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
             putExtra("ALARM_ID", alarm.id)
+            putExtra("ALARM_ACTION", "START")
         }
 
         val alarmPendingIntent = PendingIntent.getBroadcast(
@@ -27,8 +28,9 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val cancelIntent = Intent(context, AlarmBroadcastCancelReceiver::class.java).apply {
+        val cancelIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
             putExtra("ALARM_ID", alarm.id)
+            putExtra("ALARM_ACTION", "STOP")
         }
 
         val cancelPendingIntent = PendingIntent.getBroadcast(
@@ -40,7 +42,7 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
 
         val alarmTime = parseTimeToMillis(alarm.startTime)
         val endTime = parseTimeToMillis(alarm.endTime)
-        val cancelTime = alarmTime + (endTime * 1000L)
+        val cancelTime = alarmTime + (endTime - alarmTime)
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
@@ -56,7 +58,7 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
 
     override fun cancelAlarm(alarm: Alarm) {
         val alarmIntent = Intent(context, AlarmBroadcastReceiver::class.java)
-        val cancelIntent = Intent(context, AlarmBroadcastCancelReceiver::class.java)
+        val cancelIntent = Intent(context, AlarmBroadcastReceiver::class.java)
 
         val alarmPendingIntent = PendingIntent.getBroadcast(
             context,

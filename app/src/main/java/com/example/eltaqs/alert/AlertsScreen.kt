@@ -1,5 +1,9 @@
 package com.example.eltaqs.alert
 
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,10 +63,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eltaqs.alert.manager.AlarmScheduler
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
+import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
@@ -89,6 +96,28 @@ fun AlertsScreen() {
         viewModel.getAlarms()
     }
 
+    val context = LocalContext.current
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    context, android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
+
+
+
     var showBottomSheet = remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -100,7 +129,7 @@ fun AlertsScreen() {
         }
 
         if (showBottomSheet.value) {
-            BottomSheetCompose(showBottomSheet)
+            BottomSheetCompose(showBottomSheet, viewModel)
         }
 
     }
@@ -108,7 +137,7 @@ fun AlertsScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetCompose(showBottomSheet: MutableState<Boolean>) {
+fun BottomSheetCompose(showBottomSheet: MutableState<Boolean>, viewModel: AlertsViewModel) {
     val modalBottomSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -122,6 +151,9 @@ fun BottomSheetCompose(showBottomSheet: MutableState<Boolean>) {
 
     val startInteractionSource = remember { MutableInteractionSource() }
     val endInteractionSource = remember { MutableInteractionSource() }
+
+    val context = LocalContext.current
+    val alarmScheduler = remember { AlarmScheduler(context) }
 
     LaunchedEffect(startInteractionSource) {
         startInteractionSource.interactions.collect { interaction ->
@@ -169,7 +201,7 @@ fun BottomSheetCompose(showBottomSheet: MutableState<Boolean>) {
                 label = { Text("End duration") },
                 leadingIcon = { Icon(imageVector = Icons.Default.Timer, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = true,  // Make it read-only
+                readOnly = true,
                 interactionSource = endInteractionSource
             )
 
@@ -225,6 +257,9 @@ fun BottomSheetCompose(showBottomSheet: MutableState<Boolean>) {
 
                 Button(
                     onClick = {
+                        val id = System.currentTimeMillis().toInt()
+                        viewModel.insertAlarm(Alarm(id, startDuration, endDuration))
+                        alarmScheduler.scheduleAlarm(Alarm(id, startDuration, endDuration))
                         coroutineScope.launch {
                             modalBottomSheetState.hide()
                             showBottomSheet.value = false

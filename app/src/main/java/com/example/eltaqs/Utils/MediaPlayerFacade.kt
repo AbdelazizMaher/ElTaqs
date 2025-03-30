@@ -1,7 +1,8 @@
-package com.example.eltaqs.alert.service
+package com.example.eltaqs.Utils
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.util.Log
 import com.example.eltaqs.R
 
 object MediaPlayerFacade {
@@ -18,6 +19,7 @@ object MediaPlayerFacade {
     }
 
     fun stopAudio(){
+        Log.d("MediaPlayerFacade", "stopAudio: ")
         mediaPlayer?.let {
             it.stop()
             it.release()

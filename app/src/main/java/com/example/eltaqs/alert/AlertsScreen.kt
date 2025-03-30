@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
@@ -82,6 +83,11 @@ fun AlertsScreen() {
             )
         )
     )
+
+    val alerts = viewModel.alerts.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.getAlarms()
+    }
 
     var showBottomSheet = remember { mutableStateOf(false) }
 
@@ -153,7 +159,7 @@ fun BottomSheetCompose(showBottomSheet: MutableState<Boolean>) {
                 label = { Text("Start duration") },
                 leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = true,  // Make it read-only
+                readOnly = true,
                 interactionSource = startInteractionSource
             )
 

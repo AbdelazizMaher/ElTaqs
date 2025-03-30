@@ -4,6 +4,7 @@ import com.example.eltaqs.Utils.settings.enums.Language
 import com.example.eltaqs.Utils.settings.enums.LocationSource
 import com.example.eltaqs.Utils.settings.enums.SpeedUnit
 import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.ForecastResponse
@@ -38,6 +39,11 @@ interface IWeatherRepository {
     suspend fun updateFavourite(location: FavouriteLocation) : Int
     suspend fun insertFavourite(location: FavouriteLocation) : Long
     suspend fun deleteFavourite(location: FavouriteLocation) : Int
+
+    suspend fun getAlarms(): Flow<List<Alarm>>
+    suspend fun getAlarm(alarmId: Int): Alarm?
+    suspend fun insertAlarm(alarm: Alarm) : Long
+    suspend fun deleteAlarm(alarm: Alarm) : Int
 
     fun setLocationSource(source: LocationSource)
     fun getLocationSource(): LocationSource

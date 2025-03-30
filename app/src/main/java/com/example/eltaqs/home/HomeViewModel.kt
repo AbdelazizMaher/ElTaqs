@@ -40,6 +40,7 @@ class HomeViewModel(private val repository: WeatherRepository) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 Log.d("HomeViewModel", "getWeatherAndForecast: $lat, $lon")
+                if(lat == 0.0 || lon == 0.0) { return@launch }
                 val currentWeather = repository.getCurrentWeather(lat, lon, units, lang).first()
                 val forecast = repository.getForecast(lat, lon, units, lang).first()
 

@@ -82,6 +82,7 @@ class LocationProvider(private val context: Context) {
             ),
             REQUEST_LOCATION_CODE
         )
+        Log.d("TAG", "requestPermissions: called")
     }
 
     private fun isLocationEnabled(): Boolean {
@@ -115,6 +116,6 @@ class LocationProvider(private val context: Context) {
     }
 
     companion object {
-        const val REQUEST_LOCATION_CODE = 999
+        const val REQUEST_LOCATION_CODE = 111
     }
 }

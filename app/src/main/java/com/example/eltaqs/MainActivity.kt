@@ -1,7 +1,9 @@
 package com.example.eltaqs
 
-import android.location.Location
-import android.location.LocationManager
+import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.content.Context
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -31,6 +33,8 @@ import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.Utils.LocationProvider
 import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.Utils.settings.enums.LocationSource
+import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
+import com.example.eltaqs.Utils.MediaPlayerFacade
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.google.android.libraries.places.api.Places
@@ -44,6 +48,7 @@ class MainActivity : ComponentActivity() {
     lateinit var showfloatingBtn: MutableState<Boolean>
     lateinit var onFabClick: MutableState<() -> Unit>
 
+    @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,6 +56,15 @@ class MainActivity : ComponentActivity() {
         Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
         applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
         Places.initializeWithNewPlacesApiEnabled(this, BuildConfig.GOOGLE_MAP_API_KEY)
+
+        val intentFilterReceiver = IntentFilter("ACTION")
+        registerReceiver(
+            AlarmBroadcastReceiver(), intentFilterReceiver,
+            RECEIVER_EXPORTED)
+
+        MediaPlayerFacade.stopAudio()
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancelAll()
 
         locationProvider = LocationProvider(this)
         setContent {

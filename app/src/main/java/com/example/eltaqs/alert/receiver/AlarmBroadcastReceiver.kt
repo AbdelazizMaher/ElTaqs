@@ -1,10 +1,12 @@
 package com.example.eltaqs.alert.receiver
 
+import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.eltaqs.Utils.createNotification
-import com.example.eltaqs.alert.service.MediaPlayerFacade
+import com.example.eltaqs.Utils.MediaPlayerFacade
+import com.example.eltaqs.alert.manager.AlarmScheduler
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
@@ -21,6 +23,8 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         val alarmId = intent.getIntExtra("ALARM_ID", -1)
         if (alarmId == -1) return
 
+        val action = intent.getStringExtra("ALARM_ACTION") ?: "START"
+
         val repository = WeatherRepository.getInstance(
             WeatherRemoteDataSource(RetrofitHelper.apiService),
             WeatherLocalDataSource(AppDataBase.getInstance(context).getFavouritesDAO()),
@@ -28,24 +32,49 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         )
 
         CoroutineScope(Dispatchers.IO).launch {
-            val latlng = repository.getMapCoordinates()
-            val unit = repository.getTemperatureUnit().apiUnit
-            val language = repository.getLanguage().apiCode
-
-            val weatherFlow = repository.getCurrentWeather(latlng.first, latlng.second, unit, language)
-            var weatherDescription = "Weather description not available"
-
-            weatherFlow.collect { weatherResponse ->
-                weatherResponse.weather.let {
-                    weatherDescription = it[0].description
-                }
-                return@collect
+            when (action) {
+                "START" -> handleAlarmStart(context, alarmId, repository)
+                "STOP" -> handleAlarmStop(context, intent, alarmId, repository)
             }
+        }
+    }
 
-            createNotification(context, alarmId, weatherDescription)
+    private suspend fun handleAlarmStart(context: Context, alarmId: Int, repository: WeatherRepository) {
+        val latlng = repository.getMapCoordinates()
+        val unit = repository.getTemperatureUnit().apiUnit
+        val language = repository.getLanguage().apiCode
 
-            MediaPlayerFacade.playAudio(context)
+        val weatherFlow = repository.getCurrentWeather(latlng.first, latlng.second, unit, language)
+        var weatherDescription = "Weather description not available"
+
+        weatherFlow.collect { weatherResponse ->
+            weatherResponse.weather.let {
+                weatherDescription = it[0].description
+            }
+            return@collect
         }
 
+        createNotification(context, alarmId, weatherDescription)
+        MediaPlayerFacade.playAudio(context)
+    }
+
+    private suspend fun handleAlarmStop(
+        context: Context,
+        intent: Intent,
+        alarmId: Int,
+        repository: WeatherRepository
+    ) {
+        val alarm = repository.getAlarm(alarmId)
+        val isDeleteAction = intent.action == "DELETE" || intent.getBooleanExtra("isDismiss", false)
+
+        alarm?.let {
+            if (!isDeleteAction) {
+                AlarmScheduler(context).cancelAlarm(it)
+                repository.deleteAlarm(it)
+            }
+            MediaPlayerFacade.stopAudio()
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(alarmId)
+        }
     }
 }

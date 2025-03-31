@@ -1,8 +1,8 @@
 package com.example.eltaqs
 
-import android.location.Location
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 
@@ -26,7 +26,8 @@ fun SetUpNavHost(
     navController: NavHostController,
     showFloatingBtn: MutableState<Boolean>,
     onFabClick: MutableState<() -> Unit>,
-    showBottomBar: MutableState<Boolean>
+    showBottomBar: MutableState<Boolean>,
+    snackbarHostState: SnackbarHostState
 ) {
     NavHost(
         navController = navController,
@@ -41,7 +42,7 @@ fun SetUpNavHost(
         composable<ScreenRoutes.Alerts> {
             showBottomBar.value = false
             showFloatingBtn.value = true
-            AlertsScreen()
+            AlertsScreen(snackbarHostState,onFabClick)
         }
         composable<ScreenRoutes.Favorite> {
             showBottomBar.value = true

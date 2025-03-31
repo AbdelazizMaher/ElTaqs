@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.example.eltaqs.MainActivity
 import com.example.eltaqs.Utils.createNotification
 import com.example.eltaqs.Utils.MediaPlayerFacade
 import com.example.eltaqs.alert.manager.AlarmScheduler
@@ -35,6 +36,13 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
             when (action) {
                 "START" -> handleAlarmStart(context, alarmId, repository)
                 "STOP" -> handleAlarmStop(context, intent, alarmId, repository)
+                "OPEN" -> {
+                    handleAlarmStop(context, intent, alarmId, repository)
+                    val mainIntent = Intent(context, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    }
+                    context.startActivity(mainIntent)
+                }
             }
         }
     }

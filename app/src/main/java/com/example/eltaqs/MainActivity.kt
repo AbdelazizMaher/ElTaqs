@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
     lateinit var showBottomBar : MutableState<Boolean>
     lateinit var showfloatingBtn: MutableState<Boolean>
     lateinit var onFabClick: MutableState<() -> Unit>
+    lateinit var snackbarHostState: SnackbarHostState
 
     @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +76,7 @@ class MainActivity : ComponentActivity() {
                 showBottomBar = remember { mutableStateOf(true) }
                 showfloatingBtn = remember { mutableStateOf(false) }
                 onFabClick = remember { mutableStateOf({}) }
+                snackbarHostState = remember { SnackbarHostState() }
 
                 val backgroundGradient = Brush.verticalGradient(
                     colors = listOf(
@@ -83,6 +87,7 @@ class MainActivity : ComponentActivity() {
                 )
 
                 Scaffold(
+                    snackbarHost = { SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 140.dp)) },
                     floatingActionButton = {
                         if (showfloatingBtn.value) {
                             FloatingActionButton(
@@ -108,7 +113,7 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        SetUpNavHost(navController = navController, showFloatingBtn = showfloatingBtn, onFabClick= onFabClick, showBottomBar = showBottomBar)
+                        SetUpNavHost(navController = navController, showFloatingBtn = showfloatingBtn, onFabClick= onFabClick, showBottomBar = showBottomBar, snackbarHostState = snackbarHostState)
                         if(showBottomBar.value) {
                             AnimatedBottomSection(navController = navController)
                         }

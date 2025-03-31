@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +61,6 @@ fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
     val windSpeedUnit by viewModel.windSpeedUnit.collectAsStateWithLifecycle()
     val locationSource by viewModel.locationSource.collectAsStateWithLifecycle()
     val language by viewModel.language.collectAsStateWithLifecycle()
-
 
     Column(
         modifier = Modifier
@@ -129,7 +129,7 @@ fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
                     when (it) {
                         LocationSource.GPS -> { viewModel.setLocationSource(it) }
                         LocationSource.MAP -> {
-                            viewModel.setLocationSource(it)
+                            //viewModel.setLocationSource(it)
                             onNavigateToMap(true)
                         }
                     }

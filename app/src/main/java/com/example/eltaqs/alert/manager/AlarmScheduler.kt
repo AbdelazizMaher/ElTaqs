@@ -7,6 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.example.eltaqs.AlertsWorker
 import com.example.eltaqs.Utils.parseTimeToMillis
 import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
 import com.example.eltaqs.data.model.Alarm
@@ -77,6 +81,19 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
         alarmManager.cancel(alarmPendingIntent)
         alarmManager.cancel(cancelPendingIntent)
 
+    }
+
+    override fun scheduleNotification(context: Context, alarmId: Int, endDelay: Long) {
+        val inputData = workDataOf(
+            "alarmId" to alarmId,
+            "endDelay" to endDelay
+        )
+
+        val workRequest = OneTimeWorkRequestBuilder<AlertsWorker>()
+            .setInputData(inputData)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(workRequest)
     }
 
 }

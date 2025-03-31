@@ -1,5 +1,6 @@
 package com.example.eltaqs.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,8 @@ class SettingsViewModel(private val repository: WeatherRepository) : ViewModel()
 
     init {
         loadSettings()
+        onLocationChange()
+        Log.d("SettingsViewModel", "SettingsViewModel initialized")
     }
 
     private fun loadSettings() {
@@ -75,6 +78,14 @@ class SettingsViewModel(private val repository: WeatherRepository) : ViewModel()
 
         setTemperatureUnit(newTempUnit)
         setWindSpeedUnit(newSpeedUnit)
+    }
+
+    private fun onLocationChange() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getLocationSourceFlow().collect{
+                mutableLocationSource.value = it
+            }
+        }
     }
 
 }

@@ -10,14 +10,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.example.eltaqs.alert.AlertsScreen
+import com.example.eltaqs.features.alert.AlertsScreen
 import com.example.eltaqs.data.model.FavouriteLocation
-import com.example.eltaqs.favourite.FavouriteScreen
-import com.example.eltaqs.favouritedetails.FavDetails
-import com.example.eltaqs.home.HomeScreen
-import com.example.eltaqs.map.MapScreen
-import com.example.eltaqs.fivedaysdetails.DetailsScreen
-import com.example.eltaqs.settings.SettingsScreen
+import com.example.eltaqs.features.favourite.FavouriteScreen
+import com.example.eltaqs.features.favouritedetails.FavDetails
+import com.example.eltaqs.features.home.HomeScreen
+import com.example.eltaqs.features.map.MapScreen
+import com.example.eltaqs.features.fivedaysdetails.DetailsScreen
+import com.example.eltaqs.features.settings.SettingsScreen
 import com.google.gson.Gson
 
 @RequiresApi(Build.VERSION_CODES.O)

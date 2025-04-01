@@ -1,5 +1,6 @@
 package com.example.eltaqs.features.favourite
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -32,6 +33,7 @@ class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel(
                     .filter { it.locationName != "CACHED_HOME" }
                     .sortedBy { it.locationName }
             }.collect {
+                Log.d("Favourites", it.toString())
                 mutableFavourites.value = Response.Success(it)
             }
         }
@@ -40,6 +42,7 @@ class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel(
     fun removeFromFavourite(location: FavouriteLocation) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteFavourite(location)
+            getFavourites()
         }
     }
 

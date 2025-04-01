@@ -357,13 +357,6 @@ fun getCurrentDate(): String {
     return LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, MMM d"))
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun getDayName(dateString: String): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    val date = LocalDate.parse(dateString, formatter)
-    return date.format(DateTimeFormatter.ofPattern("EEEE"))
-}
-
 @SuppressLint("NewApi")
 @Composable
 fun DailyForecast(

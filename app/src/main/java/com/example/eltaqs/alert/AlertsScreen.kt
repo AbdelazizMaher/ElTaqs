@@ -11,7 +11,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -23,13 +25,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
@@ -78,6 +84,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -152,36 +160,86 @@ fun AlertsScreen(snackbarHostState: SnackbarHostState, onFabClick: MutableState<
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Top
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(
-                    alerts.value,
-                    key = { it.id }
-                    ) { alert ->
-                    SwipeToDeleteContainer(
-                        item = alert,
-                        onDelete = {
-                            viewModel.deleteAlarm(it)
-                            alarmScheduler.cancelAlarm(it) },
-                        onRestore = {
-                            viewModel.insertAlarm(it)
-                            alarmScheduler.scheduleAlarm(it)
-                                    },
-                        snackBarHostState = snackbarHostState
-                    ) { _ ->
-                        AlertCard(
-                            startTime = alert.startTime,
-                            endTime = alert.endTime,
-                            location = "Egypt"
-                        )
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black)
+                        .clickable {  },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Text(
+                    text = "Alarms",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .padding(top = 80.dp)
+                    .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
+                    .background(Color(0xFFE5F2FF))
+                    .fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.alarmbj),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(150.dp)
+                            .offset(y = (-70).dp)
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        items(alerts.value, key = { it.id }) { alert ->
+                            SwipeToDeleteContainer(
+                                item = alert,
+                                onDelete = {
+                                    viewModel.deleteAlarm(it)
+                                    alarmScheduler.cancelAlarm(it) },
+                                onRestore = {
+                                    viewModel.insertAlarm(it)
+                                    alarmScheduler.scheduleAlarm(it)
+                                },
+                                snackBarHostState = snackbarHostState
+                            ) { _ ->
+                                AlertCard(
+                                    startTime = alert.startTime,
+                                    endTime = alert.endTime,
+                                    location = "Egypt"
+                                )
+                            }
+                        }
+                        }
                     }
                 }
             }
         }
     }
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,12 +280,12 @@ fun BottomSheetCompose(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(text = "Set Alarm", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = stringResource(R.string.set_alarm), fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
             OutlinedTextField(
                 value = selectedDate?.let { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(it)) } ?: "",
                 onValueChange = {},
-                label = { Text("Select Date") },
+                label = { Text(stringResource(R.string.select_date)) },
                 leadingIcon = { Icon(imageVector = Icons.Default.CalendarToday, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
@@ -246,7 +304,7 @@ fun BottomSheetCompose(
             OutlinedTextField(
                 value = startDuration,
                 onValueChange = {},
-                label = { Text("Start Time") },
+                label = { Text(stringResource(R.string.start_time)) },
                 leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
@@ -269,7 +327,7 @@ fun BottomSheetCompose(
             OutlinedTextField(
                 value = endDuration,
                 onValueChange = {},
-                label = { Text("End Time") },
+                label = { Text(stringResource(R.string.end_time)) },
                 leadingIcon = { Icon(imageVector = Icons.Default.Timer, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
@@ -289,22 +347,22 @@ fun BottomSheetCompose(
                 Text(text = endError ?: "", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(start = 16.dp, top = 4.dp))
             }
 
-            Text(text = "Notify me by", fontSize = 14.sp)
+            Text(text = stringResource(R.string.notify_me_by), fontSize = 14.sp)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedOption == "Alarm",
-                        onClick = { selectedOption = "Alarm" }
+                        selected = selectedOption == stringResource(R.string.alarm),
+                        onClick = { selectedOption = context.getString(R.string.alarm) }
                     )
                     Text("Alarm")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedOption == "Notification",
-                        onClick = { selectedOption = "Notification" }
+                        selected = selectedOption == stringResource(R.string.notification),
+                        onClick = { selectedOption = context.getString(R.string.notification) }
                     )
                     Text("Notification")
                 }
@@ -315,22 +373,24 @@ fun BottomSheetCompose(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 OutlinedButton(
-                    modifier = Modifier.weight(5f).padding(horizontal = 15.dp),
+                    modifier = Modifier
+                        .weight(5f)
+                        .padding(horizontal = 15.dp),
                     onClick = { coroutineScope.launch { modalBottomSheetState.hide(); showBottomSheet.value = false } },
                     border = BorderStroke(1.dp, Color.Red),
                     shape = RoundedCornerShape(50)
                 ) {
-                    Text(text = "Cancel", modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), fontSize = 12.sp, color = Color.Red)
+                    Text(text = stringResource(R.string.cancel), modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), fontSize = 12.sp, color = Color.Red)
                 }
 
                 Button(
                     onClick = {
                         if (selectedDate == null) {
-                            startError = "Please select a date"
+                            startError = context.getString(R.string.please_select_a_date)
                         } else if (startDuration.isBlank()) {
-                            startError = "Start time is required"
+                            startError = context.getString(R.string.start_time_is_required)
                         } else if (endDuration.isBlank()) {
-                            endError = "End time is required"
+                            endError = context.getString(R.string.end_time_is_required)
                         } else {
                             val id = System.currentTimeMillis().toInt()
                             viewModel.insertAlarm(Alarm(id, startDuration, endDuration))
@@ -338,11 +398,13 @@ fun BottomSheetCompose(
                             coroutineScope.launch { modalBottomSheetState.hide(); showBottomSheet.value = false }
                         }
                     },
-                    modifier = Modifier.weight(5f).padding(horizontal = 15.dp),
+                    modifier = Modifier
+                        .weight(5f)
+                        .padding(horizontal = 15.dp),
                     shape = RoundedCornerShape(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
-                    Text(text = "Save", modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = Color.White, fontSize = 12.sp)
+                    Text(text = stringResource(R.string.save), modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = Color.White, fontSize = 12.sp)
                 }
             }
 
@@ -365,7 +427,8 @@ fun BottomSheetCompose(
                             startError = null
                             showStartTimePicker = false
                         } else {
-                            startError = "Start time must be in the future"
+                            startError =
+                                context.getString(R.string.start_time_must_be_in_the_future)
                         }
                     }
                 )
@@ -380,7 +443,7 @@ fun BottomSheetCompose(
                             endError = null
                             showEndTimePicker = false
                         } else {
-                            endError = "End time must be after start time"
+                            endError = context.getString(R.string.end_time_must_be_after_start_time)
                         }
                     }
                 )
@@ -462,10 +525,14 @@ fun AlertCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .clip(RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF181A2A))
-    ) {
+            .height(150.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2d525a)
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -477,9 +544,10 @@ fun AlertCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Start from",
-                    color = Color.Gray,
-                    fontSize = 12.sp
+                    text = stringResource(R.string.start_from),
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    color = Color.White,
+                    fontSize = 18.sp
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -490,7 +558,7 @@ fun AlertCard(
                     )
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Arrow",
+                        contentDescription = stringResource(R.string.arrow),
                         tint = Color.White,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
@@ -505,14 +573,13 @@ fun AlertCard(
             Text(
                 text = location,
                 color = Color.White,
-                fontSize = 16.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 8.dp)
             )
             IconButton(onClick = {  }) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notification Bell",
+                    contentDescription = stringResource(R.string.notification_bell),
                     tint = Color.White
                 )
             }
@@ -541,12 +608,12 @@ fun DatePickerModal(
                     onDismiss()
                 }
             }) {
-                Text("OK")
+                Text(stringResource(R.string.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     ) {

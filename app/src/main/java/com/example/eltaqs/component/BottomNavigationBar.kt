@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
@@ -43,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -206,7 +208,7 @@ fun FabGroup(
                         bottom = 72.dp,
                         end = 210.dp
                     ) * FastOutSlowInEasing.transform(0f, 0.8f, animationProgress)
-                ).background(shape = CircleShape, color = Color.Red),
+                ),
             opacity = LinearEasing.transform(0.2f, 0.7f, animationProgress),
             onClick = {
                 navController.popBackStack()
@@ -220,7 +222,7 @@ fun FabGroup(
                 PaddingValues(
                     bottom = 88.dp,
                 ) * FastOutSlowInEasing.transform(0.1f, 0.9f, animationProgress)
-            ).background(shape = CircleShape, color = Color.Red),
+            ),
             opacity = LinearEasing.transform(0.3f, 0.8f, animationProgress),
             onClick = {
                 navController.popBackStack()
@@ -254,8 +256,7 @@ fun FabGroup(
                 .rotate(
                     225 * FastOutSlowInEasing
                         .transform(0.35f, 0.65f, animationProgress)
-                )
-                .background(shape = CircleShape, color = Color.Red),
+                ),
             onClick = toggleAnimation,
             backgroundColor = Color.Transparent.copy(alpha = 0f)
         )
@@ -268,14 +269,14 @@ fun AnimatedFab(
     modifier: Modifier,
     icon: ImageVector? = null,
     opacity: Float = 1f,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondary,
+    backgroundColor: Color = Color(0xFF4a757e),
     onClick: () -> Unit = {}
 ) {
     FloatingActionButton(
         onClick = onClick,
         elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
         containerColor = backgroundColor,
-        modifier = modifier.scale(1.00f)
+        modifier = modifier.scale(1.00f).clip(CircleShape)
     ) {
         icon?.let {
             Icon(

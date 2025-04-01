@@ -35,6 +35,7 @@ fun SetUpNavHost(
     ) {
         composable<ScreenRoutes.Home> {
             showBottomBar.value = true
+            showFloatingBtn.value = false
             HomeScreen(){lat,lon, location ->
                 navController.navigate(ScreenRoutes.Details(lat, lon, location))
             }
@@ -46,18 +47,21 @@ fun SetUpNavHost(
         }
         composable<ScreenRoutes.Favorite> {
             showBottomBar.value = true
+            showFloatingBtn.value = false
             FavouriteScreen(){
                 navController.navigate(ScreenRoutes.FavDetails(it))
             }
         }
         composable<ScreenRoutes.Settings> {
             showBottomBar.value = true
+            showFloatingBtn.value = false
             SettingsScreen() {
                 navController.navigate(ScreenRoutes.Map(isMap = true))
             }
         }
         composable<ScreenRoutes.Details> {
             showBottomBar.value = false
+            showFloatingBtn.value = false
             val lat = it.toRoute<ScreenRoutes.Details>().lat
             val lon = it.toRoute<ScreenRoutes.Details>().lon
             val loc = it.toRoute<ScreenRoutes.Details>().location
@@ -78,6 +82,7 @@ fun SetUpNavHost(
         }
         composable<ScreenRoutes.FavDetails> {
             showBottomBar.value = true
+            showFloatingBtn.value = false
             val loc = Gson().fromJson(
                 it.toRoute<ScreenRoutes.FavDetails>().location,
                 FavouriteLocation::class.java

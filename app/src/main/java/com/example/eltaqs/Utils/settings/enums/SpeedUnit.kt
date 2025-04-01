@@ -6,7 +6,6 @@ enum class SpeedUnit(
     val apiUnit: String
 ) {
     METER_PER_SECOND(mapOf(Language.ENGLISH to "m/s", Language.ARABIC to "متر/ثانية"), 1.0, "metric"),
-    KILOMETER_PER_HOUR(mapOf(Language.ENGLISH to "km/h", Language.ARABIC to "كم/ساعة"), 0.27778, "metric"),
     MILE_PER_HOUR(mapOf(Language.ENGLISH to "mph", Language.ARABIC to "ميل/ساعة"), 0.44704, "imperial");
 
     fun getDisplayName(language: Language): String {

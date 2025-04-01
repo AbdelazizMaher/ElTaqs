@@ -1,5 +1,6 @@
 package com.example.eltaqs.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,8 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,13 +68,21 @@ fun SettingsScreen(onNavigateToMap: (isMap: Boolean) -> Unit) {
     val locationSource by viewModel.locationSource.collectAsStateWithLifecycle()
     val language by viewModel.language.collectAsStateWithLifecycle()
 
+    val backgroundGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF1b3a41),
+            Color(0xFF2d525a),
+            Color(0xFF4a757e)
+        )
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F7F7))
-            .padding(16.dp)
+            .background(backgroundGradient)
     ) {
-        Text("Settings", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall)
+
+        BackgroundWithOverlayAndText()
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -150,7 +164,7 @@ fun ToggleGroup(
 ) {
     Column(modifier = Modifier
         .fillMaxWidth()
-        .padding(vertical = 8.dp)) {
+        .padding(vertical = 8.dp, horizontal = 16.dp)) {
         Text(
             text = title,
             fontWeight = FontWeight.SemiBold,
@@ -170,7 +184,7 @@ fun ToggleGroup(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(24.dp))
-                        .background(if (option == selected) Color.Black else Color.Transparent)
+                        .background(if (option == selected) Color(0xFF2d525a) else Color.Transparent)
                         .clickable { onOptionSelected(option) }
                         .padding(vertical = 10.dp),
                     contentAlignment = Alignment.Center
@@ -184,6 +198,37 @@ fun ToggleGroup(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun BackgroundWithOverlayAndText() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+            .paint(
+                painter = painterResource(id = R.drawable.top_background),
+                contentScale = ContentScale.Crop
+            )
+    ) {
+        // Overlay Image
+        Image(
+            painter = painterResource(id = R.drawable.circle),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .size(150.dp)
+        )
+
+        // Text
+        Text(
+            text = "Settings",
+            style = MaterialTheme.typography.headlineLarge.copy(color = Color.White),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 32.dp)
+        )
     }
 }
 

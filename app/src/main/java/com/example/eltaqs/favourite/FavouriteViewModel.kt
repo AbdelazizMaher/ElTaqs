@@ -27,7 +27,11 @@ class FavouriteViewModel(private val repository: WeatherRepository) : ViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllFavourites().catch {
                 mutableMessage.emit(it.message ?: "Something went wrong")
-            }.map { it -> it.sortedBy { it.locationName } }.collect {
+            }.map { list ->
+                list
+                    .filter { it.locationName != "CACHED_HOME" }
+                    .sortedBy { it.locationName }
+            }.collect {
                 mutableFavourites.value = Response.Success(it)
             }
         }

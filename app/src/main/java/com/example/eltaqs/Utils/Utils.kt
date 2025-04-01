@@ -9,12 +9,14 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
+import android.widget.ImageView
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.app.NotificationCompat
+import com.airbnb.lottie.LottieAnimationView
 import com.example.eltaqs.MainActivity
 import com.example.eltaqs.R
 import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
@@ -268,4 +270,45 @@ fun String.getWeatherNotification(): String {
 
     val language = Locale.getDefault().language
     return notifications[this]?.get(language) ?: "Weather update not available."
+}
+
+fun getWeatherIcon(iconId: String): Int {
+    return when (iconId) {
+        "01d" -> R.raw.clearsunnyy
+        "01n" -> R.raw.clearnight
+        "02d" -> R.raw.sunnywithclouds
+        "02n" -> R.raw.cloudynight
+        "03d", "03n" -> R.raw.cloudywithwind
+        "04d", "04n" -> R.raw.cloudswhitandgray
+        "09d", "09n" -> R.raw.basicrain
+        "10d" -> R.raw.sunnyrain
+        "10n" -> R.raw.nightrain
+        "11d" -> R.raw.sunnythunder
+        "11n" -> R.raw.thunder
+        "13d" -> R.raw.sunnysnow
+        "13n" -> R.raw.nightsnow
+        else -> R.raw.windyclouds
+    }
+}
+
+
+@SuppressLint("ResourceType")
+fun getWeatherIconForItems(iconId: String): Int {
+    return when (iconId) {
+        "01d" -> R.drawable.clearsunny
+        "01n" -> R.drawable.clearnigth
+        "02d" -> R.drawable.ddsunny
+        "02n" -> R.drawable.darkcloudynightpng
+        "03d", "03n" -> R.drawable.cloudyempty
+        "04d", "04n" -> R.drawable.cloudywithwind
+        "09d" -> R.drawable.ddrainy
+        "09n" -> R.drawable.simplwnightrainy
+        "10d" -> R.drawable.heavyddrainy
+        "10n" -> R.drawable.rainnight
+        "11d" -> R.drawable.thunderstorm
+        "11n" -> R.drawable.nightthunder
+        "13d" -> R.drawable.ddsnow
+        "13n" -> R.drawable.nnsnow
+        else -> R.drawable.cloudyempty
+    }
 }

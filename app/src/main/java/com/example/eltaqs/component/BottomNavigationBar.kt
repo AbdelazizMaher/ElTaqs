@@ -10,6 +10,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
@@ -126,7 +128,7 @@ fun MainScreen(
         CustomBottomNavigation(navController)
         Circle(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), animationProgress = 0.5f)
 
-        FabGroup(renderEffect = renderEffect, animationProgress = fabAnimationProgress, navController = navController)
+        FabGroup(renderEffect = renderEffect, animationProgress = fabAnimationProgress,toggleAnimation = toggleAnimation, navController = navController)
         FabGroup(renderEffect = null, animationProgress = fabAnimationProgress, toggleAnimation = toggleAnimation, navController = navController)
         Circle(color = Color.White, animationProgress = clickAnimationProgress)
     }
@@ -169,13 +171,13 @@ fun CustomBottomNavigation(navController: NavHostController) {
             navController.popBackStack()
             navController.navigate(ScreenRoutes.Home)
         }) {
-            Icon(imageVector = Icons.Filled.Home, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Filled.Home, contentDescription = null, tint = Color(0xFF2d525a))
         }
         IconButton(onClick = {
             navController.popBackStack()
             navController.navigate(ScreenRoutes.Settings)
         }) {
-            Icon(imageVector = Icons.Filled.Settings, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Filled.Settings, contentDescription = null, tint = Color(0xFF2d525a))
         }
     }
 }
@@ -197,14 +199,14 @@ fun FabGroup(
     ) {
 
         AnimatedFab(
-            icon = Icons.Filled.Create,
+            icon = Icons.Filled.Alarm,
             modifier = Modifier
                 .padding(
                     PaddingValues(
                         bottom = 72.dp,
                         end = 210.dp
                     ) * FastOutSlowInEasing.transform(0f, 0.8f, animationProgress)
-                ),
+                ).background(shape = CircleShape, color = Color.Red),
             opacity = LinearEasing.transform(0.2f, 0.7f, animationProgress),
             onClick = {
                 navController.popBackStack()
@@ -218,7 +220,7 @@ fun FabGroup(
                 PaddingValues(
                     bottom = 88.dp,
                 ) * FastOutSlowInEasing.transform(0.1f, 0.9f, animationProgress)
-            ),
+            ).background(shape = CircleShape, color = Color.Red),
             opacity = LinearEasing.transform(0.3f, 0.8f, animationProgress),
             onClick = {
                 navController.popBackStack()
@@ -233,7 +235,7 @@ fun FabGroup(
                     bottom = 72.dp,
                     start = 210.dp
                 ) * FastOutSlowInEasing.transform(0.2f, 1.0f, animationProgress)
-            ),
+            ).background(shape = CircleShape, color = Color.Red),
             opacity = LinearEasing.transform(0.4f, 0.9f, animationProgress),
             onClick = {
                 navController.popBackStack()
@@ -252,9 +254,10 @@ fun FabGroup(
                 .rotate(
                     225 * FastOutSlowInEasing
                         .transform(0.35f, 0.65f, animationProgress)
-                ),
+                )
+                .background(shape = CircleShape, color = Color.Red),
             onClick = toggleAnimation,
-            backgroundColor = Color.Transparent
+            backgroundColor = Color.Transparent.copy(alpha = 0f)
         )
     }
 }

@@ -10,18 +10,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -38,6 +38,8 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.R
+import com.example.eltaqs.Utils.getWeatherIcon
+import com.example.eltaqs.Utils.getWeatherIconForItems
 import com.example.eltaqs.Utils.settings.formatBasedOnLanguage
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
@@ -46,19 +48,12 @@ import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
-import com.example.eltaqs.home.DailyForecast
-import com.example.eltaqs.home.SunriseSunsetRow
-import com.example.eltaqs.home.getImageResId
-import com.example.eltaqs.ui.theme.ColorGradient1
-import com.example.eltaqs.ui.theme.ColorGradient2
-import com.example.eltaqs.ui.theme.ColorGradient3
+import com.example.eltaqs.home.WeatherAnimation
 import com.example.eltaqs.ui.theme.ColorTextSecondary
 import com.example.eltaqs.ui.theme.ColorTextSecondaryVariant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -89,7 +84,7 @@ fun DetailsScreen(
 
     Scaffold(
         topBar = { TopBarSection(location, onBackClick) },
-        backgroundColor = Color(0xFFA9BDE8)
+        backgroundColor = Color(0xFF4a757e)
     ) { paddingValues ->
 
         when (val state = uiState) {
@@ -196,12 +191,12 @@ fun DetailsScreen(
 @Composable
 fun TopBarSection(location: String, onBackClick: () -> Unit) {
     TopAppBar(
-        backgroundColor = Color(0xFFA9BDE8),
+        backgroundColor = Color(0xFF4a757e),
         elevation = 0.dp,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
         IconButton(onClick = onBackClick) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
         }
         Box(
             modifier = Modifier
@@ -209,7 +204,7 @@ fun TopBarSection(location: String, onBackClick: () -> Unit) {
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            Text(location, style = MaterialTheme.typography.h6)
+            Text(location, style = MaterialTheme.typography.h6, color = Color.White)
         }
     }
 }
@@ -225,33 +220,48 @@ fun DaySelectorItem(
     onClick: () -> Unit
 ) {
     val displayDay = LocalDate.parse(day).dayOfWeek.toString().take(3)
+    val isSelected = day == selectedDay
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Card(
         modifier = Modifier
-            .width(70.dp)
-            .clip(RoundedCornerShape(60.dp))
-            .background(
-                if (day == selectedDay) Color(0xFF004D6D) else Color(0xFF0B698B)
-            )
-            .clickable { onClick() }
-            .padding(vertical = 12.dp)
+            .width(90.dp)
+            .height(140.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(25.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) Color(0xFF2d525a) else Color(0xFF1a3a44)
+        ),
+        elevation = CardDefaults.cardElevation(if (isSelected) 6.dp else 4.dp)
     ) {
-        Text(text = displayDay, color = Color.White, fontSize = 14.sp)
         Box(
             modifier = Modifier
-                .size(64.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF002B59)),
+                .fillMaxSize()
+                .padding(vertical = 10.dp),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(getWeatherIcon(icon)),
-                contentDescription = null,
-                modifier = Modifier.size(32.dp)
-            )
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$temp°",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Image(
+                    painter = painterResource(id = getWeatherIconForItems(icon)),
+                    contentDescription = null,
+                    modifier = Modifier.size(35.dp)
+                )
+                Text(
+                    text = displayDay,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
+                )
+            }
         }
-        Text(text = "$temp°C", color = Color.White, fontSize = 16.sp)
     }
 }
 
@@ -268,6 +278,7 @@ fun WeatherDetailsCard1(today: ForecastResponse.Item0) {
         DailyForecast(
             modifier = Modifier.wrapContentHeight(),
             forecast = today.weather.firstOrNull()?.description.orEmpty(),
+            icon = today.weather.firstOrNull()?.icon ?: "",
             temp = today.main.temp.toInt(),
             feelsLike = today.main.feelsLike.toInt(),
             date = today.dtTxt,
@@ -286,7 +297,8 @@ fun DailyForecast(
     feelsLike: Int,
     date: String,
     tempSymbol: String,
-    today: ForecastResponse.Item0
+    today: ForecastResponse.Item0,
+    icon: String
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -314,20 +326,16 @@ fun DailyForecast(
                     }
                 )
 
-                Image(
-                    painter = painterResource(id = getImageResId(forecast)),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillHeight,
-                    modifier = Modifier
-                        .height(175.dp)
-                        .constrainAs(forecastImage) {
-                            if (isRtl) {
-                                end.linkTo(parent.end, margin = 4.dp)
-                            } else {
-                                start.linkTo(parent.start, margin = 4.dp)
-                            }
-                            top.linkTo(parent.top)
+                WeatherAnimation(
+                    forecast = icon,
+                    modifier = Modifier.constrainAs(forecastImage) {
+                        if (isRtl) {
+                            end.linkTo(parent.end, margin = 4.dp)
+                        } else {
+                            start.linkTo(parent.start, margin = 4.dp)
                         }
+                        top.linkTo(parent.top)
+                    }
                 )
 
                 androidx.compose.material3.Text(
@@ -403,9 +411,11 @@ private fun CardBackground(
             .padding(horizontal = 16.dp)
             .background(
                 brush = Brush.linearGradient(
-                    0f to ColorGradient1,
-                    0.5f to ColorGradient2,
-                    1f to ColorGradient3
+                    colors = listOf(
+                        Color(0xFF1b3a41),
+                        Color(0xFF2d525a),
+                        Color(0xFF4a757e)
+                    )
                 ),
                 shape = RoundedCornerShape(16.dp)
             )
@@ -484,6 +494,7 @@ fun HourlyForecastItem(hourForecast: ForecastResponse.Item0) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(80.dp)
             .background(Color.White, RoundedCornerShape(10.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -498,9 +509,9 @@ fun HourlyForecastItem(hourForecast: ForecastResponse.Item0) {
         }
 
         Image(
-            painter = painterResource(getWeatherIcon(icon)),
+            painter = painterResource(getWeatherIconForItems(icon)),
             contentDescription = null,
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier.size(64.dp)
         )
 
         Text(
@@ -523,7 +534,7 @@ fun WeatherInfoCard(title: String, value: String, iconResId: Int) {
         androidx.compose.material3.Text(
             text = title,
             fontSize = 12.sp,
-            color = Color.Gray,
+            color = Color.White,
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
@@ -545,21 +556,9 @@ fun WeatherInfoCard(title: String, value: String, iconResId: Int) {
             text = value.formatBasedOnLanguage(),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = Color.White,
             modifier = Modifier.padding(top = 6.dp)
         )
     }
 }
 
-fun getWeatherIcon(icon: String): Int {
-    return when (icon) {
-        "01d" -> R.drawable.clear
-        "02d" -> R.drawable.lightcloud
-        "03d", "04d" -> R.drawable.heavycloud
-        "09d", "10d" -> R.drawable.heavyrain
-        "11d" -> R.drawable.thunderstorm
-        "13d" -> R.drawable.snow
-        "50d" -> R.drawable.snow
-        else -> R.drawable.clear
-    }
-}

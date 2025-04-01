@@ -75,6 +75,7 @@ import com.example.eltaqs.data.model.Response
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
+import com.example.eltaqs.home.WeatherAnimation
 import com.example.eltaqs.ui.theme.ColorTextSecondary
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
@@ -110,6 +111,14 @@ fun FavouriteScreen(onNavigateToFavDetails: (String) -> Unit) {
         }
     }
 
+    val backgroundGradient = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFF1b3a41),
+            Color(0xFF2d525a),
+            Color(0xFF4a757e)
+        )
+    )
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 140.dp)) },
         modifier = Modifier.fillMaxSize()
@@ -129,6 +138,7 @@ fun FavouriteScreen(onNavigateToFavDetails: (String) -> Unit) {
             is Response.Success -> {
                 LazyColumn(
                     modifier = Modifier
+                        .background(brush = backgroundGradient)
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
@@ -169,6 +179,7 @@ fun FavouriteScreen(onNavigateToFavDetails: (String) -> Unit) {
                             FavouriteItem(
                                 favLoc = favouriteLocation,
                                 forecast = favouriteLocation.currentWeather.weather.firstOrNull()?.main ?: "",
+                                icon = favouriteLocation.currentWeather.weather.firstOrNull()?.icon ?: "",
                                 cityName = cityName,
                                 temp = temperature.toInt(),
                                 lastUpdated = lastUpdated,
@@ -212,13 +223,14 @@ fun FavouriteItem(
     temp: Int,
     lastUpdated: String,
     tempSymbol: String,
-    onNavigateToFavDetails: (String) -> Unit
+    onNavigateToFavDetails: (String) -> Unit,
+    icon: String
 ) {
 
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     CompositionLocalProvider(LocalLayoutDirection provides if (isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         ConstraintLayout(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
                 .clickable { onNavigateToFavDetails(Gson().toJson(favLoc)) }
         ) {
             val (cityTitle, forecastImage, forecastValue, title, lastUpdatedText, background) = createRefs()
@@ -241,32 +253,30 @@ fun FavouriteItem(
                 style = MaterialTheme.typography.headlineSmall,
                 color = ColorTextSecondary,
                 fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
                 modifier = Modifier
-                    .padding(top = 16.dp)
-                    .constrainAs(cityTitle) {
+                    .padding(top = 16.dp, start = 16.dp)
+                    .constrainAs(forecastValue) {
                         if (isRtl) {
-                            end.linkTo(parent.end, margin = 24.dp)
+                            start.linkTo(parent.start, margin = 36.dp)
                         } else {
-                            start.linkTo(parent.start, margin = 24.dp)
+                            end.linkTo(parent.end, margin = 36.dp)
                         }
-                        top.linkTo(parent.top)
+                        top.linkTo(forecastImage.top)
+                        bottom.linkTo(forecastImage.bottom)
                     }
             )
 
-            Image(
-                painter = painterResource(id = getImageResId(forecast)),
-                contentDescription = null,
-                contentScale = ContentScale.None,
-                modifier = Modifier
-                    .height(175.dp)
-                    .constrainAs(forecastImage) {
-                        if (isRtl) {
-                            end.linkTo(parent.end, margin = 100.dp)
-                        } else {
-                            start.linkTo(parent.start, margin = 100.dp)
-                        }
-                        top.linkTo(parent.top)
+            WeatherAnimation(
+                forecast = icon,
+                modifier = Modifier.constrainAs(forecastImage) {
+                    if (isRtl) {
+                        end.linkTo(parent.end, margin = 24.dp)
+                    } else {
+                        start.linkTo(parent.start, margin = 24.dp)
                     }
+                    top.linkTo(parent.top)
+                }
             )
 
             Text(
@@ -289,7 +299,7 @@ fun FavouriteItem(
             Text(
                 text = stringResource(R.string.last_updated, lastUpdated),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Black,
+                color = Color.White,
                 fontWeight = FontWeight.Light,
                 fontSize = 18.sp,
                 modifier = Modifier
@@ -304,20 +314,6 @@ fun FavouriteItem(
                     .padding(horizontal = 12.dp, vertical = 12.dp)
             )
 
-            ForecastValue(
-                modifier = Modifier
-                    .constrainAs(forecastValue) {
-                        if (isRtl) {
-                            start.linkTo(parent.start, margin = 36.dp)
-                        } else {
-                            end.linkTo(parent.end, margin = 36.dp)
-                        }
-                        top.linkTo(forecastImage.top)
-                        bottom.linkTo(forecastImage.bottom)
-                    },
-                degree = temp.toString(),
-                tempSymbol = tempSymbol
-            )
         }
     }
 }

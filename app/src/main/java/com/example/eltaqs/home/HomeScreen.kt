@@ -1,9 +1,7 @@
 package com.example.eltaqs.home
 
 import android.annotation.SuppressLint
-import android.location.Location
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,8 +53,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.*
 import com.example.eltaqs.R
 import com.example.eltaqs.Utils.NetworkConnectivity
+import com.example.eltaqs.Utils.getWeatherIcon
+import com.example.eltaqs.Utils.getWeatherIconForItems
 import com.example.eltaqs.Utils.settings.formatBasedOnLanguage
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
@@ -138,17 +143,19 @@ fun HomeScreen(onNavigateToDetails: (lat: Double, lon: Double, location: String)
 }
 
 
+@SuppressLint("NewApi")
 @Composable
 fun CurrentWeatherSection(current: CurrentWeatherResponse, tempSymbol: String) {
     Text(
         text = current.name,
+        color = Color.White,
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold
     )
 
     Text(
         text = getCurrentDate().formatBasedOnLanguage(),
-        color = Color.Gray,
+        color = Color.White,
         fontSize = 16.sp
     )
 
@@ -156,6 +163,7 @@ fun CurrentWeatherSection(current: CurrentWeatherResponse, tempSymbol: String) {
 
     DailyForecast(
         forecast = current.weather.firstOrNull()?.description ?: stringResource(R.string.n_a),
+        icon = current.weather.firstOrNull()?.icon ?: "",
         temp = current.main.temp.toInt(),
         feelsLike = current.main.feelsLike.toInt(),
         sunrise = current.sys.sunrise.toLong(),
@@ -169,15 +177,28 @@ fun CurrentWeatherSection(current: CurrentWeatherResponse, tempSymbol: String) {
 
 @Composable
 fun WeatherStatsRow(current: CurrentWeatherResponse, tempSymbol: String, windSpeedSymbol: String) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(end = 8.dp)
-    ) {
-        WeatherInfoCard(stringResource(R.string.wind_speed), "${current.wind.speed}" + windSpeedSymbol.formatBasedOnLanguage(), R.drawable.windspeed)
-        WeatherInfoCard(stringResource(R.string.humidity), "${current.main.humidity} %", R.drawable.humidity)
-        WeatherInfoCard(stringResource(R.string.max_temp), "${current.main.tempMax}" + tempSymbol.formatBasedOnLanguage(), R.drawable.sleet)
-        WeatherInfoCard(stringResource(R.string.pressure), "${current.main.pressure} hPa", R.drawable.hail)
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2d525a) // Light green background
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ){
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(end = 8.dp)
+        ) {
+            WeatherInfoCard(stringResource(R.string.wind_speed), "${current.wind.speed}" + windSpeedSymbol.formatBasedOnLanguage(), R.drawable.windspeed)
+            WeatherInfoCard(stringResource(R.string.humidity), "${current.main.humidity} %", R.drawable.humidity)
+            WeatherInfoCard(stringResource(R.string.max_temp), "${current.main.tempMax}" + tempSymbol.formatBasedOnLanguage(), R.drawable.sleet)
+            WeatherInfoCard(stringResource(R.string.pressure), "${current.main.pressure} hPa", R.drawable.hail)
+        }
     }
+
 }
 
 @Composable
@@ -195,14 +216,14 @@ fun TodayForecastRow(lat: Double, lon: Double, location: String, onNavigateToDet
             text = stringResource(R.string.today),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = Color.White
         )
 
         Text(
             text = stringResource(R.string.next_5_days),
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF4466E5),
+            color = Color.White,
             modifier = Modifier.clickable {
                 onNavigateToDetails(lat, lon, location)
             }
@@ -235,21 +256,22 @@ fun HourlyForecastRow(forecast: ForecastResponse, tempSymbol: String) {
 @Composable
 fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
     Column(
-        modifier = Modifier.width(100.dp),
+        modifier = Modifier.width(90.dp).height(120.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = title,
             fontSize = 12.sp,
-            color = Color.Gray,
+            color = Color.White,
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
         Box(
             modifier = Modifier
-                .size(56.dp)
-                .clip(RoundedCornerShape(16.dp))
+                .size(32.dp)
+                .height(32.dp)
+                .clip(RoundedCornerShape(8.dp))
                 .background(Color(0xFFF2F4FA)),
             contentAlignment = Alignment.Center
         ) {
@@ -262,9 +284,9 @@ fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
 
         Text(
             text = value.formatBasedOnLanguage(),
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = Color.White,
             modifier = Modifier.padding(top = 6.dp)
         )
     }
@@ -286,58 +308,49 @@ fun DailyWeatherCard(
     val dateTime = LocalDateTime.parse(data.dtTxt, inputFormatter)
     val hour = outputFormatter.format(dateTime)
 
+
     Card(
         modifier = Modifier
             .padding(6.dp)
             .width(90.dp)
             .height(120.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Color(0xFFEEF0FF) else Color.White
-        ),
-        elevation = CardDefaults.cardElevation(4.dp)
+        shape = RoundedCornerShape(25.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color(0xFF2d525a))
                 .padding(vertical = 10.dp),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = data.main.temp.toInt().toString().formatBasedOnLanguage() + tempSymbol.formatBasedOnLanguage(),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Image(
-                painter = painterResource(id = getImageResId(data.weather.firstOrNull()?.main ?: "")),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(35.dp)
-            )
-            Text(
-                text = hour.formatBasedOnLanguage(),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray
-            )
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = data.main.temp.toInt().toString().formatBasedOnLanguage() + tempSymbol.formatBasedOnLanguage(),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFFFFF)
+                )
+                Image(
+                    painter = painterResource(id = getWeatherIconForItems(data.weather.firstOrNull()?.icon ?: "")),
+                    contentDescription = null,
+                    modifier = Modifier.size(35.dp)
+                )
+                Text(
+                    text = hour.formatBasedOnLanguage(),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color(0xFFFFFFFF)
+                )
+            }
         }
     }
 }
 
-fun getImageResId(weatherType: String): Int {
-    return when (weatherType.lowercase()) {
-        "clear" -> R.drawable.clear
-        "clouds" -> R.drawable.heavycloud
-        "few clouds", "scattered clouds" -> R.drawable.lightcloud
-        "rain", "shower rain" -> R.drawable.heavyrain
-        "thunderstorm" -> R.drawable.thunderstorm
-        "snow" -> R.drawable.snow
-        "mist" -> R.drawable.heavycloud
-        else -> R.drawable.clear
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun getCurrentDate(): String {
@@ -361,7 +374,8 @@ fun DailyForecast(
     sunset: Long,
     sunrise: Long,
     date: String,
-    tempSymbol: String
+    tempSymbol: String,
+    icon: String
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -384,20 +398,18 @@ fun DailyForecast(
                 }
             )
 
-            Image(
-                painter = painterResource(id = getImageResId(forecast)),
-                contentDescription = null,
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier
-                    .height(175.dp)
-                    .constrainAs(forecastImage) {
-                        if (isRtl) {
-                            end.linkTo(parent.end, margin = 4.dp)
-                        } else {
-                            start.linkTo(parent.start, margin = 4.dp)
-                        }
-                        top.linkTo(parent.top)
+            val weatherAnimationRef = createRef()
+
+            WeatherAnimation(
+                forecast = icon,
+                modifier = Modifier.constrainAs(weatherAnimationRef) {
+                    if (isRtl) {
+                        end.linkTo(parent.end, margin = 4.dp)
+                    } else {
+                        start.linkTo(parent.start, margin = 4.dp)
                     }
+                    top.linkTo(parent.top)
+                }
             )
 
             Text(
@@ -411,7 +423,7 @@ fun DailyForecast(
                     } else {
                         start.linkTo(parent.start, margin = 24.dp)
                     }
-                    top.linkTo(anchor = forecastImage.bottom)
+                    top.linkTo(anchor = weatherAnimationRef.bottom)
                 }
             )
 
@@ -439,8 +451,8 @@ fun DailyForecast(
                         } else {
                             end.linkTo(parent.end, margin = 36.dp)
                         }
-                        top.linkTo(forecastImage.top)
-                        bottom.linkTo(forecastImage.bottom)
+                        top.linkTo(weatherAnimationRef.top)
+                        bottom.linkTo(weatherAnimationRef.bottom)
                     },
                 degree = temp.toString().formatBasedOnLanguage(),
                 tempSymbol = tempSymbol.formatBasedOnLanguage()
@@ -462,6 +474,25 @@ fun DailyForecast(
             )
         }
     }
+}
+
+
+
+@Composable
+fun WeatherAnimation(forecast: String, modifier: Modifier = Modifier) {
+    val animationResId = getWeatherIcon(forecast)
+
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(animationResId))
+    val progress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
+
+    LottieAnimation(
+        composition = composition,
+        progress = progress,
+        modifier = modifier.size(200.dp).height(175.dp)
+    )
 }
 
 

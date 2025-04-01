@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.eltaqs.Utils.settings.enums.LocationSource
+import com.example.eltaqs.utils.settings.enums.LocationSource
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.GeocodingResponse
 import com.example.eltaqs.data.model.Response

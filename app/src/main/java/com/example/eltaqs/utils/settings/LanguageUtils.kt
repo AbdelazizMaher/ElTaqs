@@ -1,6 +1,6 @@
-package com.example.eltaqs.Utils.settings
+package com.example.eltaqs.utils.settings
 
-import com.example.eltaqs.Utils.settings.enums.Language
+import com.example.eltaqs.utils.settings.enums.Language
 import java.util.Locale
 
 

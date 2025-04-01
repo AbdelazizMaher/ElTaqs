@@ -22,17 +22,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -59,8 +55,8 @@ import androidx.navigation.NavHostController
 import com.example.eltaqs.R
 import com.example.eltaqs.ui.theme.DEFAULT_PADDING
 import com.example.eltaqs.ScreenRoutes
-import com.example.eltaqs.Utils.times
-import com.example.eltaqs.Utils.transform
+import com.example.eltaqs.utils.times
+import com.example.eltaqs.utils.transform
 import kotlin.math.PI
 import kotlin.math.sin
 

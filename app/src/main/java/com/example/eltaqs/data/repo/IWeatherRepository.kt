@@ -1,9 +1,9 @@
 package com.example.eltaqs.data.repo
 
-import com.example.eltaqs.Utils.settings.enums.Language
-import com.example.eltaqs.Utils.settings.enums.LocationSource
-import com.example.eltaqs.Utils.settings.enums.SpeedUnit
-import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import com.example.eltaqs.utils.settings.enums.Language
+import com.example.eltaqs.utils.settings.enums.LocationSource
+import com.example.eltaqs.utils.settings.enums.SpeedUnit
+import com.example.eltaqs.utils.settings.enums.TemperatureUnit
 import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.FavouriteLocation

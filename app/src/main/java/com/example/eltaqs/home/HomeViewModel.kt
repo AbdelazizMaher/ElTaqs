@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.eltaqs.Utils.NetworkConnectivity
 import com.example.eltaqs.data.model.CurrentWeatherResponse
 import com.example.eltaqs.data.model.FavouriteLocation
 import com.example.eltaqs.data.model.ForecastResponse
@@ -14,7 +13,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.compose.autocomplete.models.geocoder.Location
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

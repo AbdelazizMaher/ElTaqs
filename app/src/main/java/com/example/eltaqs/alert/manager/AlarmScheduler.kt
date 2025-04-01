@@ -5,13 +5,11 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.example.eltaqs.AlertsWorker
-import com.example.eltaqs.Utils.parseTimeToMillis
+import com.example.eltaqs.alert.worker.AlertsWorker
+import com.example.eltaqs.utils.parseTimeToMillis
 import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
 import com.example.eltaqs.data.model.Alarm
 

@@ -9,6 +9,28 @@ plugins {
 }
 
 val composeUiVersion by extra("1.2.0")
+val androidXVersion by extra("1.0.0")
+val androidXTestCoreVersion by extra("1.6.1")
+val androidXTestExtKotlinRunnerVersion by extra("1.1.3")
+val androidXTestRulesVersion by extra("1.2.0")
+val androidXAnnotations by extra("1.3.0")
+val appCompatVersion by extra("1.4.0")
+val archLifecycleVersion by extra("2.8.7")
+val archTestingVersion by extra("2.2.0")
+val coroutinesVersion by extra("1.5.2")
+val cardVersion by extra("1.0.0")
+val dexMakerVersion by extra("2.12.1")
+val espressoVersion by extra("3.4.0")
+val fragmentKtxVersion by extra("1.4.0")
+val hamcrestVersion by extra("1.3")
+val junitVersion by extra("4.13.2")
+val materialVersion by extra("1.4.0")
+val recyclerViewVersion by extra("1.2.1")
+val robolectricVersion by extra("4.5.1")
+val rulesVersion by extra("1.0.1")
+val swipeRefreshLayoutVersion by extra("1.1.0")
+val timberVersion by extra("4.7.1")
+val truthVersion by extra("1.1.2")
 
 android {
     namespace = "com.example.eltaqs"
@@ -36,6 +58,12 @@ android {
         buildConfigField("String", "WEATHER_API_KEY", "\"$apiKey\"")
         buildConfigField("String", "GOOGLE_MAP_API_KEY", "\"$googleApiKey\"")
         manifestPlaceholders["GOOGLE_MAP_API_KEY"] = googleApiKey
+    }
+
+    packagingOptions {
+        exclude("META-INF/LICENSE-notice.md")
+        exclude("META-INF/LICENSE.md")   // (Optional: to exclude the other license file if needed)
+        exclude("META-INF/LICENSE.txt")  // (Optional: in case there are any more conflicts)
     }
 
     buildTypes {
@@ -88,9 +116,9 @@ dependencies {
 
     implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
 
-    implementation("androidx.room:room-ktx:2.4.1")
-    implementation ("androidx.room:room-runtime:2.4.1")
-    ksp("androidx.room:room-compiler:2.4.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    implementation ("androidx.room:room-runtime:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 
     //Scoped API
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7")
@@ -121,4 +149,10 @@ dependencies {
     implementation("com.google.accompanist:accompanist-drawablepainter:0.35.0-alpha")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation ("androidx.compose.material:material:1.5.4")
+
+    testImplementation ("io.mockk:mockk-agent:1.13.17")
+    testImplementation ("io.mockk:mockk-android:1.13.17")
+
+    androidTestImplementation ("io.mockk:mockk-android:1.13.17")
+    androidTestImplementation ("io.mockk:mockk-agent:1.13.17")
 }

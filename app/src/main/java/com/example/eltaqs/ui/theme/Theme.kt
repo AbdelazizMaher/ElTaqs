@@ -22,10 +22,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val DarkColorPalette = darkColorScheme(
-    primary = Color(0xFF90CAF9),        // Soft sky blue - accent color
-    secondary = Color(0xFF80DEEA),      // Cool teal - for secondary buttons/texts
-    tertiary = Color(0xFFB39DDB),       // Muted lavender purple - calm highlight
-    background = Color(0xFF1B1F36),     // Deep navy - matches background gradient
+    primary = Color(0xFFFF5151),
+    secondary = Color(0xFF2d525a),
+    tertiary = Color(0xFFB39DDB),
+    background = Color(0xFF1B1F36),
     surface = Color(0xFF2C2F48),
 )
 

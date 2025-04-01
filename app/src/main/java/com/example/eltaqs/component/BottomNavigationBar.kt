@@ -10,6 +10,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,8 +22,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
@@ -41,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -126,7 +130,7 @@ fun MainScreen(
         CustomBottomNavigation(navController)
         Circle(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), animationProgress = 0.5f)
 
-        FabGroup(renderEffect = renderEffect, animationProgress = fabAnimationProgress, navController = navController)
+        FabGroup(renderEffect = renderEffect, animationProgress = fabAnimationProgress,toggleAnimation = toggleAnimation, navController = navController)
         FabGroup(renderEffect = null, animationProgress = fabAnimationProgress, toggleAnimation = toggleAnimation, navController = navController)
         Circle(color = Color.White, animationProgress = clickAnimationProgress)
     }
@@ -169,13 +173,13 @@ fun CustomBottomNavigation(navController: NavHostController) {
             navController.popBackStack()
             navController.navigate(ScreenRoutes.Home)
         }) {
-            Icon(imageVector = Icons.Filled.Home, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Filled.Home, contentDescription = null, tint = Color(0xFF2d525a))
         }
         IconButton(onClick = {
             navController.popBackStack()
             navController.navigate(ScreenRoutes.Settings)
         }) {
-            Icon(imageVector = Icons.Filled.Settings, contentDescription = null, tint = Color.White)
+            Icon(imageVector = Icons.Filled.Settings, contentDescription = null, tint = Color(0xFF2d525a))
         }
     }
 }
@@ -197,7 +201,7 @@ fun FabGroup(
     ) {
 
         AnimatedFab(
-            icon = Icons.Filled.Create,
+            icon = Icons.Filled.Alarm,
             modifier = Modifier
                 .padding(
                     PaddingValues(
@@ -233,7 +237,7 @@ fun FabGroup(
                     bottom = 72.dp,
                     start = 210.dp
                 ) * FastOutSlowInEasing.transform(0.2f, 1.0f, animationProgress)
-            ),
+            ).background(shape = CircleShape, color = Color.Red),
             opacity = LinearEasing.transform(0.4f, 0.9f, animationProgress),
             onClick = {
                 navController.popBackStack()
@@ -254,7 +258,7 @@ fun FabGroup(
                         .transform(0.35f, 0.65f, animationProgress)
                 ),
             onClick = toggleAnimation,
-            backgroundColor = Color.Transparent
+            backgroundColor = Color.Transparent.copy(alpha = 0f)
         )
     }
 }
@@ -265,14 +269,14 @@ fun AnimatedFab(
     modifier: Modifier,
     icon: ImageVector? = null,
     opacity: Float = 1f,
-    backgroundColor: Color = MaterialTheme.colorScheme.secondary,
+    backgroundColor: Color = Color(0xFF4a757e),
     onClick: () -> Unit = {}
 ) {
     FloatingActionButton(
         onClick = onClick,
         elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
         containerColor = backgroundColor,
-        modifier = modifier.scale(1.00f)
+        modifier = modifier.scale(1.00f).clip(CircleShape)
     ) {
         icon?.let {
             Icon(

@@ -80,11 +80,12 @@ class MainActivity : ComponentActivity() {
 
                 val backgroundGradient = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF1B1F36),
-                        Color(0xFF2C2F48),
-                        Color(0xFF3A3C5B)
+                        Color(0xFF1b3a41),
+                        Color(0xFF2d525a),
+                        Color(0xFF4a757e)
                     )
                 )
+
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(bottom = 140.dp)) },
@@ -94,7 +95,7 @@ class MainActivity : ComponentActivity() {
                                 onClick = {
                                     onFabClick.value()
                                 },
-                                containerColor = colorResource(R.color.purple_700),
+                                containerColor = colorResource(R.color.black),
                                 shape = CircleShape,
                                 modifier = Modifier.offset(y = (-120).dp)
                             ) {

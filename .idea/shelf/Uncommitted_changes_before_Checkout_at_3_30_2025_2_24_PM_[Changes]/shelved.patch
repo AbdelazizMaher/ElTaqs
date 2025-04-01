@@ -1,0 +1,236 @@
+Index: app/src/main/java/com/example/eltaqs/alert/AlertsScreen.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.eltaqs.alert\r\n\r\nimport android.content.pm.PackageManager\r\nimport android.os.Build\r\nimport androidx.activity.compose.rememberLauncherForActivityResult\r\nimport androidx.activity.result.contract.ActivityResultContracts\r\nimport androidx.compose.foundation.BorderStroke\r\nimport androidx.compose.foundation.background\r\nimport androidx.compose.foundation.interaction.MutableInteractionSource\r\nimport androidx.compose.foundation.interaction.PressInteraction\r\nimport androidx.compose.foundation.layout.Arrangement\r\nimport androidx.compose.foundation.layout.Box\r\nimport androidx.compose.foundation.layout.Column\r\nimport androidx.compose.foundation.layout.IntrinsicSize\r\nimport androidx.compose.foundation.layout.Row\r\nimport androidx.compose.foundation.layout.Spacer\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.fillMaxWidth\r\nimport androidx.compose.foundation.layout.height\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.foundation.layout.width\r\nimport androidx.compose.foundation.shape.RoundedCornerShape\r\nimport androidx.compose.material.Divider\r\nimport androidx.compose.material.icons.Icons\r\nimport androidx.compose.material.icons.filled.AccessTime\r\nimport androidx.compose.material.icons.filled.DateRange\r\nimport androidx.compose.material.icons.filled.Notifications\r\nimport androidx.compose.material.icons.filled.Timer\r\nimport androidx.compose.material3.BottomSheetDefaults\r\nimport androidx.compose.material3.Button\r\nimport androidx.compose.material3.ButtonDefaults\r\nimport androidx.compose.material3.ExperimentalMaterial3Api\r\nimport androidx.compose.material3.Icon\r\nimport androidx.compose.material3.MaterialTheme\r\nimport androidx.compose.material3.ModalBottomSheet\r\nimport androidx.compose.material3.OutlinedButton\r\nimport androidx.compose.material3.OutlinedTextField\r\nimport androidx.compose.material3.RadioButton\r\nimport androidx.compose.material3.SnackbarHost\r\nimport androidx.compose.material3.SnackbarHostState\r\nimport androidx.compose.material3.Surface\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.material3.TextButton\r\nimport androidx.compose.material3.TimeInput\r\nimport androidx.compose.material3.TimePicker\r\nimport androidx.compose.material3.rememberModalBottomSheetState\r\nimport androidx.compose.material3.rememberTimePickerState\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.LaunchedEffect\r\nimport androidx.compose.runtime.MutableState\r\nimport androidx.compose.runtime.getValue\r\nimport androidx.compose.runtime.mutableStateOf\r\nimport androidx.compose.runtime.remember\r\nimport androidx.compose.runtime.rememberCoroutineScope\r\nimport androidx.compose.runtime.setValue\r\nimport androidx.compose.ui.Alignment\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.graphics.Color\r\nimport androidx.compose.ui.platform.LocalContext\r\nimport androidx.compose.ui.text.font.FontWeight\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport androidx.compose.ui.unit.dp\r\nimport androidx.compose.ui.unit.sp\r\nimport androidx.compose.ui.window.Dialog\r\nimport androidx.compose.ui.window.DialogProperties\r\nimport androidx.core.content.ContextCompat\r\nimport androidx.lifecycle.compose.collectAsStateWithLifecycle\r\nimport androidx.lifecycle.viewmodel.compose.viewModel\r\nimport com.example.eltaqs.alert.manager.AlarmScheduler\r\nimport com.example.eltaqs.data.local.AppDataBase\r\nimport com.example.eltaqs.data.local.WeatherLocalDataSource\r\nimport com.example.eltaqs.data.model.Alarm\r\nimport com.example.eltaqs.data.remote.WeatherRemoteDataSource\r\nimport com.example.eltaqs.data.sharedpreference.SharedPrefDataSource\r\nimport com.example.eltaqs.data.repo.WeatherRepository\r\nimport kotlinx.coroutines.launch\r\nimport java.text.SimpleDateFormat\r\nimport java.util.Calendar\r\nimport java.util.Locale\r\n\r\n@Preview(showBackground = true)\r\n@Composable\r\nfun AlertsScreen() {\r\n    val viewModel: AlertsViewModel = viewModel(\r\n        factory = AlertsViewModelFactory(\r\n            WeatherRepository.getInstance(\r\n                WeatherRemoteDataSource(RetrofitHelper.apiService),\r\n                WeatherLocalDataSource(AppDataBase.getInstance(LocalContext.current).getFavouritesDAO()),\r\n                SharedPrefDataSource.getInstance(LocalContext.current)\r\n            )\r\n        )\r\n    )\r\n\r\n    val alerts = viewModel.alerts.collectAsStateWithLifecycle()\r\n    LaunchedEffect(Unit) {\r\n        viewModel.getAlarms()\r\n    }\r\n\r\n    val context = LocalContext.current\r\n\r\n    val notificationPermissionLauncher = rememberLauncherForActivityResult(\r\n        contract = ActivityResultContracts.RequestPermission()\r\n    ) { isGranted ->\r\n\r\n    }\r\n\r\n    LaunchedEffect(Unit) {\r\n        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {\r\n            if (ContextCompat.checkSelfPermission(\r\n                    context, android.Manifest.permission.POST_NOTIFICATIONS\r\n                ) != PackageManager.PERMISSION_GRANTED\r\n            ) {\r\n                notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)\r\n            }\r\n        }\r\n    }\r\n\r\n\r\n\r\n\r\n    var showBottomSheet = remember { mutableStateOf(false) }\r\n\r\n    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {\r\n        Button(onClick = {\r\n            showBottomSheet.value = true\r\n        }) {\r\n            Text(text = \"Open Sheet\")\r\n\r\n        }\r\n\r\n        if (showBottomSheet.value) {\r\n            BottomSheetCompose(showBottomSheet, viewModel)\r\n        }\r\n\r\n    }\r\n}\r\n\r\n@OptIn(ExperimentalMaterial3Api::class)\r\n@Composable\r\nfun BottomSheetCompose(showBottomSheet: MutableState<Boolean>, viewModel: AlertsViewModel) {\r\n    val modalBottomSheetState = rememberModalBottomSheetState()\r\n    val coroutineScope = rememberCoroutineScope()\r\n\r\n    var selectedOption by remember { mutableStateOf(\"Alarm\") }\r\n\r\n    var startDuration by remember { mutableStateOf(\"\") }\r\n    var endDuration by remember { mutableStateOf(\"\") }\r\n\r\n    var showStartTimePicker by remember { mutableStateOf(false) }\r\n    var showEndTimePicker by remember { mutableStateOf(false) }\r\n\r\n    val startInteractionSource = remember { MutableInteractionSource() }\r\n    val endInteractionSource = remember { MutableInteractionSource() }\r\n\r\n    val context = LocalContext.current\r\n    val alarmScheduler = remember { AlarmScheduler(context) }\r\n\r\n    LaunchedEffect(startInteractionSource) {\r\n        startInteractionSource.interactions.collect { interaction ->\r\n            if (interaction is PressInteraction.Press) {\r\n                showStartTimePicker = true\r\n            }\r\n        }\r\n    }\r\n\r\n    LaunchedEffect(endInteractionSource) {\r\n        endInteractionSource.interactions.collect { interaction ->\r\n            if (interaction is PressInteraction.Press) {\r\n                showEndTimePicker = true\r\n            }\r\n        }\r\n    }\r\n\r\n    ModalBottomSheet(\r\n        onDismissRequest = { showBottomSheet.value = false },\r\n        sheetState = modalBottomSheetState,\r\n        dragHandle = { BottomSheetDefaults.DragHandle() },\r\n    ) {\r\n        Column(\r\n            modifier = Modifier\r\n                .fillMaxWidth()\r\n                .padding(16.dp),\r\n            horizontalAlignment = Alignment.CenterHorizontally,\r\n            verticalArrangement = Arrangement.spacedBy(12.dp)\r\n        ) {\r\n            Text(text = \"Set Alarm\", fontWeight = FontWeight.Bold, fontSize = 16.sp)\r\n\r\n            OutlinedTextField(\r\n                value = startDuration,\r\n                onValueChange = {},\r\n                label = { Text(\"Start duration\") },\r\n                leadingIcon = { Icon(imageVector = Icons.Default.AccessTime, contentDescription = null) },\r\n                modifier = Modifier.fillMaxWidth(),\r\n                readOnly = true,\r\n                interactionSource = startInteractionSource\r\n            )\r\n\r\n            OutlinedTextField(\r\n                value = endDuration,\r\n                onValueChange = {},\r\n                label = { Text(\"End duration\") },\r\n                leadingIcon = { Icon(imageVector = Icons.Default.Timer, contentDescription = null) },\r\n                modifier = Modifier.fillMaxWidth(),\r\n                readOnly = true,\r\n                interactionSource = endInteractionSource\r\n            )\r\n\r\n            Text(text = \"Notify me by\", fontSize = 14.sp)\r\n            Row(\r\n                modifier = Modifier.fillMaxWidth(),\r\n                horizontalArrangement = Arrangement.SpaceEvenly\r\n            ) {\r\n                Row(verticalAlignment = Alignment.CenterVertically) {\r\n                    RadioButton(\r\n                        selected = selectedOption == \"Alarm\",\r\n                        onClick = { selectedOption = \"Alarm\" }\r\n                    )\r\n                    Text(\"Alarm\")\r\n                }\r\n                Row(verticalAlignment = Alignment.CenterVertically) {\r\n                    RadioButton(\r\n                        selected = selectedOption == \"Notification\",\r\n                        onClick = { selectedOption = \"Notification\" }\r\n                    )\r\n                    Text(\"Notification\")\r\n                }\r\n            }\r\n\r\n            Row(\r\n                modifier = Modifier.fillMaxWidth(),\r\n                horizontalArrangement = Arrangement.SpaceBetween\r\n            ) {\r\n                OutlinedButton(\r\n                    modifier = Modifier\r\n                        .weight(5f)\r\n                        .padding(horizontal = 15.dp),\r\n                    onClick = {\r\n                        coroutineScope.launch {\r\n                            modalBottomSheetState.hide()\r\n                            showBottomSheet.value = false\r\n                        }\r\n                    },\r\n                    border = BorderStroke(1.dp, Color.Red),\r\n                    shape = RoundedCornerShape(50)\r\n                ) {\r\n                    Text(\r\n                        text = \"Cancel\",\r\n                        modifier = Modifier.padding(\r\n                            horizontal = 10.dp,\r\n                            vertical = 6.dp\r\n                        ),\r\n                        fontSize = 12.sp,\r\n                        color = Color.Red\r\n                    )\r\n\r\n                }\r\n\r\n                Button(\r\n                    onClick = {\r\n                        val id = System.currentTimeMillis().toInt()\r\n                        viewModel.insertAlarm(Alarm(id, startDuration, endDuration))\r\n                        alarmScheduler.scheduleAlarm(Alarm(id, startDuration, endDuration))\r\n                        coroutineScope.launch {\r\n                            modalBottomSheetState.hide()\r\n                            showBottomSheet.value = false\r\n                        }\r\n                    },\r\n                    modifier = Modifier\r\n                        .weight(5f)\r\n                        .padding(horizontal = 15.dp),\r\n                    shape = RoundedCornerShape(50.dp),\r\n                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)\r\n                ) {\r\n                    Text(\r\n                        text = \"Save\",\r\n                        modifier = Modifier.padding(horizontal = 10.dp, 6.dp),\r\n                        color = Color.White,\r\n                        fontSize = 12.sp\r\n                    )\r\n\r\n                }\r\n            }\r\n\r\n            if (showStartTimePicker) {\r\n                TimePickerDialog(\r\n                    onCancel = { showStartTimePicker = false },\r\n                    onConfirm = { newTime ->\r\n                        startDuration = newTime\r\n                        showStartTimePicker = false\r\n                    }\r\n                )\r\n            }\r\n\r\n            if (showEndTimePicker) {\r\n                TimePickerDialog(\r\n                    onCancel = { showEndTimePicker = false },\r\n                    onConfirm = { newTime ->\r\n                        endDuration = newTime\r\n                        showEndTimePicker = false\r\n                    }\r\n                )\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n\r\n@OptIn(ExperimentalMaterial3Api::class)\r\n@Composable\r\nfun TimePickerDialog(\r\n    onCancel: () -> Unit,\r\n    onConfirm: (String) -> Unit\r\n) {\r\n    val state = rememberTimePickerState(is24Hour = false)\r\n    val formatter = remember { SimpleDateFormat(\"hh:mm a\", Locale.getDefault()) }\r\n\r\n    Dialog(\r\n        onDismissRequest = onCancel,\r\n        properties = DialogProperties(usePlatformDefaultWidth = false),\r\n    ) {\r\n        Surface(\r\n            shape = MaterialTheme.shapes.extraLarge,\r\n            tonalElevation = 6.dp,\r\n            modifier = Modifier\r\n                .width(IntrinsicSize.Min)\r\n                .height(IntrinsicSize.Min)\r\n                .background(\r\n                    shape = MaterialTheme.shapes.extraLarge,\r\n                    color = MaterialTheme.colorScheme.surface\r\n                ),\r\n        ) {\r\n            Column(\r\n                modifier = Modifier.padding(24.dp),\r\n                horizontalAlignment = Alignment.CenterHorizontally\r\n            ) {\r\n                Text(\r\n                    modifier = Modifier\r\n                        .fillMaxWidth()\r\n                        .padding(bottom = 20.dp),\r\n                    text = \"Select Time\",\r\n                    style = MaterialTheme.typography.labelMedium\r\n                )\r\n                TimePicker(state = state)\r\n\r\n                Row(\r\n                    modifier = Modifier\r\n                        .height(40.dp)\r\n                        .fillMaxWidth()\r\n                ) {\r\n                    Spacer(modifier = Modifier.weight(1f))\r\n                    TextButton(onClick = onCancel) {\r\n                        Text(\"Cancel\")\r\n                    }\r\n                    TextButton(onClick = {\r\n                        val cal = Calendar.getInstance()\r\n                        cal.set(Calendar.HOUR_OF_DAY, state.hour)\r\n                        cal.set(Calendar.MINUTE, state.minute)\r\n                        cal.isLenient = false\r\n                        onConfirm(formatter.format(cal.time))\r\n                    }) {\r\n                        Text(\"OK\")\r\n                    }\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/eltaqs/alert/AlertsScreen.kt b/app/src/main/java/com/example/eltaqs/alert/AlertsScreen.kt
+--- a/app/src/main/java/com/example/eltaqs/alert/AlertsScreen.kt	(revision d290ad693cbb11b6fffc17034bed1455a78a154f)
++++ b/app/src/main/java/com/example/eltaqs/alert/AlertsScreen.kt	(date 1743337170591)
+@@ -6,6 +6,7 @@
+ import androidx.activity.result.contract.ActivityResultContracts
+ import androidx.compose.foundation.BorderStroke
+ import androidx.compose.foundation.background
++import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.interaction.MutableInteractionSource
+ import androidx.compose.foundation.interaction.PressInteraction
+ import androidx.compose.foundation.layout.Arrangement
+@@ -19,25 +20,28 @@
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.width
++import androidx.compose.foundation.lazy.LazyColumn
+ import androidx.compose.foundation.shape.RoundedCornerShape
+ import androidx.compose.material.Divider
+ import androidx.compose.material.icons.Icons
+ import androidx.compose.material.icons.filled.AccessTime
++import androidx.compose.material.icons.filled.ArrowForward
+ import androidx.compose.material.icons.filled.DateRange
+ import androidx.compose.material.icons.filled.Notifications
+ import androidx.compose.material.icons.filled.Timer
+ import androidx.compose.material3.BottomSheetDefaults
+ import androidx.compose.material3.Button
+ import androidx.compose.material3.ButtonDefaults
++import androidx.compose.material3.Card
++import androidx.compose.material3.CardDefaults
+ import androidx.compose.material3.ExperimentalMaterial3Api
+ import androidx.compose.material3.Icon
++import androidx.compose.material3.IconButton
+ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.material3.ModalBottomSheet
+ import androidx.compose.material3.OutlinedButton
+ import androidx.compose.material3.OutlinedTextField
+ import androidx.compose.material3.RadioButton
+-import androidx.compose.material3.SnackbarHost
+-import androidx.compose.material3.SnackbarHostState
+ import androidx.compose.material3.Surface
+ import androidx.compose.material3.Text
+ import androidx.compose.material3.TextButton
+@@ -55,6 +59,7 @@
+ import androidx.compose.runtime.setValue
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
++import androidx.compose.ui.draw.clip
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.platform.LocalContext
+ import androidx.compose.ui.text.font.FontWeight
+@@ -78,9 +83,8 @@
+ import java.util.Calendar
+ import java.util.Locale
+ 
+-@Preview(showBackground = true)
+ @Composable
+-fun AlertsScreen() {
++fun AlertsScreen(onFabClick: MutableState<() -> Unit>) {
+     val viewModel: AlertsViewModel = viewModel(
+         factory = AlertsViewModelFactory(
+             WeatherRepository.getInstance(
+@@ -115,23 +119,30 @@
+         }
+     }
+ 
+-
+-
+-
+     var showBottomSheet = remember { mutableStateOf(false) }
+ 
+-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+-        Button(onClick = {
++    Box(modifier = Modifier.fillMaxSize()) {
++        onFabClick.value = {
+             showBottomSheet.value = true
+-        }) {
+-            Text(text = "Open Sheet")
+-
+         }
+-
+         if (showBottomSheet.value) {
+             BottomSheetCompose(showBottomSheet, viewModel)
+         }
+ 
++        Column(modifier = Modifier.fillMaxSize()) {
++            LazyColumn(
++                modifier = Modifier.fillMaxSize(),
++                verticalArrangement = Arrangement.Top
++            ) {
++                items(alerts.value.size) {
++                    AlertCard(
++                        startTime = alerts.value[it].startTime,
++                        endTime = alerts.value[it].endTime,
++                        location = "Egypt"
++                    )
++                }
++            }
++        }
+     }
+ }
+ 
+@@ -366,3 +377,70 @@
+     }
+ }
+ 
++@Composable
++fun AlertCard(
++    startTime: String,
++    endTime: String,
++    location: String,
++) {
++    Card(
++        modifier = Modifier
++            .fillMaxWidth()
++            .padding(8.dp)
++            .clip(RoundedCornerShape(16.dp)),
++        colors = CardDefaults.cardColors(containerColor = Color(0xFF181A2A))
++    ) {
++        Row(
++            modifier = Modifier
++                .fillMaxWidth()
++                .padding(16.dp),
++            verticalAlignment = Alignment.CenterVertically
++        ) {
++            Column(
++                modifier = Modifier.weight(1f),
++                verticalArrangement = Arrangement.Center
++            ) {
++                Text(
++                    text = "Start from",
++                    color = Color.Gray,
++                    fontSize = 12.sp
++                )
++                Row(verticalAlignment = Alignment.CenterVertically) {
++                    Text(
++                        text = startTime,
++                        color = Color.White,
++                        fontSize = 16.sp,
++                        fontWeight = FontWeight.Bold
++                    )
++                    Icon(
++                        imageVector = Icons.Default.ArrowForward,
++                        contentDescription = "Arrow",
++                        tint = Color.White,
++                        modifier = Modifier.padding(horizontal = 8.dp)
++                    )
++                    Text(
++                        text = endTime,
++                        color = Color.White,
++                        fontSize = 16.sp,
++                        fontWeight = FontWeight.Bold
++                    )
++                }
++            }
++            Text(
++                text = location,
++                color = Color.White,
++                fontSize = 16.sp,
++                fontWeight = FontWeight.Bold,
++                modifier = Modifier.padding(horizontal = 8.dp)
++            )
++            IconButton(onClick = { }) {
++                Icon(
++                    imageVector = Icons.Default.Notifications,
++                    contentDescription = "Notification Bell",
++                    tint = Color.White
++                )
++            }
++        }
++    }
++}
++
+Index: app/src/main/java/com/example/eltaqs/alert/AlertsViewModel.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.eltaqs.alert\r\n\r\nimport androidx.lifecycle.ViewModel\r\nimport androidx.lifecycle.ViewModelProvider\r\nimport androidx.lifecycle.viewModelScope\r\nimport com.example.eltaqs.data.model.Alarm\r\nimport com.example.eltaqs.data.repo.WeatherRepository\r\nimport kotlinx.coroutines.Dispatchers\r\nimport kotlinx.coroutines.flow.MutableStateFlow\r\nimport kotlinx.coroutines.flow.asStateFlow\r\nimport kotlinx.coroutines.launch\r\n\r\nclass AlertsViewModel(private val repository: WeatherRepository) : ViewModel()  {\r\n    private val mutableAlerts = MutableStateFlow<List<Alarm>>(emptyList())\r\n    val alerts = mutableAlerts.asStateFlow()\r\n\r\n    fun getAlarms() {\r\n        viewModelScope.launch(Dispatchers.IO) {\r\n            repository.getAlarms().collect {\r\n                mutableAlerts.value = it\r\n            }\r\n        }\r\n    }\r\n\r\n    fun insertAlarm(alarm: Alarm) {\r\n        viewModelScope.launch(Dispatchers.IO) {\r\n            repository.insertAlarm(alarm)\r\n        }\r\n    }\r\n\r\n    fun deleteAlarm(alarm: Alarm) {\r\n        viewModelScope.launch(Dispatchers.IO) {\r\n            repository.deleteAlarm(alarm)\r\n        }\r\n    }\r\n}\r\n\r\nclass AlertsViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {\r\n    override fun <T : ViewModel> create(modelClass: Class<T>): T {\r\n        if (modelClass.isAssignableFrom(AlertsViewModel::class.java)) {\r\n            return AlertsViewModel(repository) as T\r\n        }\r\n        throw IllegalArgumentException(\"Unknown ViewModel class\")\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/eltaqs/alert/AlertsViewModel.kt b/app/src/main/java/com/example/eltaqs/alert/AlertsViewModel.kt
+--- a/app/src/main/java/com/example/eltaqs/alert/AlertsViewModel.kt	(revision d290ad693cbb11b6fffc17034bed1455a78a154f)
++++ b/app/src/main/java/com/example/eltaqs/alert/AlertsViewModel.kt	(date 1743336538350)
+@@ -33,6 +33,12 @@
+             repository.deleteAlarm(alarm)
+         }
+     }
++
++    fun getLocation() {
++        viewModelScope.launch(Dispatchers.IO) {
++
++        }
++    }
+ }
+ 
+ class AlertsViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {
+Index: app/src/main/java/com/example/eltaqs/navigation/SetUpNavHost.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.eltaqs\r\n\r\nimport android.location.Location\r\nimport android.os.Build\r\nimport androidx.annotation.RequiresApi\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.runtime.MutableState\r\n\r\nimport androidx.navigation.NavHostController\r\nimport androidx.navigation.compose.NavHost\r\nimport androidx.navigation.compose.composable\r\nimport androidx.navigation.toRoute\r\nimport com.example.eltaqs.alert.AlertsScreen\r\nimport com.example.eltaqs.data.model.FavouriteLocation\r\nimport com.example.eltaqs.favourite.FavouriteScreen\r\nimport com.example.eltaqs.favouritedetails.FavDetails\r\nimport com.example.eltaqs.home.HomeScreen\r\nimport com.example.eltaqs.map.MapScreen\r\nimport com.example.eltaqs.fivedaysdetails.DetailsScreen\r\nimport com.example.eltaqs.settings.SettingsScreen\r\nimport com.google.gson.Gson\r\n\r\n@RequiresApi(Build.VERSION_CODES.O)\r\n@Composable\r\nfun SetUpNavHost(\r\n    navController: NavHostController,\r\n    showFloatingBtn: MutableState<Boolean>,\r\n    onFabClick: MutableState<() -> Unit>,\r\n    showBottomBar: MutableState<Boolean>\r\n) {\r\n    NavHost(\r\n        navController = navController,\r\n        startDestination = ScreenRoutes.Home\r\n    ) {\r\n        composable<ScreenRoutes.Home> {\r\n            showBottomBar.value = true\r\n            HomeScreen(){lat,lon, location ->\r\n                navController.navigate(ScreenRoutes.Details(lat, lon, location))\r\n            }\r\n        }\r\n        composable<ScreenRoutes.Alerts> {\r\n            showBottomBar.value = false\r\n            showFloatingBtn.value = true\r\n            AlertsScreen()\r\n        }\r\n        composable<ScreenRoutes.Favorite> {\r\n            showBottomBar.value = true\r\n            FavouriteScreen(){\r\n                navController.navigate(ScreenRoutes.FavDetails(it))\r\n            }\r\n        }\r\n        composable<ScreenRoutes.Settings> {\r\n            showBottomBar.value = true\r\n            SettingsScreen() {\r\n                navController.navigate(ScreenRoutes.Map(isMap = true))\r\n            }\r\n        }\r\n        composable<ScreenRoutes.Details> {\r\n            showBottomBar.value = false\r\n            val lat = it.toRoute<ScreenRoutes.Details>().lat\r\n            val lon = it.toRoute<ScreenRoutes.Details>().lon\r\n            val loc = it.toRoute<ScreenRoutes.Details>().location\r\n            DetailsScreen(lat, lon, loc){\r\n                navController.popBackStack()\r\n            }\r\n        }\r\n        composable<ScreenRoutes.Map> {\r\n            showBottomBar.value = false\r\n            showFloatingBtn.value = true\r\n            val isMap = it.toRoute<ScreenRoutes.Map>().isMap\r\n            MapScreen(isMap) {\r\n                navController.popBackStack()\r\n            }\r\n            onFabClick.value = {\r\n                navController.navigate(ScreenRoutes.Favorite)\r\n            }\r\n        }\r\n        composable<ScreenRoutes.FavDetails> {\r\n            showBottomBar.value = true\r\n            val loc = Gson().fromJson(\r\n                it.toRoute<ScreenRoutes.FavDetails>().location,\r\n                FavouriteLocation::class.java\r\n            )\r\n            FavDetails(location = loc) {\r\n                lat, lon, location ->\r\n                navController.navigate(ScreenRoutes.Details(lat, lon, location))\r\n            }\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/example/eltaqs/navigation/SetUpNavHost.kt b/app/src/main/java/com/example/eltaqs/navigation/SetUpNavHost.kt
+--- a/app/src/main/java/com/example/eltaqs/navigation/SetUpNavHost.kt	(revision d290ad693cbb11b6fffc17034bed1455a78a154f)
++++ b/app/src/main/java/com/example/eltaqs/navigation/SetUpNavHost.kt	(date 1743336228551)
+@@ -41,7 +41,7 @@
+         composable<ScreenRoutes.Alerts> {
+             showBottomBar.value = false
+             showFloatingBtn.value = true
+-            AlertsScreen()
++            AlertsScreen(onFabClick)
+         }
+         composable<ScreenRoutes.Favorite> {
+             showBottomBar.value = true
+Index: app/src/main/java/com/example/eltaqs/alert/manager/AlarmScheduler.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.eltaqs.alert.manager\r\n\r\nimport android.annotation.SuppressLint\r\nimport android.app.AlarmManager\r\nimport android.app.PendingIntent\r\nimport android.content.Context\r\nimport android.content.Intent\r\nimport android.os.Build\r\nimport android.util.Log\r\nimport com.example.eltaqs.Utils.parseTimeToMillis\r\nimport com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver\r\nimport com.example.eltaqs.data.model.Alarm\r\n\r\nclass AlarmScheduler(val context: Context) : IAlarmScheduler {\r\n    private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager\r\n\r\n    @SuppressLint(\"ScheduleExactAlarm\")\r\n    override fun scheduleAlarm(alarm: Alarm) {\r\n        val alarmIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {\r\n            putExtra(\"ALARM_ID\", alarm.id)\r\n            putExtra(\"ALARM_ACTION\", \"START\")\r\n        }\r\n\r\n        val alarmPendingIntent = PendingIntent.getBroadcast(\r\n            context,\r\n            alarm.id,\r\n            alarmIntent,\r\n            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE\r\n        )\r\n\r\n        val cancelIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {\r\n            putExtra(\"ALARM_ID\", alarm.id)\r\n            putExtra(\"ALARM_ACTION\", \"STOP\")\r\n        }\r\n\r\n        val cancelPendingIntent = PendingIntent.getBroadcast(\r\n            context,\r\n            -alarm.id,\r\n            cancelIntent,\r\n            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE\r\n        )\r\n\r\n        val alarmTime = parseTimeToMillis(alarm.startTime)\r\n        val endTime = parseTimeToMillis(alarm.endTime)\r\n        val cancelTime = alarmTime + (endTime - alarmTime)\r\n\r\n        alarmManager.setExactAndAllowWhileIdle(\r\n            AlarmManager.RTC_WAKEUP,\r\n            alarmTime,\r\n            alarmPendingIntent\r\n        )\r\n        alarmManager.setExactAndAllowWhileIdle(\r\n            AlarmManager.RTC_WAKEUP,\r\n            cancelTime,\r\n            cancelPendingIntent\r\n        )\r\n    }\r\n\r\n    override fun cancelAlarm(alarm: Alarm) {\r\n        val alarmIntent = Intent(context, AlarmBroadcastReceiver::class.java)\r\n        val cancelIntent = Intent(context, AlarmBroadcastReceiver::class.java)\r\n\r\n        val alarmPendingIntent = PendingIntent.getBroadcast(\r\n            context,\r\n            alarm.id,\r\n            alarmIntent,\r\n            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE\r\n        )\r\n\r\n        val cancelPendingIntent = PendingIntent.getBroadcast(\r\n            context,\r\n            -alarm.id,\r\n            cancelIntent,\r\n            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE\r\n        )\r\n\r\n        alarmManager.cancel(alarmPendingIntent)\r\n        alarmManager.cancel(cancelPendingIntent)\r\n\r\n    }\r\n\r\n}
+===================================================================
+diff --git a/app/src/main/java/com/example/eltaqs/alert/manager/AlarmScheduler.kt b/app/src/main/java/com/example/eltaqs/alert/manager/AlarmScheduler.kt
+--- a/app/src/main/java/com/example/eltaqs/alert/manager/AlarmScheduler.kt	(revision d290ad693cbb11b6fffc17034bed1455a78a154f)
++++ b/app/src/main/java/com/example/eltaqs/alert/manager/AlarmScheduler.kt	(date 1743337386596)
+@@ -78,5 +78,4 @@
+         alarmManager.cancel(cancelPendingIntent)
+ 
+     }
+-
+ }
+\ No newline at end of file

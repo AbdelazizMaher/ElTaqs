@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 
-class WeatherRepository private constructor(
+class WeatherRepository  constructor(
     private val remoteDataSource: WeatherRemoteDataSource,
     private val localDataSource: WeatherLocalDataSource,
     private val sharedPrefDataSource: SharedPrefDataSource

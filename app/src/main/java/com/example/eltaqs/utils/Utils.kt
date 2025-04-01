@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.app.NotificationCompat
 import com.example.eltaqs.R
-import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
+import com.example.eltaqs.alarm.receiver.AlarmBroadcastReceiver
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime

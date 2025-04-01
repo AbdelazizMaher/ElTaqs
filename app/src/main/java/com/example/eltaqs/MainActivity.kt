@@ -35,7 +35,7 @@ import com.example.eltaqs.ui.theme.FluidBottomNavigationTheme
 import com.example.eltaqs.utils.LocationProvider
 import com.example.eltaqs.utils.NetworkConnectivity
 import com.example.eltaqs.utils.settings.enums.LocationSource
-import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
+import com.example.eltaqs.alarm.receiver.AlarmBroadcastReceiver
 import com.example.eltaqs.utils.MediaPlayerFacade
 import com.example.eltaqs.component.AnimatedBottomSection
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource

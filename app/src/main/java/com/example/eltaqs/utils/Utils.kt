@@ -1,4 +1,4 @@
-package com.example.eltaqs.Utils
+package com.example.eltaqs.utils
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -9,15 +9,12 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
-import android.widget.ImageView
 import androidx.compose.animation.core.Easing
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.app.NotificationCompat
-import com.airbnb.lottie.LottieAnimationView
-import com.example.eltaqs.MainActivity
 import com.example.eltaqs.R
 import com.example.eltaqs.alert.receiver.AlarmBroadcastReceiver
 import java.text.SimpleDateFormat

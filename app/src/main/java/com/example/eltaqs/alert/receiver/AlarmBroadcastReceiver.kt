@@ -5,8 +5,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.example.eltaqs.MainActivity
-import com.example.eltaqs.Utils.createNotification
-import com.example.eltaqs.Utils.MediaPlayerFacade
+import com.example.eltaqs.utils.createNotification
+import com.example.eltaqs.utils.MediaPlayerFacade
 import com.example.eltaqs.alert.manager.AlarmScheduler
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource

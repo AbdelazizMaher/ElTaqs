@@ -1,9 +1,9 @@
 package com.example.eltaqs.data.sharedpreference
 
-import com.example.eltaqs.Utils.settings.enums.Language
-import com.example.eltaqs.Utils.settings.enums.LocationSource
-import com.example.eltaqs.Utils.settings.enums.SpeedUnit
-import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import com.example.eltaqs.utils.settings.enums.Language
+import com.example.eltaqs.utils.settings.enums.LocationSource
+import com.example.eltaqs.utils.settings.enums.SpeedUnit
+import com.example.eltaqs.utils.settings.enums.TemperatureUnit
 import kotlinx.coroutines.flow.Flow
 
 interface ISharedPreference {

@@ -1,4 +1,4 @@
-package com.example.eltaqs.Utils
+package com.example.eltaqs.utils
 
 import android.app.NotificationManager
 import android.app.PendingIntent

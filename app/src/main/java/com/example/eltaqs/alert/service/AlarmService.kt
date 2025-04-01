@@ -1,10 +1,12 @@
-package com.example.eltaqs
+package com.example.eltaqs.alert.service
 
 import android.app.*
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.example.eltaqs.MainActivity
+import com.example.eltaqs.R
 
 class AlarmService : Service() {
 

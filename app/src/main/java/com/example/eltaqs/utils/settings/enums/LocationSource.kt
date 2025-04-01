@@ -1,4 +1,4 @@
-package com.example.eltaqs.Utils.settings.enums
+package com.example.eltaqs.utils.settings.enums
 
 enum class LocationSource(val translations: Map<Language, String>) {
     GPS(mapOf(Language.ENGLISH to "GPS", Language.ARABIC to "نظام تحديد المواقع")),

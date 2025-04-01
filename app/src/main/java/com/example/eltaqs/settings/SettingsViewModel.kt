@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.eltaqs.Utils.settings.enums.Language
-import com.example.eltaqs.Utils.settings.enums.LocationSource
-import com.example.eltaqs.Utils.settings.enums.SpeedUnit
-import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import com.example.eltaqs.utils.settings.enums.Language
+import com.example.eltaqs.utils.settings.enums.LocationSource
+import com.example.eltaqs.utils.settings.enums.SpeedUnit
+import com.example.eltaqs.utils.settings.enums.TemperatureUnit
 import com.example.eltaqs.data.repo.WeatherRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

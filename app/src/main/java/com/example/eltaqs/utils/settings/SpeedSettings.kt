@@ -1,7 +1,7 @@
-package com.example.eltaqs.Utils.settings
+package com.example.eltaqs.utils.settings
 
-import com.example.eltaqs.Utils.settings.enums.Language
-import com.example.eltaqs.Utils.settings.enums.SpeedUnit
+import com.example.eltaqs.utils.settings.enums.Language
+import com.example.eltaqs.utils.settings.enums.SpeedUnit
 
 object SpeedSettings {
     private val arabicNumbers = ('٠'..'٩').toList()

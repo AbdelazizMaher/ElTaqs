@@ -2,14 +2,12 @@ package com.example.eltaqs.data.sharedpreference
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.eltaqs.Utils.settings.enums.Language
-import com.example.eltaqs.Utils.settings.enums.LocationSource
-import com.example.eltaqs.Utils.settings.enums.SpeedUnit
-import com.example.eltaqs.Utils.settings.enums.TemperatureUnit
+import com.example.eltaqs.utils.settings.enums.Language
+import com.example.eltaqs.utils.settings.enums.LocationSource
+import com.example.eltaqs.utils.settings.enums.SpeedUnit
+import com.example.eltaqs.utils.settings.enums.TemperatureUnit
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 
 class SharedPrefDataSource private constructor(context: Context) : ISharedPreference {

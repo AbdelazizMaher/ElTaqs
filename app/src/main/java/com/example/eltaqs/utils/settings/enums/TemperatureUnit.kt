@@ -1,4 +1,4 @@
-package com.example.eltaqs.Utils.settings.enums
+package com.example.eltaqs.utils.settings.enums
 
 enum class TemperatureUnit(
     private val displayNames: Map<Language, String>,

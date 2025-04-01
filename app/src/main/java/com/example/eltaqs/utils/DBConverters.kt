@@ -1,4 +1,4 @@
-package com.example.eltaqs.Utils
+package com.example.eltaqs.utils
 
 import androidx.room.TypeConverter
 import com.example.eltaqs.data.model.CurrentWeatherResponse

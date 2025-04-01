@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -38,9 +37,8 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.R
-import com.example.eltaqs.Utils.getWeatherIcon
-import com.example.eltaqs.Utils.getWeatherIconForItems
-import com.example.eltaqs.Utils.settings.formatBasedOnLanguage
+import com.example.eltaqs.utils.getWeatherIconForItems
+import com.example.eltaqs.utils.settings.formatBasedOnLanguage
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.model.ForecastResponse

@@ -400,6 +400,7 @@ fun <T> SwipeToDeleteContainer(
 
     LaunchedEffect(isRemoved, currentItem) {
         if (isRemoved) {
+            snackBarHostState.currentSnackbarData?.dismiss()
             val result = snackBarHostState.showSnackbar(
                 message = context.getString(R.string.item_deleted),
                 actionLabel = context.getString(R.string.undo),

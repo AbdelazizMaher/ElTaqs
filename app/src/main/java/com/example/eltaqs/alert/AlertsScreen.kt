@@ -95,9 +95,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.eltaqs.R
-import com.example.eltaqs.Utils.isEndTimeValid
-import com.example.eltaqs.Utils.isFutureDateTime
-import com.example.eltaqs.Utils.startOfDayMillis
+import com.example.eltaqs.utils.isEndTimeValid
+import com.example.eltaqs.utils.isFutureDateTime
+import com.example.eltaqs.utils.startOfDayMillis
 import com.example.eltaqs.alert.manager.AlarmScheduler
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
@@ -649,6 +649,7 @@ fun <T> SwipeToDeleteContainer(
 
     LaunchedEffect(isRemoved, currentItem) {
         if (isRemoved) {
+            snackBarHostState.currentSnackbarData?.dismiss()
             val result = snackBarHostState.showSnackbar(
                 message = context.getString(R.string.item_deleted),
                 actionLabel = context.getString(R.string.undo),

@@ -27,11 +27,13 @@ class WeatherRepositoryTest {
     private lateinit var sharedPrefDataSource: SharedPrefDataSource
     private lateinit var weatherRepository: WeatherRepository
 
+
     @Before
     fun setup() {
         localDataSource = mockk(relaxed = true)
         remoteDataSource = mockk(relaxed = true)
         sharedPrefDataSource = mockk(relaxed = true)
+
 
         weatherRepository = WeatherRepository(remoteDataSource, localDataSource, sharedPrefDataSource)
 

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.repo.WeatherRepository
+import com.example.eltaqs.utils.settings.enums.Language
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,10 @@ class AlertsViewModel(private val repository: WeatherRepository) : ViewModel()  
         viewModelScope.launch(Dispatchers.IO) {
             repository.deleteAlarm(alarm)
         }
+    }
+
+    fun getLanguage() : Language {
+        return repository.getLanguage()
     }
 }
 

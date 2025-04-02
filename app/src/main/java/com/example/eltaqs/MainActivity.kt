@@ -58,7 +58,6 @@ class MainActivity : ComponentActivity() {
         NetworkConnectivity.startObserving(applicationContext)
         Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
         applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
-        Places.initializeWithNewPlacesApiEnabled(this, BuildConfig.GOOGLE_MAP_API_KEY)
 
         val intentFilterReceiver = IntentFilter("ACTION")
         registerReceiver(

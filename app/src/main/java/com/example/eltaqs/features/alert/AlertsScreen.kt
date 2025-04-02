@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
@@ -94,6 +95,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.eltaqs.R
 import com.example.eltaqs.utils.isEndTimeValid
 import com.example.eltaqs.utils.isFutureDateTime
@@ -105,6 +110,7 @@ import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
+import com.example.eltaqs.utils.settings.formatBasedOnLanguage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -113,7 +119,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun AlertsScreen(snackbarHostState: SnackbarHostState, onFabClick: MutableState<() -> Unit>) {
+fun AlertsScreen(snackbarHostState: SnackbarHostState, onFabClick: MutableState<() -> Unit>, onBackClick: () -> Unit) {
     val viewModel: AlertsViewModel = viewModel(
         factory = AlertsViewModelFactory(
             WeatherRepository.getInstance(
@@ -170,28 +176,42 @@ fun AlertsScreen(snackbarHostState: SnackbarHostState, onFabClick: MutableState<
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color.Black)
-                        .clickable {  },
+                        .background(Color.Transparent)
+                        .clickable { onBackClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = Color.White,
                         modifier = Modifier.size(24.dp)
                     )
                 }
+            }
 
-                Text(
-                    text = "Alarms",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(start = 32.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.alarms),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    val composition by rememberLottieComposition(
+                        spec = LottieCompositionSpec.RawRes(R.raw.alarmlottie)
+                    )
+                    LottieAnimation(
+                        composition = composition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .size(200.dp)
+                            .padding(start = 20.dp)
+                    )
             }
 
             Box(
                 modifier = Modifier
-                    .padding(top = 80.dp)
+                    .padding(top = 4.dp)
                     .clip(RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
                     .background(Color(0xFFE5F2FF))
                     .fillMaxSize()
@@ -200,14 +220,6 @@ fun AlertsScreen(snackbarHostState: SnackbarHostState, onFabClick: MutableState<
                     modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.alarmbj),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(150.dp)
-                            .offset(y = (-70).dp)
-                    )
-
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
@@ -226,10 +238,12 @@ fun AlertsScreen(snackbarHostState: SnackbarHostState, onFabClick: MutableState<
                                 },
                                 snackBarHostState = snackbarHostState
                             ) { _ ->
+                                val dateFormat = SimpleDateFormat("dd/MM/yyyy", viewModel.getLanguage().locale)
+                                val dateString = dateFormat.format(Date(alert.date))
                                 AlertCard(
                                     startTime = alert.startTime,
                                     endTime = alert.endTime,
-                                    location = "Egypt"
+                                    date = dateString
                                 )
                             }
                         }
@@ -357,14 +371,14 @@ fun BottomSheetCompose(
                         selected = selectedOption == stringResource(R.string.alarm),
                         onClick = { selectedOption = context.getString(R.string.alarm) }
                     )
-                    Text("Alarm")
+                    Text(stringResource(R.string.alarm))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
                         selected = selectedOption == stringResource(R.string.notification),
                         onClick = { selectedOption = context.getString(R.string.notification) }
                     )
-                    Text("Notification")
+                    Text(stringResource(R.string.notification))
                 }
             }
 
@@ -393,8 +407,8 @@ fun BottomSheetCompose(
                             endError = context.getString(R.string.end_time_is_required)
                         } else {
                             val id = System.currentTimeMillis().toInt()
-                            viewModel.insertAlarm(Alarm(id, startDuration, endDuration))
-                            alarmScheduler.scheduleAlarm(Alarm(id, startDuration, endDuration))
+                            viewModel.insertAlarm(Alarm(id, startDuration, endDuration, selectedDate!!))
+                            alarmScheduler.scheduleAlarm(Alarm(id, startDuration, endDuration, selectedDate!!))
                             coroutineScope.launch { modalBottomSheetState.hide(); showBottomSheet.value = false }
                         }
                     },
@@ -422,7 +436,7 @@ fun BottomSheetCompose(
                 TimePickerDialog(
                     onCancel = { showStartTimePicker = false },
                     onConfirm = { newTime ->
-                        if (isFutureDateTime(selectedDate, newTime)) {
+                        if (isFutureDateTime(selectedDate, newTime, viewModel.getLanguage().locale)) {
                             startDuration = newTime
                             startError = null
                             showStartTimePicker = false
@@ -438,7 +452,7 @@ fun BottomSheetCompose(
                 TimePickerDialog(
                     onCancel = { showEndTimePicker = false },
                     onConfirm = { newTime ->
-                        if (isEndTimeValid(startDuration, newTime)) {
+                        if (isEndTimeValid(startDuration, newTime, viewModel.getLanguage().locale)) {
                             endDuration = newTime
                             endError = null
                             showEndTimePicker = false
@@ -520,7 +534,7 @@ fun TimePickerDialog(
 fun AlertCard(
     startTime: String,
     endTime: String,
-    location: String,
+    date: String
 ) {
     Card(
         modifier = Modifier
@@ -532,7 +546,7 @@ fun AlertCard(
             containerColor = Color(0xFF2d525a)
         ),
         elevation = CardDefaults.cardElevation(4.dp)
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -544,14 +558,14 @@ fun AlertCard(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = stringResource(R.string.start_from),
+                    text = stringResource(R.string.start_from) + " ${date.formatBasedOnLanguage()}",
                     modifier = Modifier.padding(bottom = 16.dp),
                     color = Color.White,
                     fontSize = 18.sp
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = startTime,
+                        text = startTime.formatBasedOnLanguage(),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
@@ -563,22 +577,17 @@ fun AlertCard(
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     Text(
-                        text = endTime,
+                        text = endTime.formatBasedOnLanguage(),
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
-            Text(
-                text = location,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            IconButton(onClick = {  }) {
+            IconButton(onClick = { }) {
                 Icon(
                     imageVector = Icons.Default.Notifications,
+                    modifier = Modifier.size(36.dp),
                     contentDescription = stringResource(R.string.notification_bell),
                     tint = Color.White
                 )

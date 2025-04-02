@@ -132,7 +132,7 @@ fun HomeScreen(onNavigateToDetails: (lat: Double, lon: Double, location: String)
 
             is Response.Error -> {
                 Text(
-                    text = "Something went wrong: ${state.message}",
+                    text = stringResource(R.string.something_went_wrong, state.message),
                     color = Color.Red,
                     fontSize = 16.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -184,7 +184,7 @@ fun WeatherStatsRow(current: CurrentWeatherResponse, tempSymbol: String, windSpe
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF2d525a) // Light green background
+            containerColor = Color(0xFF2d525a)
         ),
         elevation = CardDefaults.cardElevation(4.dp)
     ){
@@ -195,7 +195,8 @@ fun WeatherStatsRow(current: CurrentWeatherResponse, tempSymbol: String, windSpe
             WeatherInfoCard(stringResource(R.string.wind_speed), "${current.wind.speed}" + windSpeedSymbol.formatBasedOnLanguage(), R.drawable.windspeed)
             WeatherInfoCard(stringResource(R.string.humidity), "${current.main.humidity} %", R.drawable.humidity)
             WeatherInfoCard(stringResource(R.string.max_temp), "${current.main.tempMax}" + tempSymbol.formatBasedOnLanguage(), R.drawable.sleet)
-            WeatherInfoCard(stringResource(R.string.pressure), "${current.main.pressure} hPa", R.drawable.hail)
+            WeatherInfoCard(stringResource(R.string.pressure),
+                stringResource(R.string.hpa, current.main.pressure), R.drawable.hail)
         }
     }
 
@@ -256,7 +257,9 @@ fun HourlyForecastRow(forecast: ForecastResponse, tempSymbol: String) {
 @Composable
 fun WeatherInfoCard(title: String, value: String, iconRes: Int) {
     Column(
-        modifier = Modifier.width(90.dp).height(120.dp),
+        modifier = Modifier
+            .width(90.dp)
+            .height(120.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -440,9 +443,9 @@ fun DailyForecast(
                 modifier = Modifier
                     .constrainAs(forecastValue) {
                         if (isRtl) {
-                            start.linkTo(parent.start, margin = 36.dp)
+                            start.linkTo(parent.start, margin = 24.dp)
                         } else {
-                            end.linkTo(parent.end, margin = 36.dp)
+                            end.linkTo(parent.end, margin = 24.dp)
                         }
                         top.linkTo(weatherAnimationRef.top)
                         bottom.linkTo(weatherAnimationRef.bottom)
@@ -484,7 +487,9 @@ fun WeatherAnimation(forecast: String, modifier: Modifier = Modifier) {
     LottieAnimation(
         composition = composition,
         progress = progress,
-        modifier = modifier.size(200.dp).height(175.dp)
+        modifier = modifier
+            .size(200.dp)
+            .height(175.dp)
     )
 }
 
@@ -569,22 +574,22 @@ fun SunriseSunsetRow(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                painter = painterResource(R.drawable.windicon),
+                painter = painterResource(R.drawable.sunrise),
                 contentDescription = stringResource(R.string.sunrise),
                 modifier = Modifier.size(40.dp),
                 tint = Color.Yellow
             )
-            Text(text = sunriseTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.Black)
+            Text(text = sunriseTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.White)
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                painter = painterResource(R.drawable.cloudsicon),
+                painter = painterResource(R.drawable.sunset),
                 contentDescription = stringResource(R.string.sunset),
                 modifier = Modifier.size(40.dp),
                 tint = Color(0xFFFFA500)
             )
-            Text(text = sunsetTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.Black)
+            Text(text = sunsetTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.White)
         }
     }
 }

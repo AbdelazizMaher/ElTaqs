@@ -28,6 +28,19 @@ class DetailsViewModel(private val repository: WeatherRepository) : ViewModel() 
             }
         }
     }
+
+
+    fun getWindSpeedUnitSymbol(): String {
+        val speedUnit = repository.getWindSpeedUnit()
+        val language = repository.getLanguage()
+        return speedUnit.getDisplayName(language)
+    }
+
+    fun getTemperatureUnitSymbol(): String {
+        val tempUnit = repository.getTemperatureUnit()
+        val language = repository.getLanguage()
+        return tempUnit.getSymbol(language)
+    }
 }
 
 class DetailsViewModelFactory(private val repository: WeatherRepository) : ViewModelProvider.Factory {

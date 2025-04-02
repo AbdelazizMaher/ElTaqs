@@ -37,5 +37,15 @@
     <string name="select_date">Select Date</string>
     <string name="set_alarm">Set Alarm</string>
     <string name="ok">OK</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="hpa">%1$s hPa</string>
+    <string name="something_went_wrong">Something went wrong: %1$s</string>
+    <string name="settings">Settings</string>
+    <string name="add_to_favorites">Add to favorites</string>
+    <string name="back">Back</string>
+    <string name="save_this_location">Save this location?</string>
+    <string name="save_location">Save Location</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="alarms">Here are your Alarms</string>
 
 </resources>

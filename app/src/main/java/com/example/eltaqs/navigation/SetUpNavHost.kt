@@ -1,6 +1,7 @@
 package com.example.eltaqs
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -43,7 +44,9 @@ fun SetUpNavHost(
         composable<ScreenRoutes.Alerts> {
             showBottomBar.value = false
             showFloatingBtn.value = true
-            AlertsScreen(snackbarHostState,onFabClick)
+            AlertsScreen(snackbarHostState,onFabClick){
+                navController.navigate(ScreenRoutes.Home)
+            }
         }
         composable<ScreenRoutes.Favorite> {
             showBottomBar.value = true
@@ -66,7 +69,7 @@ fun SetUpNavHost(
             val lon = it.toRoute<ScreenRoutes.Details>().lon
             val loc = it.toRoute<ScreenRoutes.Details>().location
             DetailsScreen(lat, lon, loc){
-                navController.popBackStack()
+                navController.navigateUp()
             }
         }
         composable<ScreenRoutes.Map> {
@@ -74,7 +77,7 @@ fun SetUpNavHost(
             showFloatingBtn.value = true
             val isMap = it.toRoute<ScreenRoutes.Map>().isMap
             MapScreen(isMap) {
-                navController.popBackStack()
+                navController.navigate(ScreenRoutes.Home)
             }
             onFabClick.value = {
                 navController.navigate(ScreenRoutes.Favorite)

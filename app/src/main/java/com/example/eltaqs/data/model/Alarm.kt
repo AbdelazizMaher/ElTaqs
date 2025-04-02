@@ -8,5 +8,6 @@ data class Alarm (
     @PrimaryKey
     val id : Int,
     val startTime : String,
-    val endTime : String
+    val endTime : String,
+    val date : Long,
 )

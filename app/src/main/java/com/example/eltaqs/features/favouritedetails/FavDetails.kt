@@ -1,5 +1,6 @@
 package com.example.eltaqs.features.favouritedetails
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,10 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.eltaqs.R
 import com.example.eltaqs.utils.NetworkConnectivity
 import com.example.eltaqs.data.local.AppDataBase
 import com.example.eltaqs.data.local.WeatherLocalDataSource
@@ -30,6 +33,7 @@ import com.example.eltaqs.features.home.HourlyForecastRow
 import com.example.eltaqs.features.home.TodayForecastRow
 import com.example.eltaqs.features.home.WeatherStatsRow
 
+@SuppressLint("NewApi")
 @Composable
 fun FavDetails(location: FavouriteLocation, onNavigateToDetails: (lat: Double, lon: Double, location: String)-> Unit) {
     val viewModel: FavDetailsViewModel = viewModel(
@@ -82,7 +86,7 @@ fun FavDetails(location: FavouriteLocation, onNavigateToDetails: (lat: Double, l
 
             is Response.Error -> {
                 Text(
-                    text = "Something went wrong: ${state.message}",
+                    text = stringResource(R.string.something_went_wrong, state.message),
                     color = Color.Red,
                     fontSize = 16.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)

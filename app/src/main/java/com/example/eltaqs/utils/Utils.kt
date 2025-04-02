@@ -24,6 +24,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -123,41 +124,94 @@ fun createNotification(
     notificationManager.notify(alarmId, notification)
 }
 
-fun String.isValidTimeFormat(): Boolean {
-    return this.matches(Regex("^[0-9].*"))
-}
+fun parseDateTimeToMillis(dateLong: Long, timeString: String): Long {
+    return try {
+        // Convert the Long date to a formatted string (dd/MM/yyyy)
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val dateString = dateFormat.format(Date(dateLong))
 
-fun parseTimeToMillis(timeString: String): Long {
-    val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault()).apply {
-        timeZone = TimeZone.getDefault()
+        // Combine the formatted date string with the time string
+        val dateTimeString = "$dateString $timeString"
+
+        // Parse the combined string into a timestamp
+        val dateTimeFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).apply {
+            timeZone = TimeZone.getDefault()
+        }
+        val dateTime = dateTimeFormat.parse(dateTimeString)
+        dateTime?.time ?: 0L
+    } catch (e: Exception) {
+        0L
     }
-
-    val date = sdf.parse(timeString) ?: return 0L
-
-    val calendar = Calendar.getInstance()
-    calendar.time = date
-
-    val now = Calendar.getInstance()
-    calendar.set(Calendar.YEAR, now.get(Calendar.YEAR))
-    calendar.set(Calendar.MONTH, now.get(Calendar.MONTH))
-    calendar.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
-
-    return calendar.timeInMillis
 }
+
 
 @SuppressLint("NewApi")
-fun isFutureDateTime(selectedDate: Long?, selectedTime: String): Boolean {
+fun isFutureDateTime(
+    selectedDate: Long?,
+    selectedTime: String,
+    locale: Locale = Locale.ENGLISH
+): Boolean {
     if (selectedDate == null) return false
 
-    val formatter = DateTimeFormatter.ofPattern("hh:mm a")
-    val selectedLocalTime = LocalTime.parse(selectedTime, formatter)
+    return try {
+        val normalizedTime = selectedTime
+            .replaceArabicDigits()
+            .replaceAmPmIndicators(locale)
 
-    val currentDateTime = LocalDateTime.now()
-    val selectedDateTime = Instant.ofEpochMilli(selectedDate).atZone(ZoneId.systemDefault()).toLocalDate().atTime(selectedLocalTime)
+        val formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH)
+        val selectedLocalTime = LocalTime.parse(normalizedTime, formatter)
 
-    return selectedDateTime.isAfter(currentDateTime)
+        val currentDateTime = LocalDateTime.now()
+        val selectedDateTime = Instant.ofEpochMilli(selectedDate)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .atTime(selectedLocalTime)
+
+        selectedDateTime.isAfter(currentDateTime)
+    } catch (e: Exception) {
+        false
+    }
 }
 
+fun isEndTimeValid(
+    startTime: String,
+    endTime: String,
+    locale: Locale = Locale.ENGLISH
+): Boolean {
+    return try {
+        val sdf = SimpleDateFormat("hh:mm a", locale).apply {
+            timeZone = TimeZone.getDefault()
+            isLenient = false
+        }
+
+        val start = sdf.parse(startTime)
+        val end = sdf.parse(endTime)
+
+        start != null && end != null && end.after(start)
+    } catch (e: Exception) {
+        false
+    }
+}
+
+// Extension functions for string normalization
+fun String.replaceArabicDigits(): String {
+    val arabicDigits = "٠١٢٣٤٥٦٧٨٩".toCharArray()
+    return this.map { c ->
+        if (c in arabicDigits) (c - '٠' + '0'.code).toChar()
+        else c
+    }.joinToString("")
+}
+
+fun String.replaceAmPmIndicators(locale: Locale): String {
+    return if (locale.language == "ar") {
+        this.replace("ص", "AM")
+            .replace("م", "PM")
+            .replace("صباحاً", "AM")
+            .replace("مساءً", "PM")
+    } else {
+        this
+    }
+}
 fun Long.startOfDayMillis(): Long {
     val calendar = Calendar.getInstance()
     calendar.timeInMillis = this
@@ -169,19 +223,6 @@ fun Long.startOfDayMillis(): Long {
 }
 
 
-fun isEndTimeValid(startTime: String, endTime: String): Boolean {
-    val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault()).apply {
-        timeZone = TimeZone.getDefault()
-    }
-    val start = sdf.parse(startTime)
-    val end = sdf.parse(endTime)
-
-    return if (start != null && end != null) {
-        end.after(start)
-    } else {
-        false
-    }
-}
 
 fun String.translateWeatherCondition(): String {
     val map = mapOf(

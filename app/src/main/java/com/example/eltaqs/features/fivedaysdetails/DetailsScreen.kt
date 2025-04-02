@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.*
@@ -52,6 +53,7 @@ import com.example.eltaqs.ui.theme.ColorTextSecondaryVariant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -114,6 +116,9 @@ fun DetailsScreen(
                 val days = groupedByDay.keys.toList()
                 if (selectedDay == null && days.isNotEmpty()) selectedDay = days[0]
 
+                val windSpeedSymbol = viewModel.getWindSpeedUnitSymbol()
+                val tempSymbol = viewModel.getTemperatureUnitSymbol()
+
                 Column(modifier = Modifier.padding(paddingValues)) {
                     LazyRow(
                         modifier = Modifier
@@ -127,7 +132,7 @@ fun DetailsScreen(
                                 day = day,
                                 selectedDay = selectedDay,
                                 icon = item?.weather?.firstOrNull()?.icon ?: "01d",
-                                temp = item?.main?.temp?.toInt() ?: 0
+                                temp = item?.main?.temp?.toInt().toString().formatBasedOnLanguage().toIntOrNull() ?: 0
                             ) {
                                 selectedDay = day
                             }
@@ -152,7 +157,7 @@ fun DetailsScreen(
 
                         ) {
                             groupedByDay[selectedDay]?.firstOrNull()?.let {
-                                WeatherDetailsCard1(it)
+                                WeatherDetailsCard1(it, tempSymbol, windSpeedSymbol)
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -168,7 +173,7 @@ fun DetailsScreen(
                                     verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     items(hourlyList) { forecastItem ->
-                                        HourlyForecastItem(forecastItem)
+                                        HourlyForecastItem(forecastItem, tempSymbol)
                                     }
                                 }
                             }
@@ -193,8 +198,8 @@ fun TopBarSection(location: String, onBackClick: () -> Unit) {
         elevation = 0.dp,
         contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
-        IconButton(onClick = onBackClick) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+        IconButton(onClick = onBackClick, modifier = Modifier.padding(start = 8.dp).align(Alignment.CenterVertically)) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
         }
         Box(
             modifier = Modifier
@@ -217,7 +222,10 @@ fun DaySelectorItem(
     temp: Int,
     onClick: () -> Unit
 ) {
-    val displayDay = LocalDate.parse(day).dayOfWeek.toString().take(3)
+    val displayDay = remember(day) {
+        val date = LocalDate.parse(day)
+        date.format(DateTimeFormatter.ofPattern("EEE", Locale.getDefault()))
+    }
     val isSelected = day == selectedDay
 
     Card(
@@ -242,7 +250,7 @@ fun DaySelectorItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "$temp°",
+                    text = "${temp.toString().formatBasedOnLanguage()}°",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -264,7 +272,7 @@ fun DaySelectorItem(
 }
 
 @Composable
-fun WeatherDetailsCard1(today: ForecastResponse.Item0) {
+fun WeatherDetailsCard1(today: ForecastResponse.Item0, tempSymbol: String, windSpeedSymbol: String) {
     Box(
         modifier = Modifier
             .wrapContentHeight()
@@ -279,8 +287,9 @@ fun WeatherDetailsCard1(today: ForecastResponse.Item0) {
             icon = today.weather.firstOrNull()?.icon ?: "",
             temp = today.main.temp.toInt(),
             feelsLike = today.main.feelsLike.toInt(),
-            date = today.dtTxt,
-            tempSymbol = "°C",
+            date = today.dtTxt.formatBasedOnLanguage(),
+            tempSymbol = tempSymbol.formatBasedOnLanguage(),
+            windSpeedSymbol = windSpeedSymbol.formatBasedOnLanguage(),
             today = today
         )
     }
@@ -296,7 +305,8 @@ fun DailyForecast(
     date: String,
     tempSymbol: String,
     today: ForecastResponse.Item0,
-    icon: String
+    icon: String,
+    windSpeedSymbol: String
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
@@ -385,6 +395,8 @@ fun DailyForecast(
 
                 WeatherInfoRow(
                     today,
+                    windSpeedSymbol,
+                    tempSymbol,
                     modifier = Modifier.constrainAs(weatherInfo) {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -464,28 +476,33 @@ private fun ForecastValue(
 
 
 @Composable
-fun WeatherInfoRow(item:  ForecastResponse.Item0, modifier: Modifier = Modifier) {
+fun WeatherInfoRow(
+    item: ForecastResponse.Item0,
+    windSpeedSymbol: String,
+    tempSymbol: String,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        WeatherInfoCard("Humidity", "${item.main.humidity}%", R.drawable.humidity)
-        WeatherInfoCard("Wind", "${item.wind.speed} km/h", R.drawable.windspeed)
-        WeatherInfoCard("Max Temp", "${item.main.tempMax.toInt()}°C", R.drawable.maxtemp)
+        WeatherInfoCard(stringResource(R.string.humidity), "${item.main.humidity}%", R.drawable.humidity)
+        WeatherInfoCard(stringResource(R.string.wind_speed), "${item.wind.speed} $windSpeedSymbol ", R.drawable.windspeed)
+        WeatherInfoCard(stringResource(R.string.max_temp), "${item.main.tempMax.toInt()}$tempSymbol", R.drawable.maxtemp)
     }
 }
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HourlyForecastItem(hourForecast: ForecastResponse.Item0) {
+fun HourlyForecastItem(hourForecast: ForecastResponse.Item0, tempSymbol: String) {
     val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
     val dateTime = LocalDateTime.parse(hourForecast.dtTxt, inputFormatter)
-    val time = outputFormatter.format(dateTime)
+    val time = outputFormatter.format(dateTime).formatBasedOnLanguage()
 
-    val temp = hourForecast.main.temp.toInt()
+    val temp = hourForecast.main.temp.toInt().toString().formatBasedOnLanguage()
     val icon = hourForecast.weather.firstOrNull()?.icon ?: "01d"
     val desc = hourForecast.weather.firstOrNull()?.description.orEmpty()
 
@@ -502,7 +519,7 @@ fun HourlyForecastItem(hourForecast: ForecastResponse.Item0) {
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.Start
         ) {
-            Text("$temp°C", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(temp + tempSymbol.formatBasedOnLanguage(), fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Text(desc.replaceFirstChar { it.uppercase() }, fontSize = 12.sp)
         }
 

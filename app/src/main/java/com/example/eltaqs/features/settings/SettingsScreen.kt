@@ -207,7 +207,6 @@ fun BackgroundWithOverlayAndText() {
                 contentScale = ContentScale.Crop
             )
     ) {
-        // Overlay Image
         Image(
             painter = painterResource(id = R.drawable.circle),
             contentDescription = null,
@@ -218,7 +217,7 @@ fun BackgroundWithOverlayAndText() {
 
         // Text
         Text(
-            text = "Settings",
+            text = stringResource(R.string.settings),
             style = MaterialTheme.typography.headlineLarge.copy(color = Color.White),
             modifier = Modifier
                 .align(Alignment.BottomCenter)

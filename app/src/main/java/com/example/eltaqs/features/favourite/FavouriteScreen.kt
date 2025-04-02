@@ -360,20 +360,6 @@ private fun ForecastValue(
     }
 }
 
-
-fun getImageResId(weatherType: String): Int {
-    return when (weatherType.lowercase()) {
-        "clear" -> R.drawable.clear
-        "clouds" -> R.drawable.heavycloud
-        "few clouds", "scattered clouds" -> R.drawable.lightcloud
-        "rain", "shower rain" -> R.drawable.heavyrain
-        "thunderstorm" -> R.drawable.thunderstorm
-        "snow" -> R.drawable.snow
-        "mist" -> R.drawable.heavycloud
-        else -> R.drawable.clear
-    }
-}
-
 @Composable
 fun <T> SwipeToDeleteContainer(
     item: T,

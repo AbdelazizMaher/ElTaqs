@@ -9,9 +9,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.eltaqs.alarm.worker.AlertsWorker
-import com.example.eltaqs.utils.parseTimeToMillis
 import com.example.eltaqs.alarm.receiver.AlarmBroadcastReceiver
 import com.example.eltaqs.data.model.Alarm
+import com.example.eltaqs.utils.parseDateTimeToMillis
 
 class AlarmScheduler(val context: Context) : IAlarmScheduler {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -42,9 +42,10 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alarmTime = parseTimeToMillis(alarm.startTime)
-        val endTime = parseTimeToMillis(alarm.endTime)
+        val alarmTime = parseDateTimeToMillis(alarm.date, alarm.startTime)
+        val endTime = parseDateTimeToMillis(alarm.date, alarm.endTime)
         val cancelTime = alarmTime + (endTime - alarmTime)
+
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,

@@ -41,7 +41,7 @@ class WeatherRepositoryTest {
 
     @Test
     fun insertAlarmAndGetAlarm() = runTest {
-        val alarm = Alarm(1, "10:00", "10:05")
+        val alarm = Alarm(1, "10:00", "10:05", 1623456789000)
 
         coEvery { localDataSource.insertAlarm(any()) } returns 1
 

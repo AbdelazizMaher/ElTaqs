@@ -45,7 +45,7 @@ class WeatherDAOTest {
 
     @Test
     fun insertAlarmAndGetAlarm() = runTest {
-        val alarm = Alarm(1, "10:00", "10:05")
+        val alarm = Alarm(1, "10:00", "10:05", 1623456789000)
 
         dao.insertAlarm(alarm)
         val result = dao.getAlarm(1)
@@ -58,7 +58,7 @@ class WeatherDAOTest {
 
     @Test
     fun deleteAlarmAndGetAllAlarms() = runTest {
-        val alarm = Alarm(1, "10:00", "10:05")
+        val alarm = Alarm(1, "10:00", "10:05", 1623456789000)
 
         dao.insertAlarm(alarm)
         dao.deleteAlarm(alarm)

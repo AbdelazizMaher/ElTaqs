@@ -72,7 +72,7 @@ class WeatherLocalDataSourceTest{
 
     @Test
     fun insertAlarmAndGetAlarm() = runTest {
-        val alarm = Alarm(1, "10:00", "10:05")
+        val alarm = Alarm(1, "10:00", "10:05", 1623456789000)
 
         localDataSource.insertAlarm(alarm)
         val result = localDataSource.getAlarm(1)
@@ -83,7 +83,7 @@ class WeatherLocalDataSourceTest{
 
     @Test
     fun deleteAlarmAndGetAllAlarms() = runTest {
-        val alarm = Alarm(1, "10:00", "10:05")
+        val alarm = Alarm(1, "10:00", "10:05", 1623456789000)
 
         localDataSource.insertAlarm(alarm)
         localDataSource.deleteAlarm(alarm)

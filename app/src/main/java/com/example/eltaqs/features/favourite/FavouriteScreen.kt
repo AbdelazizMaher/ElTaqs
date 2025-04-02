@@ -60,6 +60,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,6 +78,7 @@ import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
 import com.example.eltaqs.features.home.WeatherAnimation
 import com.example.eltaqs.ui.theme.ColorTextSecondary
+import com.example.eltaqs.utils.translateWeatherCondition
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -255,12 +257,12 @@ fun FavouriteItem(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 modifier = Modifier
-                    .padding(top = 16.dp, start = 16.dp)
+                    .padding(top = 2.dp, start = 2.dp)
                     .constrainAs(forecastValue) {
                         if (isRtl) {
-                            start.linkTo(parent.start, margin = 36.dp)
+                            start.linkTo(parent.start, margin = 24.dp)
                         } else {
-                            end.linkTo(parent.end, margin = 36.dp)
+                            end.linkTo(parent.end, margin = 24.dp)
                         }
                         top.linkTo(forecastImage.top)
                         bottom.linkTo(forecastImage.bottom)
@@ -280,7 +282,7 @@ fun FavouriteItem(
             )
 
             Text(
-                text = forecast,
+                text = forecast.toLowerCase(Locale.ROOT).translateWeatherCondition(),
                 style = MaterialTheme.typography.titleLarge,
                 color = ColorTextSecondary,
                 fontWeight = FontWeight.Medium,

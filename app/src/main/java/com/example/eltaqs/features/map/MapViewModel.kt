@@ -37,7 +37,6 @@ class MapViewModel(private val repository: WeatherRepository) : ViewModel() {
                     mutableLocationByCity.value = Response.Error(it.message.toString())
                 }.collect{
                     mutableLocationByCity.value = Response.Success(it)
-                    Log.d("TAG", "getLocationByCityName1: ${it.first.name}")
                 }
             }catch (e: Exception){
                 mutableMessage.emit(e.message.toString())
@@ -52,7 +51,6 @@ class MapViewModel(private val repository: WeatherRepository) : ViewModel() {
                     mutableCityByLocation.value = Response.Error(it.message.toString())
                 }.collect {
                     mutableCityByLocation.value = Response.Success(it)
-                    Log.d("TAG", "getCityNameByLocation: ${it.first.name}")
                 }
             }catch (e: Exception){
                 mutableMessage.emit(e.message.toString())
@@ -62,9 +60,11 @@ class MapViewModel(private val repository: WeatherRepository) : ViewModel() {
     fun saveLocation(city: String, latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val currentWeatherResponse = repository.getCurrentWeather(latLng.latitude, latLng.longitude, "metric", "en").first()
-                val weatherResponse = repository.getForecast(latLng.latitude, latLng.longitude, "metric", "en").first()
-                repository.insertFavourite(FavouriteLocation(city, latLng, currentWeatherResponse, weatherResponse))
+                val unit = repository.getTemperatureUnit().apiUnit
+                val lang = repository.getLanguage().apiCode
+                val currentWeatherResponse = repository.getCurrentWeather(latLng.latitude, latLng.longitude, unit, lang).first()
+                val weatherResponse = repository.getForecast(latLng.latitude, latLng.longitude, unit, lang).first()
+                repository.insertFavourite(FavouriteLocation(currentWeatherResponse.name, latLng, currentWeatherResponse, weatherResponse))
             }catch (e: Exception){
                 mutableMessage.emit(e.message.toString())
             }

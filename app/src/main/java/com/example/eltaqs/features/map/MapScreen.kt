@@ -226,6 +226,8 @@ fun MapScreen(isMap: Boolean = false, onBackClick: () -> Unit){
                                 viewModel.setHomeLocation(markerState.position)
                                 viewModel.setLocationSource(LocationSource.MAP)
                             }
+                            Log.d("TAG", "MapScreen: ${markerState.position}")
+                            Log.d("TAG", "MapScreen: ${selectedCityName}")
                             viewModel.saveLocation(selectedCityName, markerState.position)
                             isTapped = false
                         },

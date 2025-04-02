@@ -6,6 +6,7 @@ import com.example.eltaqs.data.model.Alarm
 interface IAlarmScheduler {
     fun scheduleAlarm(alarm: Alarm)
     fun cancelAlarm(alarm: Alarm)
+    fun scheduleSnoozeAlarm(alarm: Alarm, snoozeMinutes: Int)
 
     fun scheduleNotification(context: Context, alarmId: Int, endDelay: Long)
 }

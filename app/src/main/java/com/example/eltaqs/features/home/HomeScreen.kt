@@ -2,6 +2,7 @@ package com.example.eltaqs.features.home
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -168,7 +169,7 @@ fun CurrentWeatherSection(current: CurrentWeatherResponse, tempSymbol: String) {
         feelsLike = current.main.feelsLike.toInt(),
         sunrise = current.sys.sunrise.toLong(),
         sunset = current.sys.sunset.toLong(),
-        date = getCurrentDate().formatBasedOnLanguage(),
+        cloud = current.clouds.all.toString().formatBasedOnLanguage(),
         tempSymbol = tempSymbol.formatBasedOnLanguage()
     )
 
@@ -369,7 +370,7 @@ fun DailyForecast(
     feelsLike: Int,
     sunset: Long,
     sunrise: Long,
-    date: String,
+    cloud: String,
     tempSymbol: String,
     icon: String
 ) {
@@ -457,6 +458,7 @@ fun DailyForecast(
             SunriseSunsetRow(
                 sunrise = sunrise,
                 sunset = sunset,
+                cloud = cloud,
                 modifier = Modifier
                     .constrainAs(windImage) {
                         linkTo(top = title.top, bottom = title.bottom)
@@ -558,6 +560,7 @@ private fun ForecastValue(
 fun SunriseSunsetRow(
     sunrise: Long,
     sunset: Long,
+    cloud: String,
     modifier: Modifier = Modifier
 ) {
     val sunriseTime = remember(sunrise) {
@@ -576,20 +579,34 @@ fun SunriseSunsetRow(
             Icon(
                 painter = painterResource(R.drawable.sunrise),
                 contentDescription = stringResource(R.string.sunrise),
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(32.dp),
                 tint = Color.Yellow
             )
-            Text(text = sunriseTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.White)
+            Text(text = sunriseTime.formatBasedOnLanguage(), fontSize = 12.sp, color = Color.White)
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 painter = painterResource(R.drawable.sunset),
                 contentDescription = stringResource(R.string.sunset),
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(32.dp),
                 tint = Color(0xFFFFA500)
             )
-            Text(text = sunsetTime.formatBasedOnLanguage(), fontSize = 14.sp, color = Color.White)
+            Text(text = sunsetTime.formatBasedOnLanguage(), fontSize = 12.sp, color = Color.White)
+        }
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                painter = painterResource(R.drawable.heavycloud),
+                contentDescription = "clouds",
+                modifier = Modifier.size(32.dp),
+                tint = Color.LightGray
+            )
+            Text(
+                text = "${cloud}%",
+                fontSize = 12.sp,
+                color = Color.White
+            )
         }
     }
 }

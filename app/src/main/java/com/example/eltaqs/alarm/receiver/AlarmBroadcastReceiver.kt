@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.example.eltaqs.MainActivity
 import com.example.eltaqs.utils.createNotification
 import com.example.eltaqs.utils.MediaPlayerFacade
@@ -16,6 +17,9 @@ import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AlarmBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -36,6 +40,7 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
             when (action) {
                 "START" -> handleAlarmStart(context, alarmId, repository)
                 "STOP" -> handleAlarmStop(context, intent, alarmId, repository)
+                "SNOOZE" -> handleAlarmSnooze(context, alarmId, repository)
                 "OPEN" -> {
                     handleAlarmStop(context, intent, alarmId, repository)
                     val mainIntent = Intent(context, MainActivity::class.java).apply {
@@ -84,5 +89,45 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancel(alarmId)
         }
+    }
+
+    private suspend fun handleAlarmSnooze(
+        context: Context,
+        alarmId: Int,
+        repository: WeatherRepository
+    ) {
+        val alarm = repository.getAlarm(alarmId) ?: return
+
+        val snoozeTimeInMinutes = 1
+        val snoozeTimeMillis = System.currentTimeMillis() + (snoozeTimeInMinutes * 60 * 1000)
+        val snoozeEndMillis = snoozeTimeMillis + (1 * 60 * 1000)
+
+        AlarmScheduler(context).cancelAlarm(alarm)
+        repository.deleteAlarm(alarm)
+
+        val start = formatMillisToTime(snoozeTimeMillis)
+        val end = formatMillisToTime(snoozeEndMillis)
+        Log.d("AlarmBroadcastReceiver", start + "   $end")
+
+        val newAlarmId = System.currentTimeMillis().toInt()
+        val newAlarm = alarm.copy(
+            id = newAlarmId,
+            startTime = formatMillisToTime(snoozeTimeMillis),
+            endTime = formatMillisToTime(snoozeEndMillis)
+        )
+
+        repository.insertAlarm(newAlarm)
+        Log.d("AlarmBroadcastReceiver", "Snooze scheduled for $snoozeTimeInMinutes minutes")
+
+        AlarmScheduler(context).scheduleAlarm(newAlarm)
+
+        MediaPlayerFacade.stopAudio()
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(alarmId)
+    }
+
+    fun formatMillisToTime(millis: Long): String {
+        val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())  // Use 'hh' for 12-hour format
+        return sdf.format(Date(millis))  // Convert millis to Date before formatting
     }
 }

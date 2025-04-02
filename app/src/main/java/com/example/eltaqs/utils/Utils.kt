@@ -124,8 +124,8 @@ fun createNotification(
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .setAutoCancel(true)
         .addAction(
-            R.drawable.thunderstorm, // Add your snooze icon
-            "Snooze (5 min)",
+            R.drawable.thunderstorm,
+            "Snooze (1 min)",
             snoozePendingIntent
         )
         .addAction(
@@ -146,14 +146,11 @@ fun createNotification(
 
 fun parseDateTimeToMillis(dateLong: Long, timeString: String): Long {
     return try {
-        // Convert the Long date to a formatted string (dd/MM/yyyy)
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val dateString = dateFormat.format(Date(dateLong))
 
-        // Combine the formatted date string with the time string
         val dateTimeString = "$dateString $timeString"
 
-        // Parse the combined string into a timestamp
         val dateTimeFormat = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault()).apply {
             timeZone = TimeZone.getDefault()
         }
@@ -213,7 +210,6 @@ fun isEndTimeValid(
     }
 }
 
-// Extension functions for string normalization
 fun String.replaceArabicDigits(): String {
     val arabicDigits = "٠١٢٣٤٥٦٧٨٩".toCharArray()
     return this.map { c ->
@@ -247,6 +243,8 @@ fun Long.startOfDayMillis(): Long {
 fun String.translateWeatherCondition(): String {
     val map = mapOf(
         "clear sky" to mapOf("ar" to "سماء صافية"),
+        "clouds" to mapOf("ar" to "سحب"),
+        "clear" to mapOf("ar" to "سماء صافية"),
         "few clouds" to mapOf("ar" to "سحب قليلة"),
         "scattered clouds" to mapOf("ar" to "سحب متناثرة"),
         "broken clouds" to mapOf("ar" to "سحب متقطعة"),

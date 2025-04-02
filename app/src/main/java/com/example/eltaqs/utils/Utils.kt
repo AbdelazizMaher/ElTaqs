@@ -51,9 +51,9 @@ fun createNotification(
     alarmId: Int,
     weatherDescription: String,
 ) {
-    val notificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    // Create notification channel (same as before)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val channel = NotificationChannel(
             "ALARM_CHANNEL",
@@ -65,6 +65,7 @@ fun createNotification(
         notificationManager.createNotificationChannel(channel)
     }
 
+    // Delete Intent (when notification is dismissed)
     val deleteIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
         putExtra("ALARM_ID", alarmId)
         putExtra("ALARM_ACTION", "STOP")
@@ -77,6 +78,7 @@ fun createNotification(
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
+    // Cancel Intent (explicit stop)
     val cancelIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
         putExtra("ALARM_ID", alarmId)
         putExtra("ALARM_ACTION", "STOP")
@@ -88,18 +90,31 @@ fun createNotification(
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
+    // Open Intent (open app)
     val openIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
         putExtra("ALARM_ID", alarmId)
         putExtra("ALARM_ACTION", "OPEN")
     }
-    val tempAlarmId = alarmId + 10
     val openPendingIntent = PendingIntent.getBroadcast(
         context,
-        tempAlarmId,
+        alarmId + 10, // Different request code
         openIntent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
+    // Snooze Intent (new)
+    val snoozeIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
+        putExtra("ALARM_ID", alarmId)
+        putExtra("ALARM_ACTION", "SNOOZE")
+    }
+    val snoozePendingIntent = PendingIntent.getBroadcast(
+        context,
+        alarmId + 20, // Different request code
+        snoozeIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    // Build notification with snooze action
     val notification = NotificationCompat.Builder(context, "ALARM_CHANNEL")
         .setContentTitle("Alarm: Weather awaits!")
         .setContentText("Current weather: $weatherDescription")
@@ -108,6 +123,11 @@ fun createNotification(
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .setAutoCancel(true)
+        .addAction(
+            R.drawable.thunderstorm, // Add your snooze icon
+            "Snooze (5 min)",
+            snoozePendingIntent
+        )
         .addAction(
             R.drawable.snow,
             "Cancel",

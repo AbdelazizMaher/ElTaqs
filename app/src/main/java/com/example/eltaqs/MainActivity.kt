@@ -3,6 +3,7 @@ package com.example.eltaqs
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
         NetworkConnectivity.startObserving(applicationContext)
         Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
         applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
+
 
         val intentFilterReceiver = IntentFilter("ACTION")
         registerReceiver(
@@ -148,6 +150,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         NetworkConnectivity.stopObserving()
+
     }
 
 //    override fun onRequestPermissionsResult(
@@ -183,6 +186,16 @@ class MainActivity : ComponentActivity() {
         val config = resources.configuration
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
+    }
+
+    private fun updateAppLanguage(locale: Locale) {
+        // Update your app's language configuration
+        val config = resources.configuration
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
+        // Restart activity to apply changes
+        recreate()
     }
 }
 

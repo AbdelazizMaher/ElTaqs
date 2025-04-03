@@ -1,4 +1,4 @@
-package com.example.eltaqs
+package com.example.eltaqs.utils
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -11,7 +11,6 @@ import com.example.eltaqs.data.local.WeatherLocalDataSource
 import com.example.eltaqs.data.remote.WeatherRemoteDataSource
 import com.example.eltaqs.data.repo.WeatherRepository
 import com.example.eltaqs.data.sharedpreference.SharedPrefDataSource
-import com.example.eltaqs.utils.restartActivity
 import com.example.eltaqs.utils.settings.enums.Language
 import java.util.Locale
 

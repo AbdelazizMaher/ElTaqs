@@ -53,11 +53,10 @@ fun createNotification(
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val openIntent = Intent(context, AlarmBroadcastReceiver::class.java).apply {
-        putExtra("ALARM_ID", alarmId)
-        putExtra("ALARM_ACTION", "OPEN")
+    val openIntent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     }
-    val openPendingIntent = PendingIntent.getBroadcast(
+    val openPendingIntent = PendingIntent.getActivity(
         context,
         alarmId + 10, 
         openIntent,

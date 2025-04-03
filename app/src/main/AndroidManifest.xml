@@ -38,7 +38,7 @@
             android:enabled="true"
             android:exported="true" />
         <receiver
-            android:name=".LanguageChangeReceiver"
+            android:name=".utils.LanguageChangeReceiver"
             android:enabled="true"
             android:exported="true" />
 

@@ -6,8 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.eltaqs.utils.LanguageChangeReceiver
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.net.PlacesClient
 
 class WeatherApp : Application() {
     @SuppressLint("InlinedApi")

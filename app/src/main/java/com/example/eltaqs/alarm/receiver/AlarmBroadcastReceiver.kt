@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.eltaqs.MainActivity
+import com.example.eltaqs.SplashActivity
 import com.example.eltaqs.utils.createNotification
 import com.example.eltaqs.utils.MediaPlayerFacade
 import com.example.eltaqs.alarm.manager.AlarmScheduler
@@ -29,7 +30,7 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
         if (alarmId == -1) return
 
         val action = intent.getStringExtra("ALARM_ACTION") ?: "START"
-
+        Log.d("AlarmBroadcastReceiver", "Alarm action: $action")
         val repository = WeatherRepository.getInstance(
             WeatherRemoteDataSource(RetrofitHelper.apiService),
             WeatherLocalDataSource(AppDataBase.getInstance(context).getFavouritesDAO()),
@@ -43,7 +44,8 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
                 "SNOOZE" -> handleAlarmSnooze(context, alarmId, repository)
                 "OPEN" -> {
                     handleAlarmStop(context, intent, alarmId, repository)
-                    val mainIntent = Intent(context, MainActivity::class.java).apply {
+                    Log.d("AlarmBroadcastReceiver", "Alarm opened")
+                    val mainIntent = Intent(context, SplashActivity::class.java).apply {
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     }
                     context.startActivity(mainIntent)
@@ -127,7 +129,7 @@ class AlarmBroadcastReceiver : BroadcastReceiver() {
     }
 
     fun formatMillisToTime(millis: Long): String {
-        val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())  // Use 'hh' for 12-hour format
-        return sdf.format(Date(millis))  // Convert millis to Date before formatting
+        val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return sdf.format(Date(millis))
     }
 }

@@ -47,5 +47,10 @@
     <string name="save_location">Save Location</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="alarms">Here are your Alarms</string>
+    <string name="snooze_1_min">Snooze (1 min)</string>
+    <string name="open">Open</string>
+    <string name="alarm_weather_awaits">Alarm: Weather awaits!</string>
+    <string name="no_description_available">No description available</string>
+    <string name="current_weather">Current weather: %1$s</string>
 
 </resources>

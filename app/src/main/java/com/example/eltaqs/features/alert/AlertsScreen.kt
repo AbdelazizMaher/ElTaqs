@@ -2,6 +2,7 @@ package com.example.eltaqs.features.alert
 
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -269,7 +270,6 @@ fun BottomSheetCompose(
     val coroutineScope = rememberCoroutineScope()
 
     var selectedOption by remember { mutableStateOf("Alarm") }
-
     var selectedDate by remember { mutableStateOf<Long?>(null) }
     var startDuration by remember { mutableStateOf("") }
     var endDuration by remember { mutableStateOf("") }
@@ -408,8 +408,17 @@ fun BottomSheetCompose(
                             endError = context.getString(R.string.end_time_is_required)
                         } else {
                             val id = System.currentTimeMillis().toInt()
-                            viewModel.insertAlarm(Alarm(id, startDuration, endDuration, selectedDate!!))
-                            alarmScheduler.scheduleAlarm(Alarm(id, startDuration, endDuration, selectedDate!!))
+                            val alarm = Alarm(id, startDuration, endDuration, selectedDate!!)
+
+                            viewModel.insertAlarm(alarm)
+
+                            if (selectedOption == context.getString(R.string.alarm)) {
+                                alarmScheduler.scheduleAlarm(alarm)
+                            } else {
+                                Log.d("TAG", "Notification selected")
+                                alarmScheduler.scheduleNotification(alarm)
+                            }
+
                             coroutineScope.launch { modalBottomSheetState.hide(); showBottomSheet.value = false }
                         }
                     },

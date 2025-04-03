@@ -8,5 +8,5 @@ interface IAlarmScheduler {
     fun cancelAlarm(alarm: Alarm)
     fun scheduleSnoozeAlarm(alarm: Alarm, snoozeMinutes: Int)
 
-    fun scheduleNotification(context: Context, alarmId: Int, endDelay: Long)
+    fun scheduleNotification(alarm : Alarm)
 }

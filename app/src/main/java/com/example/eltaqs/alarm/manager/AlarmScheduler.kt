@@ -13,9 +13,7 @@ import com.example.eltaqs.alarm.worker.AlertsWorker
 import com.example.eltaqs.alarm.receiver.AlarmBroadcastReceiver
 import com.example.eltaqs.data.model.Alarm
 import com.example.eltaqs.utils.parseDateTimeToMillis
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class AlarmScheduler(val context: Context) : IAlarmScheduler {
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -48,7 +46,6 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
         )
 
         val alarmTime = parseDateTimeToMillis(alarm.date, alarm.startTime)
-        Log.d("AlarmScheduler", "Alarm scheduled for ${alarm.startTime} at ${alarm.endTime}")
         val endTime = parseDateTimeToMillis(alarm.date, alarm.endTime)
         val cancelTime = alarmTime + (endTime - alarmTime)
 
@@ -118,17 +115,33 @@ class AlarmScheduler(val context: Context) : IAlarmScheduler {
     }
 
 
-    override fun scheduleNotification(context: Context, alarmId: Int, endDelay: Long) {
-        val inputData = workDataOf(
+    override fun scheduleNotification(alarm : Alarm) {
+        val alarmId = alarm.id
+        val alarmTime = parseDateTimeToMillis(alarm.date, alarm.startTime)
+        val endTime = parseDateTimeToMillis(alarm.date, alarm.endTime)
+        val cancelTime = alarmTime + (endTime - alarmTime)
+
+        val startInputData = workDataOf(
             "alarmId" to alarmId,
-            "endDelay" to endDelay
+            "action" to "start"
         )
 
-        val workRequest = OneTimeWorkRequestBuilder<AlertsWorker>()
-            .setInputData(inputData)
+        val endInputData = workDataOf(
+            "alarmId" to alarmId,
+            "action" to "stop"
+        )
+
+        val startWorkRequest = OneTimeWorkRequestBuilder<AlertsWorker>()
+            .setInitialDelay(alarmTime, TimeUnit.MILLISECONDS)
+            .setInputData(startInputData)
             .build()
 
-        WorkManager.getInstance(context).enqueue(workRequest)
-    }
+        val endWorkRequest = OneTimeWorkRequestBuilder<AlertsWorker>()
+            .setInitialDelay(cancelTime, TimeUnit.MILLISECONDS)
+            .setInputData(endInputData)
+            .build()
 
+        WorkManager.getInstance(context).enqueue(startWorkRequest)
+        WorkManager.getInstance(context).enqueue(endWorkRequest)
+    }
 }

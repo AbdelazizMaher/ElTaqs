@@ -60,7 +60,6 @@ class MainActivity : ComponentActivity() {
         Log.d("TAG", "onCreate: ${SharedPrefDataSource.getInstance(this).getLanguage().apiCode}")
         applyLanguage(SharedPrefDataSource.getInstance(this).getLanguage().apiCode)
 
-
         val intentFilterReceiver = IntentFilter("ACTION")
         registerReceiver(
             AlarmBroadcastReceiver(), intentFilterReceiver,
@@ -153,19 +152,6 @@ class MainActivity : ComponentActivity() {
 
     }
 
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray,
-//        deviceId: Int
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId)
-//        Log.d("TAG", "onRequestPermissionsResult: called")
-//        locationProvider.handlePermissionResult(requestCode, grantResults, this) { location ->
-//            SharedPrefDataSource.getInstance(this@MainActivity).setMapCoordinates(location.latitude, location.longitude)
-//        }
-//    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -186,16 +172,6 @@ class MainActivity : ComponentActivity() {
         val config = resources.configuration
         config.setLocale(locale)
         resources.updateConfiguration(config, resources.displayMetrics)
-    }
-
-    private fun updateAppLanguage(locale: Locale) {
-        // Update your app's language configuration
-        val config = resources.configuration
-        config.setLocale(locale)
-        resources.updateConfiguration(config, resources.displayMetrics)
-
-        // Restart activity to apply changes
-        recreate()
     }
 }
 

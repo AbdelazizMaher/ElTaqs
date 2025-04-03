@@ -48,4 +48,9 @@
     <string name="save_location">حفظ الموقع</string>
     <string name="no_internet_connection">لا يوجد اتصال بالإنترنت</string>
     <string name="alarms">إليك منبهاتك</string>
+    <string name="snooze_1_min">غفوة (دقيقة واحدة)</string>
+    <string name="open">فتح</string>
+    <string name="alarm_weather_awaits">المنبه: الطقس في انتظارك!</string>
+    <string name="no_description_available">لا يوجد وصف متاح</string>
+    <string name="current_weather">الطقس الحالي: %1$s</string>
 </resources>

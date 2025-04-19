@@ -6,14 +6,14 @@ An Android mobile application that displays **`real-time weather updates`** for 
 
 ## Features
 
-- 🌦 Get current weather, temperature, humidity, pressure, wind speed, and more
-- 🌍 Choose location using GPS, map selection, or search with autocomplete
-- ❤️ Add favorite places and access weather forecasts for them
-- 🔔 Set custom alerts for specific weather conditions
-- 📈 View past hourly and daily weather information
-- ⚙️ Choose between temperature units: Celsius, Fahrenheit, Kelvin
-- 🌬 Choose wind speed units: m/s or mph
-- 🌐 Support for English and Arabic languages
+- 🌦 Get current `weather`, `temperature`, `humidity`, `pressure`, `wind speed`, and more
+- 🌍 Choose location using `GPS, map selection`, or search with `autocomplete`
+- ❤️ Add `favorite places` and access weather forecasts for them
+- 🔔 Set `custom alerts` for specific weather conditions
+- 📈 View `past hourly` and `daily weather` information
+- ⚙️ Choose between temperature units: `Celsius, Fahrenheit, Kelvin`
+- 🌬 Choose wind speed units: `m/s or mph`
+- 🌐 Support for `English` and `Arabic` languages
 
 ---
 
@@ -31,26 +31,26 @@ An Android mobile application that displays **`real-time weather updates`** for 
 
 ### 🚨 Weather Alerts Screen
 - Add `weather alerts` based on type (e.g., rain, wind, fog, temperature).
-- Set alert duration and notification style (silent or with alarm sound).
+- Set `alert duration` and `notification` style (silent or with alarm sound).
 - Option to `stop or remove` active alerts.
 
 ### ⭐ Favorite Locations Screen
-- List of saved favorite places.
-- Tap any location to see its weather forecast.
-- Add new places via map or search bar.
+- List of `saved favorite` places.
+- Tap any `location` to see its weather forecast.
+- Add new places via `map or search bar`.
 - Remove locations from the favorites list.
 
 ---
 
 ## Tech Stack & Tools
 
-- **Kotlin** – Primary development language
-- **MVVM Architecture** – Clean separation of concerns
-- **Retrofit** – Network layer for API calls
-- **Room Database** – Local storage for favorite places and alerts
-- **Coroutines** – Asynchronous operations
-- **WorkManager** – Background tasks and alert scheduling
-- **Google Maps & Places SDK** – Map interaction and location autocomplete
+- **`Kotlin`** – Primary development language
+- **`MVVM Architecture`** – Clean separation of concerns
+- **`Retrofit`** – Network layer for API calls
+- **`Room Database`** – Local storage for favorite places and alerts
+- **`Coroutines`** – Asynchronous operations
+- **`WorkManager`** – Background tasks and alert scheduling
+- **`Google Maps & Places SDK`** – Map interaction and location autocomplete
 
 ---
 

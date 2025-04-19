@@ -1,6 +1,6 @@
 # Weather Forecast App
 
-An Android mobile application that displays real-time weather updates for your current location or any selected location on the map. You can add favorite places, receive alerts about severe weather conditions, and switch between various display units and languages.
+An Android mobile application that displays **`real-time weather updates`** for your current location or any selected location on the map. You can add `favorite places`, `receive alerts` about severe weather conditions, and switch between various `display units and languages`.
 
 ---
 
@@ -20,19 +20,19 @@ An Android mobile application that displays real-time weather updates for your c
 ## Screens
 
 ### 🔧 Settings Screen
-- Select your preferred temperature and wind units.
-- Switch between English and Arabic.
-- Choose location method: GPS or manual map selection.
+- Select your preferred `temperature` and `wind` units.
+- Switch between `English` and `Arabic`.
+- Choose location method: `GPS` or `manual map` selection.
 
 ### 🏠 Home Screen
-- View current weather details such as temperature, humidity, wind speed, pressure, and weather conditions.
-- Displays icons and descriptions (e.g., clear sky, rain).
-- Includes past hourly data for today and daily data for the past 5 days.
+- View current weather details such as `temperature, humidity, wind speed, pressure, and weather conditions`.
+- Displays `icons` and `descriptions` (e.g., clear sky, rain).
+- Includes past `hourly data for today` and `daily data` for the past 5 days.
 
 ### 🚨 Weather Alerts Screen
-- Add weather alerts based on type (e.g., rain, wind, fog, temperature).
+- Add `weather alerts` based on type (e.g., rain, wind, fog, temperature).
 - Set alert duration and notification style (silent or with alarm sound).
-- Option to stop or remove active alerts.
+- Option to `stop or remove` active alerts.
 
 ### ⭐ Favorite Locations Screen
 - List of saved favorite places.
@@ -58,4 +58,4 @@ An Android mobile application that displays real-time weather updates for your c
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/weather-forecast-app.git
+git clone https://github.com/AbdelazizMaher/ElTaqs.git
